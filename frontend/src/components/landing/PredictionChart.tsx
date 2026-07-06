@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import {
   Chart as ChartJS,
+  LineController,
   CategoryScale,
   LinearScale,
   PointElement,
@@ -13,7 +14,7 @@ import {
   Filler,
 } from 'chart.js';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
+ChartJS.register(LineController, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
 export default function PredictionChart() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
