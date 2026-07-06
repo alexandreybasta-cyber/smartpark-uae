@@ -1,13 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 const NAV_LINKS = [
-  { label: 'Live Demo', href: '#demo' },
+  { label: 'Live Demo', href: '/demo' },
   { label: 'AI Agents', href: '#agents' },
   { label: 'Sensors', href: '#sensors' },
   { label: 'Architecture', href: '#architecture' },
   { label: 'Predictions', href: '#predict' },
+  { label: 'Places', href: '/places' },
+  { label: 'Analytics', href: '/analytics' },
 ];
 
 export default function Navbar() {
@@ -48,13 +51,22 @@ export default function Navbar() {
         <ul className="hidden md:flex gap-8 list-none">
           {NAV_LINKS.map((link) => (
             <li key={link.href}>
-              <a
-                href={link.href}
-                onClick={(e) => handleClick(e, link.href)}
-                className="text-sp-text-2 no-underline text-sm font-medium hover:text-sp-cyan transition-colors"
-              >
-                {link.label}
-              </a>
+              {link.href.startsWith('#') ? (
+                <a
+                  href={link.href}
+                  onClick={(e) => handleClick(e, link.href)}
+                  className="text-sp-text-2 no-underline text-sm font-medium hover:text-sp-cyan transition-colors"
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  href={link.href}
+                  className="text-sp-text-2 no-underline text-sm font-medium hover:text-sp-cyan transition-colors"
+                >
+                  {link.label}
+                </Link>
+              )}
             </li>
           ))}
         </ul>

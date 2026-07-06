@@ -1,6 +1,7 @@
 'use client';
 
 import { useScrollReveal } from './useScrollReveal';
+import Link from 'next/link';
 
 const STATS = [
   { value: '2,400', unit: '+', label: 'Active Sensors' },
@@ -11,11 +12,6 @@ const STATS = [
 
 export default function Hero() {
   const ref = useScrollReveal<HTMLElement>();
-
-  const handleCTA = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    document.querySelector('#demo')?.scrollIntoView({ behavior: 'smooth' });
-  };
 
   return (
     <section ref={ref} className="relative min-h-screen flex items-center justify-center text-center overflow-hidden pt-[120px] pb-20 px-8">
@@ -53,16 +49,15 @@ export default function Hero() {
         </p>
 
         <div className="flex gap-4 justify-center flex-wrap">
-          <a
-            href="#demo"
-            onClick={handleCTA}
+          <Link
+            href="/demo"
             className="px-8 py-3.5 rounded-xl text-[15px] font-semibold bg-sp-cyan text-sp-bg-0 inline-flex items-center gap-2 hover:-translate-y-0.5 hover:shadow-[0_8px_32px_rgba(0,229,160,0.25)] transition-all no-underline"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <polygon points="5 3 19 12 5 21 5 3" />
             </svg>
             See Live Demo
-          </a>
+          </Link>
           <a
             href="#architecture"
             onClick={(e) => {
