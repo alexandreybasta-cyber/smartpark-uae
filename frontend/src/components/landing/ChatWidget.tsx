@@ -12,7 +12,7 @@ interface Message {
 const SUGGESTIONS = [
   'Where can I park right now?',
   'When is peak hour?',
-  'Show zone comparison',
+  'How does enforcement work?',
   'Predict next 2 hours',
 ];
 
@@ -25,6 +25,8 @@ const RESPONSES: Record<string, string> = {
     '<span class="inline-block px-2 py-0.5 rounded bg-sp-cyan/15 text-sp-cyan font-mono text-xs font-semibold">Zone A: 9/16 free (56%)</span><br/><span class="inline-block px-2 py-0.5 rounded bg-sp-cyan/15 text-sp-cyan font-mono text-xs font-semibold">Zone B: 11/16 free (69%)</span><br/><span class="inline-block px-2 py-0.5 rounded bg-sp-cyan/15 text-sp-cyan font-mono text-xs font-semibold">Zone C: 6/16 free (38%)</span><br/><br/>Zone B currently offers the best availability.',
   predict:
     'Prediction for next 2 hours:<br/><br/><span class="inline-block px-2 py-0.5 rounded bg-sp-cyan/15 text-sp-cyan font-mono text-xs font-semibold">Current: 62%</span> → Expected to rise to <span class="inline-block px-2 py-0.5 rounded bg-sp-cyan/15 text-sp-cyan font-mono text-xs font-semibold">78%</span> in 2 hours.<br/><br/>Recommendation: Park within the next <strong>30 minutes</strong> for best selection.',
+  'enforcement':
+    'SmartPark\'s sensors detect vehicle occupancy and cross-reference with <strong>Parkin\'s payment database</strong> in real-time:<br/><br/><span class="inline-block px-2 py-0.5 rounded bg-red-500/15 text-red-500 font-mono text-xs font-semibold">1. Sensor detects car</span> → <span class="inline-block px-2 py-0.5 rounded bg-red-500/15 text-red-500 font-mono text-xs font-semibold">2. Check payment</span> → <span class="inline-block px-2 py-0.5 rounded bg-red-500/15 text-red-500 font-mono text-xs font-semibold">3. Flag unpaid</span><br/><br/>No manual inspectors needed. Covers <strong>100% of monitored streets 24/7</strong>.',
 };
 
 function getResponse(text: string): string {

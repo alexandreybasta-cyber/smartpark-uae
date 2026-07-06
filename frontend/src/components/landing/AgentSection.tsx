@@ -54,6 +54,18 @@ const AGENTS = [
     subtitle: 'Conversational navigation interface',
     desc: 'Natural-language interface integrated with Parkin and RTA apps. Guides drivers to the nearest available spot, answers questions about availability, and proactively suggests alternatives.',
   },
+  {
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-sp-red, #ef4444)" strokeWidth="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        <path d="M12 8v4M12 16h.01" />
+      </svg>
+    ),
+    iconBg: 'bg-red-500/15',
+    title: 'Enforcement Agent',
+    subtitle: 'Automated violation detection',
+    desc: 'Detects occupied spots, cross-checks payment status with Parkin. Flags unpaid vehicles automatically — no inspectors needed. Covers 100% of monitored streets 24/7.',
+  },
 ];
 
 export default function AgentSection() {
@@ -66,10 +78,10 @@ export default function AgentSection() {
         Agentic Intelligence
       </span>
       <h2 className="text-[clamp(28px,4vw,44px)] font-extrabold leading-[1.15] tracking-[-0.02em] mb-4">
-        Four AI agents that think,<br />coordinate, and predict.
+        Five AI agents that think,<br />coordinate, and enforce.
       </h2>
       <p className="text-base text-sp-text-2 max-w-[600px] leading-relaxed">
-        The agentic layer is where SmartPark becomes intelligent. Four specialized agents work together — on-device, at zone level, across the city, and in conversation with drivers.
+        The agentic layer is where SmartPark becomes intelligent. Five specialized agents work together — on-device, at zone level, across the city, in conversation with drivers, and enforcing parking compliance.
       </p>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-12 items-start">
@@ -78,7 +90,7 @@ export default function AgentSection() {
           {AGENTS.map((agent) => (
             <div
               key={agent.title}
-              className="p-6 bg-sp-bg-2/70 border border-white/[0.08] rounded-2xl transition-all hover:border-white/15"
+              className="p-6 bg-sp-bg-2 border border-emerald-200 rounded-2xl transition-all hover:border-emerald-300 shadow-sm"
             >
               <div className="flex items-center gap-3 mb-2.5">
                 <div className={`w-10 h-10 rounded-[10px] flex items-center justify-center ${agent.iconBg}`}>

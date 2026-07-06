@@ -39,10 +39,19 @@ be done next, in priority order, to be hackathon-ready (Qwen Cloud Challenge / E
    This is the leftover the product owner keeps flagging. Replace it (the `/demo` Leaflet street map
    embedded in a frame, or a street-grid SVG version of it).
 
-4. **No mobile app exists.** No React Native project, no PWA manifest, no service worker.
-   Spec §2 calls the product "phone-first". Cheapest credible path: make the Next.js app a PWA
-   (manifest.json + icons + viewport/theme meta + optional service worker) and present `/demo`
-   inside a phone frame on the landing page.
+4. **[RESOLVED 2026-07-07] iOS app now exists** — `mobile/` is an Expo (React Native) app,
+   built after this audit. Four tabs: Map (Apple Maps, zone polygons, live spot dots via
+   `WS /ws/spots`), Agent (chat → `POST /api/agent/text`, animated reasoning steps, map card,
+   TTS via expo-speech), Places (backend CRUD via `/api/places`), Insights (SVG prediction chart
+   from `/api/predict/{zone_id}` + zone comparison). It derives the backend host from the Expo
+   dev-server URI, so a phone on the same Wi-Fi connects automatically; if the backend is
+   unreachable it falls back to an on-device simulator + local agent using the SAME scoring
+   logic and live-computed numbers (badge shows "OFFLINE DEMO"). Run: `cd mobile && npx expo start`,
+   scan QR with Expo Go on iPhone. Verified: `tsc --noEmit` clean, `expo export --platform ios`
+   bundles clean, all five consumed endpoints + WebSocket smoke-tested against the running backend.
+   Remaining mobile gaps: mic button is a placeholder (real STT needs an Expo dev build with a
+   native speech module — cannot run in Expo Go), no app icon/splash artwork yet, and the mobile
+   app is the FIRST real consumer of the backend — the web frontend is still disconnected (gap #1).
 
 5. **Two divergent data models.** Frontend zones: 312/314/315 "Street 2A — DIC" (pricing types A/B/C, RTA style).
    Backend zones: autoincrement ids 1/2/3 "DIC Parking Zone A/B/C" (pricing_type "hourly"). Spot id formats
@@ -114,10 +123,13 @@ be done next, in priority order, to be hackathon-ready (Qwen Cloud Challenge / E
   "SmartPark: 7/18 free · nearest Spot 312-05 (~30m)" + mock "Pay with Parkin" deep link.
 - Landing copy must match reality: only claim Qwen/agentic once P2 is actually done.
 
-### P4 — "App" credibility
-- PWA: `public/manifest.json`, icons, `theme-color`, standalone display; verify installable on a phone.
-- Phone-frame section on the landing page showing `/demo` (the spec's §7.2).
-- Add TTS via `speechSynthesis.speak()` for agent responses (few lines, big demo effect).
+### P4 — "App" credibility [PARTIALLY DONE — iOS app exists in `mobile/`]
+- DONE: Expo iOS app with map, agent chat, TTS, places, insights (see gap #4 above).
+- Remaining: app icon/splash for `mobile/assets/`; phone-frame section on the landing page
+  (spec §7.2) — can show screen recordings of the real iOS app now instead of mockups;
+  TTS on the WEB voice widget via `speechSynthesis.speak()` (mobile already has TTS).
+- When P2 lands (real Qwen agent in the backend), the iOS app gets it for free — it already
+  calls `POST /api/agent/text`. Do not change that contract.
 
 ### P5 — Packaging
 - `docker-compose.yml` (backend + frontend) or a single Dockerfile per spec Phase 7.

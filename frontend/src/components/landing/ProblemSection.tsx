@@ -33,8 +33,19 @@ const PROBLEMS = [
       </svg>
     ),
     iconBg: 'bg-sp-purple/15',
-    title: 'Malls Are Blind Spots',
-    desc: 'Indoor parking garages across Dubai Mall, MOE, and Yas Mall have zero visibility. Thousands of spots, no real-time data, no guidance.',
+    title: 'Street Parking Is Invisible',
+    desc: 'No way to know which block has open spots until you drive past. Drivers circle entire districts hoping for luck — wasting fuel and time with zero predictive guidance.',
+  },
+  {
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        <path d="M9 12l2 2 4-4" />
+      </svg>
+    ),
+    iconBg: 'bg-red-500/15',
+    title: 'Manual Enforcement Fails',
+    desc: 'Inspectors can\'t cover every street — violators go undetected. Cities lose millions in unpaid parking revenue while paying for expensive manual patrols that cover only a fraction of spots.',
   },
 ];
 
@@ -54,11 +65,11 @@ export default function ProblemSection() {
         In Dubai and Abu Dhabi, drivers spend an average of 20 minutes circling for spots — burning fuel, increasing emissions, and losing time. Existing solutions rely on expensive cameras and wired sensors that need constant maintenance.
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-12">
         {PROBLEMS.map((p) => (
           <div
             key={p.title}
-            className="bg-sp-bg-2/70 border border-white/[0.08] rounded-2xl p-7 transition-all hover:border-white/15 hover:-translate-y-1"
+            className="bg-sp-bg-2 border border-emerald-200 rounded-2xl p-7 transition-all hover:border-emerald-300 hover:-translate-y-1 shadow-sm"
           >
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-[22px] mb-4 ${p.iconBg}`}>
               {p.icon}

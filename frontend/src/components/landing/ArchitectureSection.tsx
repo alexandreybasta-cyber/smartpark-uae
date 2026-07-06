@@ -9,6 +9,7 @@ const NODES = [
   { icon: '🖥️', title: 'Zone Gateway', sub: 'Raspberry Pi · Zone Agent' },
   { icon: '☁️', title: 'Alibaba Cloud', sub: 'IoT · Qwen · PolarDB', highlight: true },
   { icon: '📱', title: 'Driver App', sub: 'Parkin · RTA · Maps' },
+  { icon: '🛡️', title: 'Enforcement System', sub: 'Fines · Violations · 24/7' },
 ];
 
 export default function ArchitectureSection() {
