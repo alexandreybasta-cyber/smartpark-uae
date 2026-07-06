@@ -1,0 +1,11 @@
+export { default as Navbar } from './Navbar';
+export { default as Hero } from './Hero';
+export { default as ProblemSection } from './ProblemSection';
+export { default as InteractiveDemo } from './InteractiveDemo';
+export { default as AgentSection } from './AgentSection';
+export { default as ChatWidget } from './ChatWidget';
+export { default as HardwareSection } from './HardwareSection';
+export { default as ArchitectureSection } from './ArchitectureSection';
+export { default as PredictionChart } from './PredictionChart';
+export { default as TechStackSection } from './TechStackSection';
+export { default as Footer } from './Footer';
