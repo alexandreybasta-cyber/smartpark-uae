@@ -17,7 +17,24 @@ const ZONES = [
   { id: 'c', label: 'Zone C — Near Elevators', prefix: 'C' },
 ];
 
-function initSpots(): SpotData[] {
+function initSpotsDeterministic(): SpotData[] {
+  const spots: SpotData[] = [];
+  // Deterministic initial state to avoid hydration mismatch
+  const pattern: SpotState[] = ['occupied', 'free', 'occupied', 'occupied', 'reserved', 'occupied', 'free', 'occupied',
+    'occupied', 'occupied', 'free', 'occupied', 'occupied', 'occupied', 'reserved', 'occupied'];
+  ZONES.forEach((zone) => {
+    for (let row = 1; row <= 2; row++) {
+      for (let col = 1; col <= 8; col++) {
+        const id = `${zone.prefix}${row}${String(col).padStart(2, '0')}`;
+        const idx = ((row - 1) * 8 + (col - 1)) % pattern.length;
+        spots.push({ id, zone: zone.id, status: pattern[idx] });
+      }
+    }
+  });
+  return spots;
+}
+
+function initSpotsRandom(): SpotData[] {
   const spots: SpotData[] = [];
   ZONES.forEach((zone) => {
     for (let row = 1; row <= 2; row++) {
@@ -34,11 +51,16 @@ function initSpots(): SpotData[] {
 
 export default function InteractiveDemo() {
   const sectionRef = useScrollReveal<HTMLElement>();
-  const [spots, setSpots] = useState<SpotData[]>(() => initSpots());
+  const [spots, setSpots] = useState<SpotData[]>(initSpotsDeterministic);
   const [speed, setSpeed] = useState(1);
   const [running, setRunning] = useState(true);
   const [changingIds, setChangingIds] = useState<Set<string>>(new Set());
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // After hydration, randomize spots client-side only
+  useEffect(() => {
+    setSpots(initSpotsRandom());
+  }, []);
 
   const simulateTick = useCallback(() => {
     setSpots((prev) => {
@@ -90,7 +112,10 @@ export default function InteractiveDemo() {
 
   const nearestFree = spots.find((s) => s.status === 'free');
   const nearestId = nearestFree?.id ?? 'Full';
-  const nearestDist = nearestFree ? `~${12 + Math.floor(Math.random() * 30)}m from entrance` : 'Try Zone B or Level P3';
+  // Use deterministic distance based on spot id to avoid hydration mismatch
+  const nearestDist = nearestFree
+    ? `~${12 + (nearestFree.id.charCodeAt(1) * 7) % 30}m from entrance`
+    : 'Try Zone B or Level P3';
 
   const zoneStats = ZONES.map((z) => {
     const zoneSpots = spots.filter((s) => s.zone === z.id);
