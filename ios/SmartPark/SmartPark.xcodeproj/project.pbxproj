@@ -13,6 +13,11 @@
 		A1000004 /* DesignTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000004 /* DesignTokens.swift */; };
 		A1000005 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000005 /* Extensions.swift */; };
 		A1000006 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B1000006 /* Assets.xcassets */; };
+		A1000007 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000011 /* APIClient.swift */; };
+		A1000008 /* WebSocketManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000012 /* WebSocketManager.swift */; };
+		A1000009 /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000013 /* LocationService.swift */; };
+		A1000010 /* OfflineSimulator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000014 /* OfflineSimulator.swift */; };
+		A1000011 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000015 /* AppState.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,6 +28,11 @@
 		B1000005 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		B1000006 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B1000010 /* SmartPark.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SmartPark.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B1000011 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		B1000012 /* WebSocketManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketManager.swift; sourceTree = "<group>"; };
+		B1000013 /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
+		B1000014 /* OfflineSimulator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineSimulator.swift; sourceTree = "<group>"; };
+		B1000015 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		B1000020 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -65,6 +75,7 @@
 			children = (
 				B1000001 /* SmartParkApp.swift */,
 				B1000002 /* Configuration.swift */,
+				B1000015 /* AppState.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -80,6 +91,10 @@
 		D1000005 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				B1000011 /* APIClient.swift */,
+				B1000012 /* WebSocketManager.swift */,
+				B1000013 /* LocationService.swift */,
+				B1000014 /* OfflineSimulator.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -189,6 +204,11 @@
 				A1000003 /* ParkingModels.swift in Sources */,
 				A1000004 /* DesignTokens.swift in Sources */,
 				A1000005 /* Extensions.swift in Sources */,
+				A1000007 /* APIClient.swift in Sources */,
+				A1000008 /* WebSocketManager.swift in Sources */,
+				A1000009 /* LocationService.swift in Sources */,
+				A1000010 /* OfflineSimulator.swift in Sources */,
+				A1000011 /* AppState.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
