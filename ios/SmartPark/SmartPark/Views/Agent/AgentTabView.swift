@@ -1,9 +1,11 @@
 import SwiftUI
 import CoreLocation
+import MapKit
 
 struct AgentTabView: View {
     @Environment(AppState.self) private var appState
     @State private var viewModel = AgentViewModel()
+    @State private var speechRecognition = SpeechRecognitionService()
 
     var body: some View {
         NavigationStack {
@@ -15,6 +17,10 @@ struct AgentTabView: View {
                             ForEach(viewModel.messages) { message in
                                 ChatBubble(message: message, onShowOnMap: { coord in
                                     appState.showOnMap(coordinate: coord)
+                                }, onSearchLocation: { text in
+                                    Task {
+                                        await viewModel.searchLocationAndShowOnMap(query: text, appState: appState)
+                                    }
                                 })
                             }
 
@@ -76,13 +82,30 @@ struct AgentTabView: View {
 
     private var inputBar: some View {
         HStack(spacing: DesignTokens.spacingSM) {
+            // Mic button
+            Button(action: toggleRecording) {
+                Image(systemName: speechRecognition.isRecording ? "mic.fill" : "mic")
+                    .font(.title3)
+                    .foregroundColor(speechRecognition.isRecording ? .red : DesignTokens.primaryOrange)
+                    .frame(width: 36, height: 36)
+                    .background(speechRecognition.isRecording ? Color.red.opacity(0.1) : DesignTokens.surfaceBackground)
+                    .clipShape(Circle())
+            }
+
+            // Text field (shows transcription while recording)
             TextField(
                 appState.appMode == .enforcement ? "Ask about violations..." : "Find parking near...",
                 text: $viewModel.inputText
             )
             .textFieldStyle(.roundedBorder)
             .onSubmit { sendMessage() }
+            .onChange(of: speechRecognition.transcribedText) { _, newText in
+                if speechRecognition.isRecording && !newText.isEmpty {
+                    viewModel.inputText = newText
+                }
+            }
 
+            // Send button
             Button(action: sendMessage) {
                 Image(systemName: "arrow.up.circle.fill")
                     .font(.title2)
@@ -103,6 +126,27 @@ struct AgentTabView: View {
                 appMode: appState.appMode,
                 zones: appState.zones
             )
+            // After response, trigger location search on map
+            if appState.appMode == .driver {
+                await viewModel.searchLocationAndShowOnMap(query: text, appState: appState)
+            }
+        }
+    }
+
+    private func toggleRecording() {
+        if speechRecognition.isRecording {
+            speechRecognition.stopRecording()
+            // Use transcribed text as input
+            if !speechRecognition.transcribedText.isEmpty {
+                viewModel.inputText = speechRecognition.transcribedText
+            }
+        } else {
+            Task {
+                let granted = await speechRecognition.requestPermission()
+                if granted {
+                    speechRecognition.startRecording()
+                }
+            }
         }
     }
 }
@@ -112,6 +156,7 @@ struct AgentTabView: View {
 struct ChatBubble: View {
     let message: AgentViewModel.ChatMessage
     let onShowOnMap: (CLLocationCoordinate2D) -> Void
+    let onSearchLocation: ((String) -> Void)?
 
     var body: some View {
         HStack {
@@ -142,6 +187,8 @@ struct ChatBubble: View {
                            let lng = message.response?.mapCard?.lng {
                             onShowOnMap(CLLocationCoordinate2D(latitude: lat, longitude: lng))
                         } else {
+                            // Extract location from message and search
+                            onSearchLocation?(message.text)
                             onShowOnMap(DemoConstants.dubaiInternetCity)
                         }
                     }) {

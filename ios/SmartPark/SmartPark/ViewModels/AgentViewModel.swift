@@ -1,6 +1,7 @@
 import Foundation
 import Observation
 import CoreLocation
+import MapKit
 
 @MainActor
 @Observable
@@ -139,6 +140,37 @@ class AgentViewModel {
             reasoningSteps: ["Scanned \(violations.count) violations", "Filtered \(expired.count) expired grace periods", "Prioritized by duration"],
             mapCard: nil
         )
+    }
+
+    // MARK: - Location Search & Map
+
+    func searchLocationAndShowOnMap(query: String, appState: AppState) async {
+        let locationText = extractLocation(from: query)
+        guard !locationText.isEmpty else { return }
+
+        let request = MKLocalSearch.Request()
+        request.naturalLanguageQuery = locationText
+        request.region = MKCoordinateRegion(
+            center: DemoConstants.dubaiInternetCity,
+            span: MKCoordinateSpan(latitudeDelta: 0.2, longitudeDelta: 0.2)
+        )
+
+        let search = MKLocalSearch(request: request)
+        if let response = try? await search.start(),
+           let item = response.mapItems.first {
+            appState.showOnMap(coordinate: item.placemark.coordinate)
+        }
+    }
+
+    func extractLocation(from query: String) -> String {
+        let lowered = query.lowercased()
+        let keywords = ["near ", "at ", "around ", "close to ", "parking "]
+        for keyword in keywords {
+            if let range = lowered.range(of: keyword) {
+                return String(query[range.upperBound...]).trimmingCharacters(in: .whitespaces)
+            }
+        }
+        return query
     }
 
     func speakLastResponse() {
