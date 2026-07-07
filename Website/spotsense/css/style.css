@@ -75,13 +75,6 @@ img, svg, canvas, video { display: block; max-width: 100%; }
   background: linear-gradient(to bottom, rgba(10,11,12,0.85), transparent);
 }
 .nav__mark { font-weight: 600; font-size: 0.95rem; letter-spacing: 0.06em; }
-.nav__track { font-size: 0.62rem; letter-spacing: 0.2em; color: var(--ink-dim); }
-.nav__cta {
-  font-size: 0.62rem; letter-spacing: 0.18em; color: var(--cyan);
-  border: 1px solid var(--cyan-dim); padding: 0.5rem 0.9rem; border-radius: 2px;
-  transition: background 0.25s, color 0.25s;
-}
-.nav__cta:hover { background: var(--cyan); color: #062a30; }
 
 /* ---------- HERO ---------- */
 .hero { position: relative; }
@@ -435,10 +428,6 @@ img, svg, canvas, video { display: block; max-width: 100%; }
   padding: 2rem clamp(1.5rem, 8vw, 10rem);
   border-top: 1px solid var(--line);
 }
-.footer__badge {
-  font-size: 0.6rem; letter-spacing: 0.22em; color: var(--cyan);
-  border: 1px solid var(--cyan-dim); padding: 0.5rem 0.9rem; border-radius: 2px;
-}
 .footer__fine { font-size: 0.58rem; letter-spacing: 0.14em; color: var(--ink-faint); }
 
 /* ---------- RESPONSIVE ---------- */
@@ -453,7 +442,6 @@ img, svg, canvas, video { display: block; max-width: 100%; }
   .hw, .handoff { grid-template-columns: 1fr; }
   .handoff__copy { order: 2; }
   .impact__grid { grid-template-columns: 1fr; gap: 3rem; }
-  .nav__track { display: none; }
 }
 
 /* ---------- REDUCED MOTION ---------- */
