@@ -86,7 +86,7 @@ export default function NavigationView() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-sp-text-2">SmartPark</span>
+                <span className="text-xs font-semibold text-sp-text-2">SpotSense</span>
                 <span className="text-[10px] text-sp-text-3">now</span>
               </div>
               <p className="text-sm font-medium text-sp-text-1 mt-0.5">

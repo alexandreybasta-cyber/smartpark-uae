@@ -1,4 +1,4 @@
-// SmartPark design tokens — from smartpark-handoff.md §10
+// SpotSense design tokens — see ARCHITECTURE.md
 export const colors = {
   bg0: '#04060b',
   bg1: '#0a0e1a',

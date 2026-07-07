@@ -6,7 +6,7 @@ import { T } from './tokens';
 const LINKS = [
   { href: '#agentic', label: 'Concept' },
   { href: '#usecases', label: 'Use cases' },
-  { href: '#agent', label: 'Patrol Agent' },
+  { href: '#app', label: 'The app' },
   { href: '#schema', label: 'How it works' },
 ];
 
@@ -16,16 +16,16 @@ export default function EnforceNavbar() {
   return (
     <nav
       className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl"
-      style={{ backgroundColor: 'rgba(4,6,11,0.75)', borderBottom: `1px solid ${T.border}` }}
+      style={{ backgroundColor: 'rgba(255,255,255,0.85)', borderBottom: `1px solid ${T.border}` }}
     >
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         <a href="#top" className="flex items-baseline gap-2 no-underline">
           <span className="text-[17px] font-black tracking-tight" style={{ color: T.text1 }}>
-            SmartPark
+            SpotSense
           </span>
           <span
             className="text-[11px] font-bold tracking-[0.2em] px-2 py-0.5 rounded"
-            style={{ color: T.bg0, backgroundColor: T.cyan }}
+            style={{ color: '#ffffff', backgroundColor: T.cyan }}
           >
             AGENTIC IOT
           </span>

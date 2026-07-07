@@ -121,7 +121,7 @@ function DriverMiniDemo() {
     <div className="rounded-2xl p-4 space-y-2.5" style={{ backgroundColor: T.bg0, border: `1px solid ${T.border}` }}>
       <motion.div
         className="ml-auto w-fit max-w-[85%] px-3.5 py-2 rounded-xl rounded-br-sm text-[12.5px]"
-        style={{ backgroundColor: T.blue, color: '#fff' }}
+        style={{ backgroundColor: T.cyan, color: '#fff' }}
         initial={{ opacity: 0, y: 8 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
@@ -137,7 +137,7 @@ function DriverMiniDemo() {
         viewport={{ once: true }}
         transition={{ delay: 1.1 }}
       >
-        Bay <span className="font-mono font-bold" style={{ color: T.cyan }}>314-09</span> is free —
+        Bay <span className="font-mono font-bold" style={{ color: T.green }}>314-09</span> is free —
         2 min walk. Navigating… payment ready in Parkin.
       </motion.div>
     </div>
@@ -149,7 +149,7 @@ function EnforceMiniDemo() {
   return (
     <div className="rounded-2xl p-4 flex items-center gap-4" style={{ backgroundColor: T.bg0, border: `1px solid ${T.border}` }}>
       <div className="flex gap-1.5">
-        {[T.cyan, T.cyan, T.red, T.cyan].map((c, i) => (
+        {[T.green, T.green, T.red, T.green].map((c, i) => (
           <motion.div
             key={i}
             className="w-7 h-11 rounded-md"

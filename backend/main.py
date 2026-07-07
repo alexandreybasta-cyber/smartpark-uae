@@ -31,7 +31,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="SmartPark UAE API",
+    title="SpotSense UAE API",
     description="AI-powered smart parking management for Dubai Internet City",
     version="1.0.0",
     lifespan=lifespan,
@@ -60,4 +60,4 @@ app.websocket("/ws/spots")(websocket_endpoint)
 
 @app.get("/")
 async def root():
-    return {"message": "SmartPark UAE API", "version": "1.0.0", "status": "running"}
+    return {"message": "SpotSense UAE API", "version": "1.0.0", "status": "running"}

@@ -1,18 +1,22 @@
-// Explicit design tokens for the enforcement page (spec §10 dark theme).
-// Deliberately NOT using the shared sp-* Tailwind tokens: those are being
-// re-themed in parallel; this page must render identically regardless.
+// Website tokens — matched to the native iOS app's branding
+// (ios/SmartPark/SmartPark/Utils/DesignTokens.swift): white surfaces,
+// orange #F97316 primary, green/red/amber spot-status colors.
+// Key names are historical (from the dark theme) — values are canonical:
+//   cyan  -> brand orange (primary accent, CTAs)
+//   purple-> deep orange (AI/agent accent, app gradient end)
 export const T = {
-  bg0: '#04060b',
-  bg1: '#0a0e1a',
-  bg2: '#0f1629',
-  bg3: '#151d33',
-  cyan: '#00e5a0',
+  bg0: '#ffffff', // page
+  bg1: '#f8fafc', // surface (app surfaceBackground)
+  bg2: '#ffffff', // cards
+  bg3: '#f1f5f9', // inset fills
+  cyan: '#f97316', // PRIMARY — app orange
   blue: '#3b82f6',
-  amber: '#f59e0b',
-  red: '#ef4444',
-  purple: '#a855f7',
-  text1: '#f1f5f9',
-  text2: '#94a3b8',
-  text3: '#64748b',
-  border: 'rgba(255,255,255,0.08)',
+  amber: '#f59e0b', // reserved / warning
+  red: '#ef4444', // occupied / violation
+  purple: '#ea580c', // AI accent — app orange gradient end
+  green: '#22c55e', // free spot (app spotFree)
+  text1: '#1e293b',
+  text2: '#64748b',
+  text3: '#94a3b8',
+  border: '#e2e8f0', // app borderLight
 } as const;

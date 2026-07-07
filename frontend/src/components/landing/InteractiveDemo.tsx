@@ -149,7 +149,7 @@ export default function InteractiveDemo() {
               <span className="w-2.5 h-2.5 rounded-full bg-green-500" />
             </div>
             <span className="text-[13px] font-semibold text-sp-text-2 ml-2 hidden sm:inline">
-              SmartPark Control Center — Dubai Mall Level P2
+              SpotSense Control Center — Dubai Mall Level P2
             </span>
           </div>
           <div className="flex items-center gap-4">

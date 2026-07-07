@@ -47,7 +47,7 @@ export default function DriverSearch() {
       <div className="text-center">
         <h1 className="text-2xl font-bold text-sp-text-1">Where are you headed?</h1>
         <p className="text-sm text-sp-text-3 mt-1">
-          SmartPark will find a spot when you arrive
+          SpotSense will find a spot when you arrive
         </p>
       </div>
 

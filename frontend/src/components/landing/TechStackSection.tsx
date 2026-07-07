@@ -36,7 +36,7 @@ export default function TechStackSection() {
         Built on Alibaba Cloud.
       </h2>
       <p className="text-base text-sp-text-2 max-w-[600px] leading-relaxed">
-        SmartPark uses the full Alibaba Cloud AI and IoT stack — from device connectivity to Qwen-powered agentic intelligence.
+        SpotSense uses the full Alibaba Cloud AI and IoT stack — from device connectivity to Qwen-powered agentic intelligence.
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-10">

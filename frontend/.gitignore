@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Raw AI-generated video sources — keep only processed web assets in git
+public/videos/raw/

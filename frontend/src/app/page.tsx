@@ -1,4 +1,4 @@
-import { AgenticHero, AgenticConcept, UseCases } from '@/components/agentic';
+import { AgenticHero, AgenticConcept, UseCases, AppShowcase } from '@/components/agentic';
 import {
   EnforceNavbar,
   ConceptSteps,
@@ -8,16 +8,17 @@ import {
   EnforceFooter,
 } from '@/components/enforce';
 
-// SmartPark — agentic IoT for parking. Narrative order for the hackathon:
-// 1. the agentic IoT concept, 2. the two use cases (driver copilot +
-// enforcement), 3. the enforcement deep dive and system schema.
+// SpotSense — agentic IoT for parking. Light theme matching the native iOS
+// app branding (white / orange #F97316). Narrative: agentic IoT concept,
+// the two use cases, the real app, then the enforcement deep dive.
 export default function Home() {
   return (
-    <main className="scroll-smooth" style={{ backgroundColor: '#04060b' }}>
+    <main className="scroll-smooth" style={{ backgroundColor: '#ffffff' }}>
       <EnforceNavbar />
       <AgenticHero />
       <AgenticConcept />
       <UseCases />
+      <AppShowcase />
       <ConceptSteps />
       <SweepComparison />
       <AgentPoliceDemo />

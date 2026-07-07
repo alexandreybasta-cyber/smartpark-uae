@@ -12,7 +12,7 @@ const STAGES = [
     id: 'sense',
     index: '01',
     title: 'SENSE',
-    color: T.cyan,
+    color: T.green,
     heading: 'Every painted bay gets a nervous system',
     body: 'A light-powered ToF sensor sits in each bay. It knows the moment a car arrives — day or night, no cameras, no wiring, no grid power. One bay, one sensor, eleven dollars.',
   },
@@ -28,7 +28,7 @@ const STAGES = [
     id: 'reason',
     index: '03',
     title: 'REASON',
-    color: T.purple,
+    color: T.cyan,
     heading: 'A Qwen agent thinks about every event',
     body: 'This is what makes the IoT agentic. For every occupied bay the agent evaluates context: Is there a Parkin session? How long has it been unpaid? Who needs to know — a driver looking for a spot, or a patrol two streets away?',
   },
@@ -36,7 +36,7 @@ const STAGES = [
     id: 'act',
     index: '04',
     title: 'ACT',
-    color: T.amber,
+    color: T.purple,
     heading: 'Then it acts — on its own',
     body: 'No dashboard-watching. The agent guides a driver to the nearest free bay, or flags a violation and routes the closest patrol. Humans join by voice, in Arabic or English. That is the loop: sense → reason → act.',
   },
@@ -94,7 +94,7 @@ export default function AgenticConcept() {
                   </span>
                   <span
                     className="text-[13px] font-black tracking-[0.4em] font-mono px-3 py-1 rounded"
-                    style={{ color: T.bg0, backgroundColor: s.color }}
+                    style={{ color: '#ffffff', backgroundColor: s.color }}
                   >
                     {s.title}
                   </span>
@@ -152,11 +152,11 @@ function SenseVisual() {
     <div className="relative">
       <div
         className="w-[240px] h-[130px] rounded-xl relative"
-        style={{ border: '2px dashed rgba(255,255,255,0.25)' }}
+        style={{ border: '2px dashed #cbd5e1' }}
       >
         <motion.div
           className="absolute inset-x-5 top-1/2 -translate-y-1/2 h-[58px] rounded-xl"
-          style={{ backgroundColor: T.bg3, border: '1px solid rgba(255,255,255,0.15)' }}
+          style={{ backgroundColor: '#e2e8f0', border: '1px solid #cbd5e1' }}
           initial={{ x: 160, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
@@ -164,8 +164,8 @@ function SenseVisual() {
         <div className="absolute -top-2 left-1/2 -translate-x-1/2">
           <motion.div
             className="w-4 h-4 rounded-full"
-            style={{ backgroundColor: T.cyan }}
-            animate={{ boxShadow: [`0 0 0 0px ${T.cyan}66`, `0 0 0 18px ${T.cyan}00`] }}
+            style={{ backgroundColor: T.green }}
+            animate={{ boxShadow: [`0 0 0 0px ${T.green}66`, `0 0 0 18px ${T.green}00`] }}
             transition={{ duration: 1.6, repeat: Infinity }}
           />
         </div>
@@ -202,14 +202,14 @@ function ConnectVisual() {
       {/* sensors + mesh links */}
       {nodes.map((n, i) => (
         <g key={i}>
-          <motion.circle cx={n.x} cy={n.y} r={7} fill={T.cyan}
+          <motion.circle cx={n.x} cy={n.y} r={7} fill={T.green}
             initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: i * 0.12, type: 'spring' }} />
-          <motion.line x1={n.x} y1={n.y} x2={150} y2={110} stroke={T.cyan} strokeWidth={1} opacity={0.5}
+          <motion.line x1={n.x} y1={n.y} x2={150} y2={110} stroke={T.green} strokeWidth={1} opacity={0.5}
             initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.4 + i * 0.12, duration: 0.4 }} />
         </g>
       ))}
       {/* travelling pulse */}
-      <motion.circle r={3.5} fill={T.cyan}
+      <motion.circle r={3.5} fill={T.green}
         animate={{ cx: [30, 150, 150], cy: [150, 110, 52], opacity: [1, 1, 0] }}
         transition={{ duration: 1.8, repeat: Infinity, repeatDelay: 0.6, times: [0, 0.5, 1] }} />
     </svg>

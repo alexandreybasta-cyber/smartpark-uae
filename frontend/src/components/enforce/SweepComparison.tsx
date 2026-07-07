@@ -4,7 +4,7 @@ import { T } from './tokens';
 import { useReveal } from './useReveal';
 
 // Left: today's ANPR camera car sweeping every street.
-// Right: SmartPark Enforce routing the patrol straight to the flagged bay.
+// Right: SpotSense Enforce routing the patrol straight to the flagged bay.
 export default function SweepComparison() {
   const { ref, visible } = useReveal<HTMLElement>(0.25);
 
@@ -63,7 +63,7 @@ export default function SweepComparison() {
             }}
           >
             <div className="text-[12px] font-bold tracking-[0.2em] mb-2" style={{ color: T.cyan }}>
-              WITH SMARTPARK ENFORCE
+              WITH SPOTSENSE ENFORCE
             </div>
             <h3 className="text-xl font-bold mb-4" style={{ color: T.text1 }}>
               The patrol drives straight to the violation
@@ -92,10 +92,10 @@ function StreetGrid({ mode, animate }: { mode: 'sweep' | 'direct'; animate: bool
     <>
       {/* street grid */}
       {[40, 90, 140].map((y) => (
-        <line key={`h${y}`} x1={10} y1={y} x2={310} y2={y} stroke="rgba(255,255,255,0.10)" strokeWidth={10} />
+        <line key={`h${y}`} x1={10} y1={y} x2={310} y2={y} stroke="#e2e8f0" strokeWidth={10} />
       ))}
       {[60, 160, 260].map((x) => (
-        <line key={`v${x}`} x1={x} y1={20} x2={x} y2={160} stroke="rgba(255,255,255,0.10)" strokeWidth={10} />
+        <line key={`v${x}`} x1={x} y1={20} x2={x} y2={160} stroke="#e2e8f0" strokeWidth={10} />
       ))}
       {/* parked cars along streets */}
       {[
@@ -103,7 +103,7 @@ function StreetGrid({ mode, animate }: { mode: 'sweep' | 'direct'; animate: bool
         [80, 84], [140, 84], [185, 84], [280, 84],
         [95, 134], [175, 134], [205, 134], [290, 134],
       ].map(([x, y], i) => (
-        <rect key={i} x={x} y={y} width={16} height={9} rx={2} fill="rgba(255,255,255,0.22)" />
+        <rect key={i} x={x} y={y} width={16} height={9} rx={2} fill="#cbd5e1" />
       ))}
     </>
   );

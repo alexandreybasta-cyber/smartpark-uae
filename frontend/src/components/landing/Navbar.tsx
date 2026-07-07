@@ -44,7 +44,7 @@ export default function Navbar() {
             <path d="M16 10v12M10 16h12" stroke="#00e5a0" strokeWidth="2.5" strokeLinecap="round" />
             <circle cx="16" cy="16" r="3" fill="#00e5a0" opacity="0.3" />
           </svg>
-          SmartPark
+          SpotSense
         </a>
 
         {/* Links */}

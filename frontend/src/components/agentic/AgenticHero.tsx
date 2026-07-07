@@ -126,18 +126,18 @@ export default function AgenticHero() {
             whileTap={{ scale: 0.98 }}
             href="#agentic"
             className="px-8 py-4 rounded-2xl text-[15px] font-bold no-underline"
-            style={{ backgroundColor: T.cyan, color: T.bg0 }}
+            style={{ backgroundColor: T.cyan, color: '#ffffff', boxShadow: '0 8px 24px rgba(249,115,22,0.35)' }}
           >
             What is agentic IoT?
           </motion.a>
           <motion.a
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.98 }}
-            href="#usecases"
+            href="#app"
             className="px-8 py-4 rounded-2xl text-[15px] font-semibold no-underline"
-            style={{ color: T.text1, border: '1px solid rgba(255,255,255,0.15)', backgroundColor: 'rgba(255,255,255,0.03)' }}
+            style={{ color: T.text1, border: `1px solid ${T.border}`, backgroundColor: T.bg1 }}
           >
-            The two use cases
+            See the app
           </motion.a>
         </motion.div>
 
@@ -164,7 +164,7 @@ export default function AgenticHero() {
       {/* Marquee ticker */}
       <div
         className="relative z-10 py-5 overflow-hidden select-none"
-        style={{ borderTop: `1px solid ${T.border}`, backgroundColor: 'rgba(10,14,26,0.6)' }}
+        style={{ borderTop: `1px solid ${T.border}`, backgroundColor: 'rgba(248,250,252,0.8)' }}
       >
         <motion.div
           className="flex whitespace-nowrap will-change-transform"
@@ -181,7 +181,7 @@ export default function AgenticHero() {
                     style={{ color: i === 3 ? T.cyan : T.text3 }}
                   >
                     {word}
-                    <span style={{ color: T.bg3 }}>◆</span>
+                    <span style={{ color: T.border }}>◆</span>
                   </span>
                 ))
               )}

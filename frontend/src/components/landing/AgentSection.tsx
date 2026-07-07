@@ -81,7 +81,7 @@ export default function AgentSection() {
         Five AI agents that think,<br />coordinate, and enforce.
       </h2>
       <p className="text-base text-sp-text-2 max-w-[600px] leading-relaxed">
-        The agentic layer is where SmartPark becomes intelligent. Five specialized agents work together — on-device, at zone level, across the city, in conversation with drivers, and enforcing parking compliance.
+        The agentic layer is where SpotSense becomes intelligent. Five specialized agents work together — on-device, at zone level, across the city, in conversation with drivers, and enforcing parking compliance.
       </p>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-12 items-start">

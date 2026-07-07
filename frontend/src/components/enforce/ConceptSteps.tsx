@@ -82,7 +82,7 @@ export default function ConceptSteps() {
             <span style={{ color: T.text3 }}>in five automatic steps</span>
           </h2>
           <p className="max-w-[560px] mb-14 text-[15px] leading-relaxed" style={{ color: T.text2 }}>
-            Today, camera cars sweep every street hoping to catch violations. SmartPark Enforce
+            Today, camera cars sweep every street hoping to catch violations. SpotSense Enforce
             inverts that: the bay itself reports the violation, and enforcement drives straight to it.
           </p>
         </div>
@@ -188,8 +188,8 @@ function BayScene({ step }: { step: number }) {
         <div
           className="relative mx-auto w-[260px] h-[130px] rounded-lg transition-colors duration-700"
           style={{
-            border: `2px dashed ${step >= 3 ? T.red : 'rgba(255,255,255,0.25)'}`,
-            backgroundColor: step >= 3 ? 'rgba(239,68,68,0.07)' : 'rgba(255,255,255,0.02)',
+            border: `2px dashed ${step >= 3 ? T.red : '#cbd5e1'}`,
+            backgroundColor: step >= 3 ? 'rgba(239,68,68,0.07)' : '#f8fafc',
           }}
         >
           {/* Sensor */}
@@ -214,8 +214,8 @@ function BayScene({ step }: { step: number }) {
             style={{
               ...layer(0),
               transform: `translateY(-50%) translateX(${step >= 0 ? 0 : 120}px)`,
-              backgroundColor: T.bg3,
-              border: `1px solid rgba(255,255,255,0.15)`,
+              backgroundColor: '#e2e8f0',
+              border: `1px solid #cbd5e1`,
             }}
           >
             <div className="px-2 py-0.5 rounded text-[11px] font-mono font-bold tracking-widest"
@@ -223,8 +223,8 @@ function BayScene({ step }: { step: number }) {
               D 12345
             </div>
             {/* windows */}
-            <div className="absolute left-4 top-2 w-8 h-2.5 rounded-sm" style={{ backgroundColor: 'rgba(255,255,255,0.12)' }} />
-            <div className="absolute right-4 top-2 w-8 h-2.5 rounded-sm" style={{ backgroundColor: 'rgba(255,255,255,0.12)' }} />
+            <div className="absolute left-4 top-2 w-8 h-2.5 rounded-sm" style={{ backgroundColor: '#cbd5e1' }} />
+            <div className="absolute right-4 top-2 w-8 h-2.5 rounded-sm" style={{ backgroundColor: '#cbd5e1' }} />
           </div>
         </div>
 
@@ -275,7 +275,7 @@ function BayScene({ step }: { step: number }) {
           </div>
           <div
             className="flex items-center gap-2 px-4 py-2 rounded-full text-[12.5px] font-bold"
-            style={{ backgroundColor: 'rgba(0,229,160,0.1)', border: `1px solid ${T.cyan}55`, color: T.cyan }}
+            style={{ backgroundColor: 'rgba(34,197,94,0.1)', border: `1px solid ${T.green}55`, color: T.green }}
           >
             ✓ Fine AED 150 issued — confirmation synced from RTA
           </div>

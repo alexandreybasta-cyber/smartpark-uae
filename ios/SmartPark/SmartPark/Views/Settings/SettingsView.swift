@@ -81,7 +81,7 @@ struct SettingsView: View {
                     HStack {
                         Text("AI Engine")
                         Spacer()
-                        Text(appState.appMode == .enforcement ? "Qwen" : "SmartPark Agent")
+                        Text(appState.appMode == .enforcement ? "Qwen" : "SpotSense Agent")
                             .foregroundColor(DesignTokens.textSecondary)
                     }
                 }

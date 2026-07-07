@@ -65,7 +65,7 @@ export default function ParkinMock() {
             <p className="text-[10px] text-sp-text-3">Digital Parking Payment</p>
           </div>
           <div className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-medium border border-emerald-200">
-            SmartPark Integration
+            SpotSense Integration
           </div>
         </div>
 
@@ -230,7 +230,7 @@ export default function ParkinMock() {
 
       <div className="text-center">
         <h2 className="text-xl font-bold text-sp-text-1">Session Complete</h2>
-        <p className="text-sm text-sp-text-3 mt-1">Thank you for using SmartPark</p>
+        <p className="text-sm text-sp-text-3 mt-1">Thank you for using SpotSense</p>
       </div>
 
       {/* Summary Card */}

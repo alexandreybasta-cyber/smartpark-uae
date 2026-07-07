@@ -168,7 +168,7 @@ function ChatLine({ line, shownSteps }: { line: Line; shownSteps: number }) {
 
   if (line.kind === 'alert' || line.kind === 'confirm') {
     const isAlert = line.kind === 'alert';
-    const color = isAlert ? T.red : T.cyan;
+    const color = isAlert ? T.red : T.green;
     return (
       <div
         className={`self-center text-center px-4 py-2 rounded-full text-[12px] font-bold ${base}`}
@@ -183,7 +183,7 @@ function ChatLine({ line, shownSteps }: { line: Line; shownSteps: number }) {
     return (
       <div
         className={`self-end max-w-[80%] px-4 py-2.5 rounded-2xl rounded-br-md text-[14px] ${base}`}
-        style={{ backgroundColor: T.blue, color: '#fff' }}
+        style={{ backgroundColor: T.cyan, color: '#fff' }}
       >
         🎙 {line.text}
       </div>

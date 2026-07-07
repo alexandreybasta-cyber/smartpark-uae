@@ -119,7 +119,7 @@ export default function AgentScreen() {
     >
       <View style={styles.header}>
         <View>
-          <Text style={styles.title}>SmartPark Agent</Text>
+          <Text style={styles.title}>SpotSense Agent</Text>
           <Text style={styles.subtitle}>
             {mode === 'live' ? 'Connected to backend agent' : 'Offline demo agent (on-device)'}
           </Text>

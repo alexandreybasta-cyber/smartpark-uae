@@ -8,7 +8,7 @@ struct ProximityBanner: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            // SmartPark icon
+            // SpotSense icon
             ZStack {
                 Circle()
                     .fill(DesignTokens.primaryOrange)
@@ -20,7 +20,7 @@ struct ProximityBanner: View {
             
             VStack(alignment: .leading, spacing: 2) {
                 HStack {
-                    Text("SmartPark")
+                    Text("SpotSense")
                         .font(.subheadline.bold())
                         .foregroundColor(DesignTokens.textPrimary)
                     Spacer()

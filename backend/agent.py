@@ -238,7 +238,7 @@ async def handle_pay(request: AgentTextRequest, session: AsyncSession) -> AgentT
 async def handle_general(request: AgentTextRequest, session: AsyncSession) -> AgentTextResponse:
     """Handle general/unknown intent."""
     return AgentTextResponse(
-        text="I'm SmartPark AI — I can help you find parking, predict availability, compare zones, navigate to spots, or handle payments. What would you like to do?",
+        text="I'm SpotSense AI — I can help you find parking, predict availability, compare zones, navigate to spots, or handle payments. What would you like to do?",
         reasoning_steps=["No specific intent detected", "Returning general help message"]
     )
 

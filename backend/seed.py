@@ -1,4 +1,4 @@
-"""Database seeding script for SmartPark UAE demo data."""
+"""Database seeding script for SpotSense UAE demo data."""
 import json
 import random
 from datetime import datetime, timezone, timedelta

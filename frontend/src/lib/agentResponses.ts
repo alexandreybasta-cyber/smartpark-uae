@@ -123,7 +123,7 @@ export function processQuery(query: string, savedPlaces: SavedPlace[]): AgentRes
   // enforcement: "enforce" or "fine" or "paid" or "violation" or "inspector"
   if (q.includes('enforce') || q.includes('fine') || q.includes('paid') || q.includes('violation') || q.includes('inspector')) {
     return {
-      text: 'SmartPark\'s sensors detect vehicle occupancy in real-time and cross-reference with Parkin\'s payment database. When a spot is occupied without active payment, the system automatically flags it for enforcement — eliminating the need for manual inspectors. This covers 100% of monitored streets 24/7.',
+      text: 'SpotSense\'s sensors detect vehicle occupancy in real-time and cross-reference with Parkin\'s payment database. When a spot is occupied without active payment, the system automatically flags it for enforcement — eliminating the need for manual inspectors. This covers 100% of monitored streets 24/7.',
       reasoningSteps: [
         '✓ Sensor detects vehicle in spot B-07...',
         '✓ Querying Parkin payment API for spot B-07...',
@@ -137,7 +137,7 @@ export function processQuery(query: string, savedPlaces: SavedPlace[]): AgentRes
 
   // default: general greeting/help
   return {
-    text: `Hi! I'm the SmartPark AI assistant. I can help you find parking, check availability, compare zones, or predict occupancy. Try asking:\n• "Where can I park near work?"\n• "When is peak hour?"\n• "Show zone comparison"\n• "Predict next 2 hours"`,
+    text: `Hi! I'm the SpotSense AI assistant. I can help you find parking, check availability, compare zones, or predict occupancy. Try asking:\n• "Where can I park near work?"\n• "When is peak hour?"\n• "Show zone comparison"\n• "Predict next 2 hours"`,
     reasoningSteps: [
       '✓ Ready to help with parking queries',
     ],

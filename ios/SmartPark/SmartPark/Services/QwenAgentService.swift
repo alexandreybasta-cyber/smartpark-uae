@@ -26,7 +26,7 @@ actor QwenAgentService {
         }.joined(separator: "\n")
 
         let systemPrompt = """
-        You are SmartPark Driver AI, an intelligent parking assistant for drivers in Dubai Internet City.
+        You are SpotSense Driver AI, an intelligent parking assistant for drivers in Dubai Internet City.
         You help drivers with:
         - Finding available parking spots nearby
         - Comparing zones by price, availability, and walking distance
@@ -57,7 +57,7 @@ actor QwenAgentService {
         let violationsContext = MockViolations.contextSummary
 
         let systemPrompt = """
-        You are SmartPark Enforce AI, an intelligent assistant for parking enforcement officers in Dubai Internet City.
+        You are SpotSense Enforce AI, an intelligent assistant for parking enforcement officers in Dubai Internet City.
         You help patrol officers with:
         - Finding nearby parking violations (unpaid vehicles past grace period)
         - Recommending patrol routes based on violation density

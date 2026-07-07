@@ -3,9 +3,9 @@ import "./globals.css";
 import Providers from "./providers";
 
 export const metadata: Metadata = {
-  title: "SmartPark Enforce — Every Unpaid Bay, Flagged in Seconds",
+  title: "SpotSense — The Parking Bay Just Became an Agent",
   description:
-    "Automated parking compliance for RTA & Dubai Police. Bay sensors cross-checked against Parkin payments, violations pushed to the authority platform, patrols routed straight to unpaid vehicles.",
+    "Agentic IoT for parking: light-powered bay sensors, a Qwen agent, and a native iOS app. Drivers find free bays; enforcement goes straight to unpaid ones.",
 };
 
 export default function RootLayout({

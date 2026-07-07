@@ -10,7 +10,7 @@ export default function EnforceFooter() {
     >
       <div className="flex items-baseline justify-center gap-2 mb-3">
         <span className="text-[16px] font-black" style={{ color: T.text1 }}>
-          SmartPark
+          SpotSense
         </span>
         <span
           className="text-[10px] font-bold tracking-[0.2em] px-1.5 py-0.5 rounded"

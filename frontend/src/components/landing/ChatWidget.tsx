@@ -26,7 +26,7 @@ const RESPONSES: Record<string, string> = {
   predict:
     'Prediction for next 2 hours:<br/><br/><span class="inline-block px-2 py-0.5 rounded bg-sp-cyan/15 text-sp-cyan font-mono text-xs font-semibold">Current: 62%</span> → Expected to rise to <span class="inline-block px-2 py-0.5 rounded bg-sp-cyan/15 text-sp-cyan font-mono text-xs font-semibold">78%</span> in 2 hours.<br/><br/>Recommendation: Park within the next <strong>30 minutes</strong> for best selection.',
   'enforcement':
-    'SmartPark\'s sensors detect vehicle occupancy and cross-reference with <strong>Parkin\'s payment database</strong> in real-time:<br/><br/><span class="inline-block px-2 py-0.5 rounded bg-red-500/15 text-red-500 font-mono text-xs font-semibold">1. Sensor detects car</span> → <span class="inline-block px-2 py-0.5 rounded bg-red-500/15 text-red-500 font-mono text-xs font-semibold">2. Check payment</span> → <span class="inline-block px-2 py-0.5 rounded bg-red-500/15 text-red-500 font-mono text-xs font-semibold">3. Flag unpaid</span><br/><br/>No manual inspectors needed. Covers <strong>100% of monitored streets 24/7</strong>.',
+    'SpotSense\'s sensors detect vehicle occupancy and cross-reference with <strong>Parkin\'s payment database</strong> in real-time:<br/><br/><span class="inline-block px-2 py-0.5 rounded bg-red-500/15 text-red-500 font-mono text-xs font-semibold">1. Sensor detects car</span> → <span class="inline-block px-2 py-0.5 rounded bg-red-500/15 text-red-500 font-mono text-xs font-semibold">2. Check payment</span> → <span class="inline-block px-2 py-0.5 rounded bg-red-500/15 text-red-500 font-mono text-xs font-semibold">3. Flag unpaid</span><br/><br/>No manual inspectors needed. Covers <strong>100% of monitored streets 24/7</strong>.',
 };
 
 function getResponse(text: string): string {
@@ -34,7 +34,7 @@ function getResponse(text: string): string {
   for (const [key, val] of Object.entries(RESPONSES)) {
     if (lower.includes(key)) return val;
   }
-  return 'SmartPark\'s agentic AI can help with real-time availability, zone comparisons, peak hour predictions, and parking guidance. Try asking about zone availability or when peak hours are.';
+  return 'SpotSense\'s agentic AI can help with real-time availability, zone comparisons, peak hour predictions, and parking guidance. Try asking about zone availability or when peak hours are.';
 }
 
 function getTime(): string {
@@ -46,7 +46,7 @@ export default function ChatWidget() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 0,
-      text: "Hi! I'm the SmartPark AI assistant. I can help you find parking, check zone availability, or predict peak hours. Try asking me something below.",
+      text: "Hi! I'm the SpotSense AI assistant. I can help you find parking, check zone availability, or predict peak hours. Try asking me something below.",
       type: 'ai',
       time: 'Just now',
     },
@@ -86,7 +86,7 @@ export default function ChatWidget() {
           SP
         </div>
         <div>
-          <h4 className="text-sm font-bold">SmartPark AI</h4>
+          <h4 className="text-sm font-bold">SpotSense AI</h4>
           <span className="text-[11px] text-sp-cyan font-medium">Agentic Assistant &middot; Online</span>
         </div>
       </div>

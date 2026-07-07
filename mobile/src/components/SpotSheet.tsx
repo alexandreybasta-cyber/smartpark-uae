@@ -40,7 +40,7 @@ export default function SpotSheet({ spot, zone, onClose }: Props) {
     } catch {
       Alert.alert(
         'Parkin integration (mock)',
-        `In production this deep-links into the Parkin app to pay for spot ${spot.id} at AED ${zone?.price_per_hour ?? 4}/hr. SmartPark finds the spot — Parkin handles payment.`
+        `In production this deep-links into the Parkin app to pay for spot ${spot.id} at AED ${zone?.price_per_hour ?? 4}/hr. SpotSense finds the spot — Parkin handles payment.`
       );
     }
   };

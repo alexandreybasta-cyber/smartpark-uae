@@ -47,7 +47,7 @@ export default function ChatPanel() {
               <span className="text-sp-cyan text-xs font-bold">SP</span>
             </div>
             <div>
-              <p className="text-sp-text-1 text-sm font-medium">SmartPark AI</p>
+              <p className="text-sp-text-1 text-sm font-medium">SpotSense AI</p>
               <p className="text-sp-text-3 text-[10px]">Always available</p>
             </div>
           </div>

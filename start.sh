@@ -1,6 +1,6 @@
 #!/bin/bash
-# Start SmartPark UAE - Backend + Frontend
-echo "Starting SmartPark UAE..."
+# Start SpotSense - Backend + Frontend
+echo "Starting SpotSense..."
 
 # Start backend
 cd backend
@@ -16,7 +16,7 @@ FRONTEND_PID=$!
 echo "Frontend started on http://localhost:3000 (PID: $FRONTEND_PID)"
 
 echo ""
-echo "SmartPark UAE is running!"
+echo "SpotSense is running!"
 echo "  Frontend: http://localhost:3000"
 echo "  Backend:  http://localhost:8000"
 echo "  API Docs: http://localhost:8000/docs"

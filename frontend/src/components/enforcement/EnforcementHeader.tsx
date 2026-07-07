@@ -24,7 +24,7 @@ export default function EnforcementHeader() {
               </svg>
             </div>
             <div>
-              <h1 className="text-lg font-bold text-sp-text-1">SmartPark Enforcement</h1>
+              <h1 className="text-lg font-bold text-sp-text-1">SpotSense Enforcement</h1>
               <p className="text-xs text-sp-text-3">Automated Parking Violation Detection</p>
             </div>
           </div>

@@ -19,10 +19,10 @@ interface Node {
 }
 
 const NODES: Node[] = [
-  { id: 'sensor', x: 20, y: 170, w: 128, label: 'Bay Sensor', sub: 'ToF · light-powered', color: T.cyan },
-  { id: 'gateway', x: 188, y: 170, w: 128, label: 'Zone Gateway', sub: 'Thread mesh · 1/block', color: T.cyan },
-  { id: 'platform', x: 356, y: 158, w: 158, label: 'Enforce Platform', sub: 'Alibaba Cloud · Qwen', color: T.blue },
-  { id: 'payments', x: 356, y: 30, w: 158, label: 'Parkin / RTA Payments', sub: 'session lookup', color: T.purple },
+  { id: 'sensor', x: 20, y: 170, w: 128, label: 'Bay Sensor', sub: 'ToF · light-powered', color: T.green },
+  { id: 'gateway', x: 188, y: 170, w: 128, label: 'Zone Gateway', sub: 'Thread mesh · 1/block', color: T.blue },
+  { id: 'platform', x: 356, y: 158, w: 158, label: 'Enforce Platform', sub: 'Alibaba Cloud · Qwen', color: T.cyan },
+  { id: 'payments', x: 356, y: 30, w: 158, label: 'Parkin / RTA Payments', sub: 'session lookup', color: T.blue },
   { id: 'agent', x: 566, y: 158, w: 140, label: 'Dispatch Agent', sub: 'Qwen-Max · voice', color: T.purple },
   { id: 'patrol', x: 758, y: 158, w: 128, label: 'ANPR Patrol', sub: 'plate confirmation', color: T.amber },
   { id: 'fines', x: 566, y: 300, w: 140, label: 'RTA Fine System', sub: 'existing · unchanged', color: T.red },
@@ -39,13 +39,13 @@ interface Edge {
 const NODE_H = 58;
 
 const EDGES: Edge[] = [
-  { id: 'e-sg', path: 'M 148 199 H 188', color: T.cyan },
-  { id: 'e-gp', path: 'M 316 199 H 356', color: T.cyan },
-  { id: 'e-pp', path: 'M 435 158 V 88', label: 'paid?', labelPos: [449, 122], color: T.purple },
+  { id: 'e-sg', path: 'M 148 199 H 188', color: T.green },
+  { id: 'e-gp', path: 'M 316 199 H 356', color: T.green },
+  { id: 'e-pp', path: 'M 435 158 V 88', label: 'paid?', labelPos: [449, 122], color: T.blue },
   { id: 'e-pa', path: 'M 514 187 H 566', label: 'violation', labelPos: [540, 176], color: T.red },
   { id: 'e-ap', path: 'M 706 187 H 758', label: 'route', labelPos: [732, 176], color: T.amber },
   { id: 'e-pf', path: 'M 822 216 V 329 H 706', label: 'fine issued', labelPos: [800, 280], color: T.red },
-  { id: 'e-fp', path: 'M 566 329 H 435 V 216', label: 'confirmation ✓', labelPos: [470, 318], color: T.cyan },
+  { id: 'e-fp', path: 'M 566 329 H 435 V 216', label: 'confirmation ✓', labelPos: [470, 318], color: T.green },
 ];
 
 const STAGES: { caption: string; nodes: string[]; edges: string[] }[] = [
@@ -116,7 +116,7 @@ export default function SystemSchema() {
                   <path
                     d={e.path}
                     fill="none"
-                    stroke={isActive ? e.color : 'rgba(255,255,255,0.14)'}
+                    stroke={isActive ? e.color : '#cbd5e1'}
                     strokeWidth={isActive ? 2.5 : 1.5}
                     markerEnd="url(#arrow)"
                     strokeDasharray={isActive ? '7 5' : undefined}
@@ -154,7 +154,7 @@ export default function SystemSchema() {
                     height={NODE_H}
                     rx={14}
                     fill={T.bg2}
-                    stroke={isActive ? n.color : 'rgba(255,255,255,0.12)'}
+                    stroke={isActive ? n.color : '#cbd5e1'}
                     strokeWidth={isActive ? 2 : 1}
                     style={{ transition: 'stroke 0.5s ease', filter: isActive ? `drop-shadow(0 0 10px ${n.color}55)` : undefined }}
                   />
