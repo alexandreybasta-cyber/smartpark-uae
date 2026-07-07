@@ -204,7 +204,7 @@
     .to('#hero-sub',          { opacity: 0, y: -30, duration: 0.2 }, 0.68);
 
   /* ============================================================
-     STORY — pinned line reveals + sensor feed + rain loop
+     STORY — pinned line reveals + sensor feed + overhead loop
   ============================================================ */
   var storyTl = gsap.timeline({
     scrollTrigger: {
