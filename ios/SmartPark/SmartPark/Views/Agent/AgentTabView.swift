@@ -134,6 +134,30 @@ struct ChatBubble: View {
                 if let mapCard = message.response?.mapCard {
                     MapCardView(mapCard: mapCard, onShowOnMap: onShowOnMap)
                 }
+
+                // Agent-only: always show "Show on Map" button (fallback when no mapCard)
+                if !message.isUser {
+                    Button(action: {
+                        if let lat = message.response?.mapCard?.lat,
+                           let lng = message.response?.mapCard?.lng {
+                            onShowOnMap(CLLocationCoordinate2D(latitude: lat, longitude: lng))
+                        } else {
+                            onShowOnMap(DemoConstants.dubaiInternetCity)
+                        }
+                    }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "map.fill")
+                            Text("Show on Map")
+                        }
+                        .font(.caption.bold())
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(DesignTokens.primaryOrange)
+                        .foregroundColor(.white)
+                        .clipShape(Capsule())
+                    }
+                    .padding(.top, 4)
+                }
             }
             .frame(maxWidth: 300, alignment: message.isUser ? .trailing : .leading)
 

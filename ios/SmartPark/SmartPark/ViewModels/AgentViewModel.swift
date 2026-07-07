@@ -32,7 +32,7 @@ class AgentViewModel {
         error = nil
 
         do {
-            let response: AgentResponse
+            var response: AgentResponse
 
             if appMode == .enforcement {
                 // Enforcement mode: always use Qwen with violation context
@@ -40,6 +40,16 @@ class AgentViewModel {
             } else {
                 // Driver mode: try backend first with short timeout, fallback to Qwen
                 response = try await sendDriverWithFallback(text: text, location: location, zones: zones)
+            }
+
+            // Enrich response with synthetic mapCard if none was provided
+            if response.mapCard == nil {
+                let syntheticMapCard = createMapCardFromContext(zones: zones)
+                response = AgentResponse(
+                    text: response.text,
+                    reasoningSteps: response.reasoningSteps,
+                    mapCard: syntheticMapCard
+                )
             }
 
             let agentMessage = ChatMessage(isUser: false, text: response.text, response: response, timestamp: .now)
@@ -138,5 +148,21 @@ class AgentViewModel {
 
     func stopSpeaking() {
         speechService.stop()
+    }
+
+    // MARK: - Synthetic Map Card
+
+    private func createMapCardFromContext(zones: [Zone]) -> MapCard? {
+        guard let bestZone = zones.max(by: { $0.freeCount < $1.freeCount }) else { return nil }
+        return MapCard(
+            zoneId: bestZone.id,
+            zoneName: bestZone.name,
+            lat: DemoConstants.dubaiInternetCity.latitude,
+            lng: DemoConstants.dubaiInternetCity.longitude,
+            freeSpots: bestZone.freeCount,
+            totalSpots: bestZone.totalSpots,
+            pricePerHour: bestZone.pricePerHour,
+            walkingMinutes: 3
+        )
     }
 }
