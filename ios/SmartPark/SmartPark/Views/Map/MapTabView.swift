@@ -4,6 +4,8 @@ import MapKit
 struct MapTabView: View {
     @Environment(AppState.self) private var appState
     @State private var viewModel = MapViewModel()
+    @State private var proximitySpot: Spot?
+    @State private var showProximityBanner = true
     
     private var violationSpotIds: Set<String> {
         Set(MockViolations.violations.map(\.spotId))
@@ -56,6 +58,21 @@ struct MapTabView: View {
                 MapUserLocationButton()
             }
             
+            // Proximity notification banner
+            if let spot = proximitySpot, showProximityBanner {
+                ProximityBanner(spot: spot, zoneName: zoneNameFor(spot), onTap: {
+                    viewModel.selectSpot(spot)
+                    viewModel.focusOn(spot.coordinate)
+                }, onDismiss: {
+                    withAnimation(.spring) {
+                        showProximityBanner = false
+                    }
+                })
+                .transition(.move(edge: .top).combined(with: .opacity))
+                .padding(.horizontal)
+                .padding(.top, 60)
+            }
+            
             // Top badges
             VStack(spacing: 6) {
                 // Enforcement violation count badge
@@ -101,10 +118,27 @@ struct MapTabView: View {
                 appState.mapFocusCoordinate = nil
             }
         }
+        .task {
+            // Simulate proximity: find nearest free spot to user location after a brief delay
+            try? await Task.sleep(for: .seconds(2))
+            let userLocation = appState.locationService.effectiveLocation
+            let freeSpots = appState.spots.filter { $0.status == .free }
+            if let nearest = freeSpots.min(by: {
+                $0.coordinate.distance(to: userLocation) < $1.coordinate.distance(to: userLocation)
+            }) {
+                withAnimation(.spring) {
+                    proximitySpot = nearest
+                }
+            }
+        }
     }
     
     private func parseZonePolygon(_ zone: Zone) -> [CLLocationCoordinate2D] {
         viewModel.parsePolygon(zone.geojsonPolygon)
+    }
+    
+    private func zoneNameFor(_ spot: Spot) -> String {
+        appState.zones.first(where: { $0.id == spot.zoneId })?.name ?? "Zone \(spot.zoneId)"
     }
 }
 

@@ -35,6 +35,7 @@
 		A1000026 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000036 /* ContentView.swift */; };
 		A1000027 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000037 /* SettingsView.swift */; };
 		A1000028 /* MockViolations.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000038 /* MockViolations.swift */; };
+		A1000029 /* ProximityBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000039 /* ProximityBanner.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -68,6 +69,7 @@
 		B1000036 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		B1000037 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		B1000038 /* MockViolations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockViolations.swift; sourceTree = "<group>"; };
+		B1000039 /* ProximityBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProximityBanner.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -199,6 +201,7 @@
 				B1000022 /* MapTabView.swift */,
 				B1000023 /* SpotAnnotationView.swift */,
 				B1000024 /* SpotDetailSheet.swift */,
+				B1000039 /* ProximityBanner.swift */,
 			);
 			path = Map;
 			sourceTree = "<group>";
@@ -317,6 +320,7 @@
 				A1000026 /* ContentView.swift in Sources */,
 				A1000027 /* SettingsView.swift in Sources */,
 				A1000028 /* MockViolations.swift in Sources */,
+				A1000029 /* ProximityBanner.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
