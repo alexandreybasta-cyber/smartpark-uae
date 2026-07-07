@@ -49,11 +49,11 @@
 		B1000013 /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
 		B1000014 /* OfflineSimulator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineSimulator.swift; sourceTree = "<group>"; };
 		B1000015 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
-		B1000020 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		B1000016 /* PlacesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacesViewModel.swift; sourceTree = "<group>"; };
 		B1000017 /* PlacesTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacesTabView.swift; sourceTree = "<group>"; };
 		B1000018 /* InsightsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsViewModel.swift; sourceTree = "<group>"; };
 		B1000019 /* InsightsTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsTabView.swift; sourceTree = "<group>"; };
+		B1000020 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		B1000021 /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModel.swift; sourceTree = "<group>"; };
 		B1000022 /* MapTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapTabView.swift; sourceTree = "<group>"; };
 		B1000023 /* SpotAnnotationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotAnnotationView.swift; sourceTree = "<group>"; };
@@ -79,7 +79,7 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		D1000001 /* Root */ = {
+		D1000001 = {
 			isa = PBXGroup;
 			children = (
 				B1000020 /* Secrets.xcconfig */,
@@ -157,6 +157,23 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		D1000008 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				B1000004 /* DesignTokens.swift */,
+				B1000005 /* Extensions.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		D1000010 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B1000010 /* SmartPark.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		D1000011 /* Places */ = {
 			isa = PBXGroup;
 			children = (
@@ -183,15 +200,6 @@
 			path = Map;
 			sourceTree = "<group>";
 		};
-		D1000008 /* Utils */ = {
-			isa = PBXGroup;
-			children = (
-				B1000004 /* DesignTokens.swift */,
-				B1000005 /* Extensions.swift */,
-			);
-			path = Utils;
-			sourceTree = "<group>";
-		};
 		D1000014 /* Agent */ = {
 			isa = PBXGroup;
 			children = (
@@ -200,14 +208,6 @@
 				B1000035 /* MapCardView.swift */,
 			);
 			path = Agent;
-			sourceTree = "<group>";
-		};
-		D1000010 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				B1000010 /* SmartPark.app */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		D1000015 /* Settings */ = {
@@ -261,7 +261,7 @@
 				en,
 				Base,
 			);
-			mainGroup = D1000001 /* Root */;
+			mainGroup = D1000001;
 			productRefGroup = D1000010 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -445,15 +445,18 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = T3KX3F4LGB;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = SmartPark;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "SmartPark needs your location to find nearby parking spots.";
+				INFOPLIST_KEY_QODER_AGENT_API_KEY = "$(QODER_AGENT_API_KEY)";
+				INFOPLIST_KEY_QWEN_API_KEY = "$(QWEN_API_KEY)";
+				INFOPLIST_KEY_SMARTPARK_API_BASE_URL = "$(SMARTPARK_API_BASE_URL)";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "SmartPark needs your location to find nearby parking spots.";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -465,9 +468,6 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				INFOPLIST_KEY_SMARTPARK_API_BASE_URL = "$(SMARTPARK_API_BASE_URL)";
-				INFOPLIST_KEY_QWEN_API_KEY = "$(QWEN_API_KEY)";
-				INFOPLIST_KEY_QODER_AGENT_API_KEY = "$(QODER_AGENT_API_KEY)";
 			};
 			name = Debug;
 		};
@@ -478,15 +478,18 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = T3KX3F4LGB;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = SmartPark;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "SmartPark needs your location to find nearby parking spots.";
+				INFOPLIST_KEY_QODER_AGENT_API_KEY = "$(QODER_AGENT_API_KEY)";
+				INFOPLIST_KEY_QWEN_API_KEY = "$(QWEN_API_KEY)";
+				INFOPLIST_KEY_SMARTPARK_API_BASE_URL = "$(SMARTPARK_API_BASE_URL)";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "SmartPark needs your location to find nearby parking spots.";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -498,9 +501,6 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				INFOPLIST_KEY_SMARTPARK_API_BASE_URL = "$(SMARTPARK_API_BASE_URL)";
-				INFOPLIST_KEY_QWEN_API_KEY = "$(QWEN_API_KEY)";
-				INFOPLIST_KEY_QODER_AGENT_API_KEY = "$(QODER_AGENT_API_KEY)";
 			};
 			name = Release;
 		};
