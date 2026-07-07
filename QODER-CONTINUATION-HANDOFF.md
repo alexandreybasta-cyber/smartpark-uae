@@ -1,5 +1,45 @@
 # SmartPark UAE — Continuation Handoff (Audit of 2026-07-07)
 
+---
+
+## ⚡ CONCEPT PIVOT (2026-07-07, after the audit below)
+
+The product owner changed the concept: **SmartPark is no longer a consumer "find a free spot"
+app. It is now "SmartPark Enforce" — a parking-compliance platform for the AUTHORITY (RTA /
+Dubai Police).** New flow:
+
+1. Bay sensor detects a parked car (hardware unchanged).
+2. Platform cross-checks the bay against Parkin/RTA payment records.
+3. Grace period (e.g. 10 min) with no payment → **violation trigger pushed to the authority platform** (bay ID, GPS, occupancy time).
+4. Agentic layer assists patrol officers: "any unpaid vehicles on my route?", proactive violation alerts, ranked by unpaid duration + detour distance.
+5. Replaces today's blind ANPR camera-car sweeps: the patrol drives **straight to the flagged car**; ANPR confirms the plate; the **existing RTA fine system** issues the fine; the fine **confirmation syncs back** to close the loop.
+
+**Already done for the pivot:** the website landing page (`frontend/src/app/page.tsx`) was
+rebuilt around this concept with new self-contained components in
+`frontend/src/components/enforce/` (EnforceHero, ConceptSteps = animated 5-step concept with
+fades, SweepComparison, AgentPoliceDemo = scripted police↔agent chat, SystemSchema = animated
+end-to-end loop diagram, EnforceNavbar/Footer). These use EXPLICIT hex colors (dark theme,
+spec §10) on purpose — do not convert them to the shared sp-* tokens, which are being re-themed.
+Layout metadata updated; the consumer VoiceAgentWidget was removed from the global layout.
+The old consumer landing components remain untouched in `frontend/src/components/landing/`.
+Production build verified (`next build` passes; all sections visually verified).
+
+**Still to do for the pivot (in priority order):**
+1. Backend: add a violation model + simulator support (spot occupied + no payment session +
+   grace expired → violation record; endpoint `GET /api/violations`, WS event `violation`),
+   and a `payments` mock table simulating Parkin sessions for ~80% of occupied bays.
+2. Backend agent: re-target intents to enforcement (nearby_violations, fine_status,
+   assign_patrol) — this is also where the real Qwen integration (P2 below) should land.
+3. Mobile app (`mobile/`): pivot from consumer to PATROL app — same map, but red = flagged
+   violations; agent tab asks enforcement questions; spot sheet shows "unpaid since / fine
+   status" instead of "Pay via Parkin".
+4. `/demo`, `/places`, `/analytics` web routes are now off-concept (consumer) — either rebrand
+   /demo as the "authority ops map" or remove links to them from the enforcement page.
+5. Fine-confirmation loop: mock RTA fine API (`POST /api/fines` + confirmation webhook) so the
+   demo can show the closed loop end to end.
+
+---
+
 Read `smartpark-handoff.md` first — it is the product spec and remains the source of truth.
 This document records what an independent audit found in the current codebase and what must
 be done next, in priority order, to be hackathon-ready (Qwen Cloud Challenge / EdgeAgent track).

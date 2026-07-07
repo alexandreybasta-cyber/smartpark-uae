@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "frontend-prod",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["--prefix", "frontend", "next", "start", "frontend"],
+      "port": 4310,
+      "autoPort": true
+    }
+  ]
+}

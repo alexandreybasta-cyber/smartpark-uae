@@ -1,33 +1,25 @@
 import {
-  Navbar,
-  Hero,
-  ProblemSection,
-  InteractiveDemo,
-  AgentSection,
-  HardwareSection,
-  ArchitectureSection,
-  TechStackSection,
-  Footer,
-} from '@/components/landing';
+  EnforceNavbar,
+  EnforceHero,
+  ConceptSteps,
+  SweepComparison,
+  AgentPoliceDemo,
+  SystemSchema,
+  EnforceFooter,
+} from '@/components/enforce';
 
+// SmartPark ENFORCE — parking-compliance platform for RTA & Dubai Police.
+// The previous consumer landing lives on in @/components/landing if needed.
 export default function Home() {
   return (
-    <main className="scroll-smooth">
-      <Navbar />
-      <Hero />
-      <div className="h-px bg-white/[0.08] max-w-7xl mx-auto" />
-      <ProblemSection />
-      <div className="h-px bg-white/[0.08] max-w-7xl mx-auto" />
-      <InteractiveDemo />
-      <div className="h-px bg-white/[0.08] max-w-7xl mx-auto" />
-      <AgentSection />
-      <div className="h-px bg-white/[0.08] max-w-7xl mx-auto" />
-      <HardwareSection />
-      <div className="h-px bg-white/[0.08] max-w-7xl mx-auto" />
-      <ArchitectureSection />
-      <div className="h-px bg-white/[0.08] max-w-7xl mx-auto" />
-      <TechStackSection />
-      <Footer />
+    <main className="scroll-smooth" style={{ backgroundColor: '#04060b' }}>
+      <EnforceNavbar />
+      <EnforceHero />
+      <ConceptSteps />
+      <SweepComparison />
+      <AgentPoliceDemo />
+      <SystemSchema />
+      <EnforceFooter />
     </main>
   );
 }
