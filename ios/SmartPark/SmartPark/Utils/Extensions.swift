@@ -28,6 +28,13 @@ extension Color {
     }
 }
 
+// MARK: - CLLocationCoordinate2D Equatable
+extension CLLocationCoordinate2D: @retroactive Equatable {
+    public static func == (lhs: CLLocationCoordinate2D, rhs: CLLocationCoordinate2D) -> Bool {
+        lhs.latitude == rhs.latitude && lhs.longitude == rhs.longitude
+    }
+}
+
 // MARK: - CLLocationCoordinate2D Helpers
 extension CLLocationCoordinate2D {
     /// Haversine distance in meters

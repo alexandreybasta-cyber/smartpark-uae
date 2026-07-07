@@ -18,6 +18,14 @@
 		A1000009 /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000013 /* LocationService.swift */; };
 		A1000010 /* OfflineSimulator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000014 /* OfflineSimulator.swift */; };
 		A1000011 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000015 /* AppState.swift */; };
+		A1000012 /* PlacesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000016 /* PlacesViewModel.swift */; };
+		A1000013 /* PlacesTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000017 /* PlacesTabView.swift */; };
+		A1000014 /* InsightsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000018 /* InsightsViewModel.swift */; };
+		A1000015 /* InsightsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000019 /* InsightsTabView.swift */; };
+		A1000016 /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000021 /* MapViewModel.swift */; };
+		A1000017 /* MapTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000022 /* MapTabView.swift */; };
+		A1000018 /* SpotAnnotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000023 /* SpotAnnotationView.swift */; };
+		A1000019 /* SpotDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000024 /* SpotDetailSheet.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +42,14 @@
 		B1000014 /* OfflineSimulator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineSimulator.swift; sourceTree = "<group>"; };
 		B1000015 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		B1000020 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
+		B1000016 /* PlacesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacesViewModel.swift; sourceTree = "<group>"; };
+		B1000017 /* PlacesTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlacesTabView.swift; sourceTree = "<group>"; };
+		B1000018 /* InsightsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsViewModel.swift; sourceTree = "<group>"; };
+		B1000019 /* InsightsTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsTabView.swift; sourceTree = "<group>"; };
+		B1000021 /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModel.swift; sourceTree = "<group>"; };
+		B1000022 /* MapTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapTabView.swift; sourceTree = "<group>"; };
+		B1000023 /* SpotAnnotationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotAnnotationView.swift; sourceTree = "<group>"; };
+		B1000024 /* SpotDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotDetailSheet.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +118,9 @@
 		D1000006 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				B1000016 /* PlacesViewModel.swift */,
+				B1000018 /* InsightsViewModel.swift */,
+				B1000021 /* MapViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -109,8 +128,37 @@
 		D1000007 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				D1000011 /* Places */,
+				D1000012 /* Insights */,
+				D1000013 /* Map */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		D1000011 /* Places */ = {
+			isa = PBXGroup;
+			children = (
+				B1000017 /* PlacesTabView.swift */,
+			);
+			path = Places;
+			sourceTree = "<group>";
+		};
+		D1000012 /* Insights */ = {
+			isa = PBXGroup;
+			children = (
+				B1000019 /* InsightsTabView.swift */,
+			);
+			path = Insights;
+			sourceTree = "<group>";
+		};
+		D1000013 /* Map */ = {
+			isa = PBXGroup;
+			children = (
+				B1000022 /* MapTabView.swift */,
+				B1000023 /* SpotAnnotationView.swift */,
+				B1000024 /* SpotDetailSheet.swift */,
+			);
+			path = Map;
 			sourceTree = "<group>";
 		};
 		D1000008 /* Utils */ = {
@@ -209,6 +257,14 @@
 				A1000009 /* LocationService.swift in Sources */,
 				A1000010 /* OfflineSimulator.swift in Sources */,
 				A1000011 /* AppState.swift in Sources */,
+				A1000012 /* PlacesViewModel.swift in Sources */,
+				A1000013 /* PlacesTabView.swift in Sources */,
+				A1000014 /* InsightsViewModel.swift in Sources */,
+				A1000015 /* InsightsTabView.swift in Sources */,
+				A1000016 /* MapViewModel.swift in Sources */,
+				A1000017 /* MapTabView.swift in Sources */,
+				A1000018 /* SpotAnnotationView.swift in Sources */,
+				A1000019 /* SpotDetailSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
