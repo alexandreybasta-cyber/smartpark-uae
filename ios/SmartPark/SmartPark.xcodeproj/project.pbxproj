@@ -32,6 +32,8 @@
 		A1000023 /* AgentTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000033 /* AgentTabView.swift */; };
 		A1000024 /* ReasoningStepsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000034 /* ReasoningStepsView.swift */; };
 		A1000025 /* MapCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000035 /* MapCardView.swift */; };
+		A1000026 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000036 /* ContentView.swift */; };
+		A1000027 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000037 /* SettingsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -62,6 +64,8 @@
 		B1000033 /* AgentTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentTabView.swift; sourceTree = "<group>"; };
 		B1000034 /* ReasoningStepsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReasoningStepsView.swift; sourceTree = "<group>"; };
 		B1000035 /* MapCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapCardView.swift; sourceTree = "<group>"; };
+		B1000036 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		B1000037 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -143,10 +147,12 @@
 		D1000007 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				B1000036 /* ContentView.swift */,
 				D1000011 /* Places */,
 				D1000012 /* Insights */,
 				D1000013 /* Map */,
 				D1000014 /* Agent */,
+				D1000015 /* Settings */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -202,6 +208,14 @@
 				B1000010 /* SmartPark.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		D1000015 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				B1000037 /* SettingsView.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -297,6 +311,8 @@
 				A1000023 /* AgentTabView.swift in Sources */,
 				A1000024 /* ReasoningStepsView.swift in Sources */,
 				A1000025 /* MapCardView.swift in Sources */,
+				A1000026 /* ContentView.swift in Sources */,
+				A1000027 /* SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
