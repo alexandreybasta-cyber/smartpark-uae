@@ -44,8 +44,8 @@ img, svg, canvas, video { display: block; max-width: 100%; }
 
 /* ============================================================
    FRAME — the "monitored feed" treatment.
-   1px hairline, cyan L-brackets at all four corners, bottom
-   gradient fade so overlays read cleanly, mono HUD caption.
+   1px hairline, bottom gradient fade so overlays read cleanly,
+   mono HUD caption.
 ============================================================ */
 .frame {
   position: relative;
@@ -54,20 +54,6 @@ img, svg, canvas, video { display: block; max-width: 100%; }
   overflow: hidden;
 }
 .frame > video, .frame > img { width: 100%; height: 100%; object-fit: cover; }
-.frame::before, .frame::after,
-.frame__fade::before, .frame__fade::after {
-  content: '';
-  position: absolute;
-  width: 12px; height: 12px;
-  border: 0 solid var(--cyan);
-  opacity: 0.8;
-  z-index: 4;
-  pointer-events: none;
-}
-.frame::before       { top: 6px; left: 6px;   border-top-width: 1px; border-left-width: 1px; }
-.frame::after        { top: 6px; right: 6px;  border-top-width: 1px; border-right-width: 1px; }
-.frame__fade::before { bottom: 6px; left: 6px;  border-bottom-width: 1px; border-left-width: 1px; }
-.frame__fade::after  { bottom: 6px; right: 6px; border-bottom-width: 1px; border-right-width: 1px; }
 .frame__fade {
   position: absolute; left: 0; right: 0; bottom: 0; height: 34%;
   background: linear-gradient(to top, rgba(0,0,0,0.82), transparent);
@@ -273,7 +259,6 @@ img, svg, canvas, video { display: block; max-width: 100%; }
   box-shadow: 0 30px 80px rgba(0,0,0,0.75), 0 0 60px rgba(127,232,255,0.05);
   transform: translateY(6vh);
 }
-.uc2__screen.frame::before, .uc2__screen.frame::after { top: 8px; }
 .uc2__screen .frame__hud--top { top: auto; bottom: 10px; left: 14px; }
 .uc2__screen-head {
   display: flex; justify-content: space-between; padding: 0.7rem 1rem;
