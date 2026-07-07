@@ -1,14 +1,18 @@
 'use client';
 
+import { motion, useScroll } from 'motion/react';
 import { T } from './tokens';
 
 const LINKS = [
-  { href: '#concept', label: 'Concept' },
+  { href: '#agentic', label: 'Concept' },
+  { href: '#usecases', label: 'Use cases' },
   { href: '#agent', label: 'Patrol Agent' },
   { href: '#schema', label: 'How it works' },
 ];
 
 export default function EnforceNavbar() {
+  const { scrollYProgress } = useScroll();
+
   return (
     <nav
       className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl"
@@ -23,7 +27,7 @@ export default function EnforceNavbar() {
             className="text-[11px] font-bold tracking-[0.2em] px-2 py-0.5 rounded"
             style={{ color: T.bg0, backgroundColor: T.cyan }}
           >
-            ENFORCE
+            AGENTIC IOT
           </span>
         </a>
 
@@ -48,6 +52,12 @@ export default function EnforceNavbar() {
           Qwen Cloud Challenge · EdgeAgent Track
         </div>
       </div>
+
+      {/* Scroll progress */}
+      <motion.div
+        className="absolute bottom-0 left-0 right-0 h-[2px] origin-left"
+        style={{ scaleX: scrollYProgress, backgroundColor: T.cyan }}
+      />
     </nav>
   );
 }

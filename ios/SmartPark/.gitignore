@@ -1,0 +1,14 @@
+# Secrets (NEVER commit)
+Secrets.xcconfig
+
+# Xcode
+*.xcuserdata/
+DerivedData/
+.build/
+*.xcworkspace/xcuserdata/
+build/
+*.moved-aside
+*.ipa
+
+# macOS
+.DS_Store

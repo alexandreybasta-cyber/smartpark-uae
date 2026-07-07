@@ -24,6 +24,20 @@ Layout metadata updated; the consumer VoiceAgentWidget was removed from the glob
 The old consumer landing components remain untouched in `frontend/src/components/landing/`.
 Production build verified (`next build` passes; all sections visually verified).
 
+**Design upgrade (2026-07-07, later same night):** owner asked for a more expressive,
+animated site (reference: a.security) built with Framer Motion, and a new narrative order:
+**agentic IoT concept FIRST, then the TWO use cases** (01 driver copilot, 02 enforcement).
+Done: `motion` v12 installed in frontend (import from 'motion/react'); new components in
+`frontend/src/components/agentic/`: AgenticHero (staggered-word headline, parallax glows,
+SENSE·CONNECT·REASON·ACT marquee ticker), AgenticConcept (400vh sticky scroll-driven 4-stage
+explainer with per-stage animated visuals — bay sensor, mesh→cloud, Qwen core with orbiting
+context chips, agent action split), UseCases (two mission cards with mini looping demos).
+Page order now: AgenticHero → AgenticConcept → UseCases → ConceptSteps (retitled "USE CASE 02 ·
+THE ENFORCEMENT FLOW") → SweepComparison → AgentPoliceDemo → SystemSchema → Footer. Navbar has
+a scroll-progress bar. Build + visual verification passed. NOTE: the parallel session added
+routes /driver /enforcement /navigate /parkin-mock — not authored by this session; coordinate
+before editing those.
+
 **Still to do for the pivot (in priority order):**
 1. Backend: add a violation model + simulator support (spot occupied + no payment session +
    grace expired → violation record; endpoint `GET /api/violations`, WS event `violation`),

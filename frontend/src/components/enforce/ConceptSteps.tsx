@@ -75,7 +75,7 @@ export default function ConceptSteps() {
           style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(20px)' }}
         >
           <div className="text-[13px] font-bold tracking-[0.25em] mb-3" style={{ color: T.cyan }}>
-            THE CONCEPT
+            USE CASE 02 · THE ENFORCEMENT FLOW
           </div>
           <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-4" style={{ color: T.text1 }}>
             From parked to fined —{' '}
