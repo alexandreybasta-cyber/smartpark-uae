@@ -1,4 +1,4 @@
-import Foundation
+import SwiftUI
 import MapKit
 import Observation
 
@@ -9,7 +9,7 @@ class MapViewModel {
     var showSpotDetail = false
     var cameraPosition: MapCameraPosition = .region(MKCoordinateRegion(
         center: DemoConstants.dubaiInternetCity,
-        span: MKCoordinateSpan(latitudeDelta: 0.008, longitudeDelta: 0.008)
+        span: MKCoordinateSpan(latitudeDelta: 0.015, longitudeDelta: 0.018)
     ))
     
     // MARK: - GeoJSON Parsing

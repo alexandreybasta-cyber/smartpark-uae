@@ -1,4 +1,5 @@
 import SwiftUI
+import MapKit
 
 struct PlacesTabView: View {
     @Environment(AppState.self) private var appState
@@ -96,6 +97,9 @@ struct PlaceRow: View {
 struct AddPlaceSheet: View {
     @Bindable var viewModel: PlacesViewModel
     @Environment(\.dismiss) private var dismiss
+    @State private var searchCompleter = LocationSearchCompleter()
+    @State private var locationQuery = ""
+    @State private var selectedLocation: MKMapItem?
 
     var body: some View {
         NavigationStack {
@@ -109,16 +113,58 @@ struct AddPlaceSheet: View {
                     }
                 }
 
-                Section("Details") {
-                    TextField("Name (optional)", text: $viewModel.newName)
-                    TextField("Address (optional)", text: $viewModel.newAddress)
+                Section("Location") {
+                    if selectedLocation == nil {
+                        TextField("Search for a place...", text: $locationQuery)
+                            .autocorrectionDisabled()
+                            .onChange(of: locationQuery) { _, newValue in
+                                searchCompleter.search(query: newValue)
+                            }
+
+                        if !searchCompleter.results.isEmpty {
+                            ForEach(searchCompleter.results, id: \.self) { result in
+                                Button(action: { selectCompletion(result) }) {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(result.title)
+                                            .font(.subheadline)
+                                            .foregroundColor(DesignTokens.textPrimary)
+                                        if !result.subtitle.isEmpty {
+                                            Text(result.subtitle)
+                                                .font(.caption)
+                                                .foregroundColor(DesignTokens.textSecondary)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        HStack {
+                            Image(systemName: "mappin.circle.fill")
+                                .foregroundColor(DesignTokens.primaryOrange)
+                            Text(selectedLocation?.name ?? "Selected Location")
+                                .font(.subheadline)
+                                .foregroundColor(DesignTokens.textPrimary)
+                            Spacer()
+                            Button("Change") {
+                                selectedLocation = nil
+                                locationQuery = ""
+                                viewModel.newLat = ""
+                                viewModel.newLng = ""
+                                viewModel.newAddress = ""
+                            }
+                            .font(.caption)
+                            .foregroundColor(DesignTokens.primaryOrange)
+                        }
+                    }
+
+                    Button(action: useCurrentLocation) {
+                        Label("Use Current Location", systemImage: "location.fill")
+                    }
+                    .foregroundColor(DesignTokens.primaryOrange)
                 }
 
-                Section("Coordinates") {
-                    TextField("Latitude", text: $viewModel.newLat)
-                        .keyboardType(.decimalPad)
-                    TextField("Longitude", text: $viewModel.newLng)
-                        .keyboardType(.decimalPad)
+                Section("Details") {
+                    TextField("Name (optional)", text: $viewModel.newName)
                 }
             }
             .navigationTitle("Add Place")
@@ -134,11 +180,89 @@ struct AddPlaceSheet: View {
                             dismiss()
                         }
                     }
-                    .disabled(viewModel.newLat.isEmpty || viewModel.newLng.isEmpty)
+                    .disabled(selectedLocation == nil && viewModel.newLat.isEmpty)
                     .tint(DesignTokens.primaryOrange)
                 }
             }
         }
-        .presentationDetents([.medium])
+        .presentationDetents([.medium, .large])
+    }
+
+    private func selectCompletion(_ result: MKLocalSearchCompletion) {
+        let request = MKLocalSearch.Request(completion: result)
+        let search = MKLocalSearch(request: request)
+        Task {
+            guard let response = try? await search.start(),
+                  let mapItem = response.mapItems.first else { return }
+            selectedLocation = mapItem
+            locationQuery = result.title
+            viewModel.newLat = String(mapItem.placemark.coordinate.latitude)
+            viewModel.newLng = String(mapItem.placemark.coordinate.longitude)
+            viewModel.newAddress = [
+                mapItem.placemark.name,
+                mapItem.placemark.locality,
+                mapItem.placemark.administrativeArea
+            ].compactMap { $0 }.joined(separator: ", ")
+        }
+    }
+
+    private func useCurrentLocation() {
+        let locationService = LocationService()
+        locationService.requestPermission()
+        locationService.startUpdating()
+        let coordinate = locationService.effectiveLocation
+        viewModel.newLat = String(coordinate.latitude)
+        viewModel.newLng = String(coordinate.longitude)
+
+        // Reverse geocode for address
+        let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+        let geocoder = CLGeocoder()
+        Task {
+            if let placemark = try? await geocoder.reverseGeocodeLocation(location).first {
+                viewModel.newAddress = [
+                    placemark.name,
+                    placemark.locality,
+                    placemark.administrativeArea
+                ].compactMap { $0 }.joined(separator: ", ")
+                locationQuery = placemark.name ?? "Current Location"
+            } else {
+                locationQuery = "Current Location"
+            }
+            selectedLocation = MKMapItem(placemark: MKPlacemark(coordinate: coordinate))
+        }
+    }
+}
+
+// MARK: - Location Search Completer
+@Observable
+class LocationSearchCompleter: NSObject, MKLocalSearchCompleterDelegate {
+    var results: [MKLocalSearchCompletion] = []
+    private let completer = MKLocalSearchCompleter()
+
+    override init() {
+        super.init()
+        completer.delegate = self
+        completer.resultTypes = [.address, .pointOfInterest]
+        // Bias toward Dubai area
+        completer.region = MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: 25.09, longitude: 55.16),
+            span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)
+        )
+    }
+
+    func search(query: String) {
+        guard !query.isEmpty else {
+            results = []
+            return
+        }
+        completer.queryFragment = query
+    }
+
+    func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
+        results = completer.results
+    }
+
+    func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: Error) {
+        results = []
     }
 }

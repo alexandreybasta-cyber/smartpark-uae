@@ -12,6 +12,41 @@ actor QwenAgentService {
         self.session = URLSession(configuration: config)
     }
 
+    // MARK: - Driver Mode Query
+
+    /// Send a driver-mode query to Qwen API (finding parking, navigation help)
+    func sendDriverQuery(text: String, lat: Double, lng: Double, zones: [Zone]) async throws -> AgentResponse {
+        let apiKey = Configuration.qwenAPIKey
+        guard !apiKey.isEmpty else {
+            throw QwenError.noAPIKey
+        }
+
+        let zoneInfo = zones.prefix(5).map { z in
+            "\(z.name): \(z.freeCount)/\(z.totalSpots) free, AED \(z.pricePerHour)/hr"
+        }.joined(separator: "\n")
+
+        let systemPrompt = """
+        You are SmartPark Driver AI, an intelligent parking assistant for drivers in Dubai Internet City.
+        You help drivers with:
+        - Finding available parking spots nearby
+        - Comparing zones by price, availability, and walking distance
+        - Navigation suggestions to the best parking zone
+        - Parking rules and pricing information
+        - General parking-related questions
+
+        Current context:
+        - Driver location: \(lat), \(lng)
+        - Nearby zones:
+        \(zoneInfo)
+
+        Respond concisely. Suggest the best option first. Include zone names and free spot counts.
+        """
+
+        return try await callQwenAPI(systemPrompt: systemPrompt, userMessage: text)
+    }
+
+    // MARK: - Enforcement Mode Query
+
     /// Send enforcement query to Qwen API via Dashscope-compatible endpoint
     func sendEnforcementQuery(text: String, context: EnforcementContext) async throws -> AgentResponse {
         let apiKey = Configuration.qwenAPIKey
@@ -19,7 +54,8 @@ actor QwenAgentService {
             throw QwenError.noAPIKey
         }
 
-        // Build messages with system prompt for enforcement
+        let violationsContext = MockViolations.contextSummary
+
         let systemPrompt = """
         You are SmartPark Enforce AI, an intelligent assistant for parking enforcement officers in Dubai Internet City.
         You help patrol officers with:
@@ -34,12 +70,22 @@ actor QwenAgentService {
         - Total monitored spots: \(context.totalSpots)
         - Currently occupied: \(context.occupiedCount)
 
-        Respond concisely and actionably. Include reasoning steps.
+        \(violationsContext)
+
+        Respond concisely and actionably. Reference specific violations by spot ID and plate number when relevant.
         """
+
+        return try await callQwenAPI(systemPrompt: systemPrompt, userMessage: text)
+    }
+
+    // MARK: - Shared API Call
+
+    private func callQwenAPI(systemPrompt: String, userMessage: String) async throws -> AgentResponse {
+        let apiKey = Configuration.qwenAPIKey
 
         let messages: [[String: String]] = [
             ["role": "system", "content": systemPrompt],
-            ["role": "user", "content": text]
+            ["role": "user", "content": userMessage]
         ]
 
         let requestBody: [String: Any] = [
@@ -70,7 +116,6 @@ actor QwenAgentService {
         let message = choices?.first?["message"] as? [String: Any]
         let content = message?["content"] as? String ?? "No response from AI"
 
-        // Parse response into structured format
         return parseQwenResponse(content)
     }
 
@@ -96,7 +141,7 @@ actor QwenAgentService {
 
         let answer = answerLines.isEmpty ? content : answerLines.joined(separator: "\n")
         if reasoningSteps.isEmpty {
-            reasoningSteps = ["Analyzing enforcement context...", "Processing query: \(content.prefix(50))..."]
+            reasoningSteps = ["Analyzing query...", "Processing: \(content.prefix(50))..."]
         }
 
         return AgentResponse(text: answer, reasoningSteps: reasoningSteps, mapCard: nil)

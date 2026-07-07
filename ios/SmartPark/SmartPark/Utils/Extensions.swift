@@ -52,5 +52,6 @@ extension CLLocationCoordinate2D {
 
 // MARK: - Demo Constants
 enum DemoConstants {
-    static let dubaiInternetCity = CLLocationCoordinate2D(latitude: 25.092, longitude: 55.16)
+    /// Center of DIC / Al Sufouh area — covers all 4 zones
+    static let dubaiInternetCity = CLLocationCoordinate2D(latitude: 25.0960, longitude: 55.1555)
 }

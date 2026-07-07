@@ -85,9 +85,9 @@ actor APIClient {
 
     // MARK: - Agent
 
-    func sendAgentQuery(text: String, lat: Double?, lng: Double?) async throws -> AgentResponse {
+    func sendAgentQuery(text: String, lat: Double?, lng: Double?, timeout: TimeInterval = 30) async throws -> AgentResponse {
         let request = AgentTextRequest(text: text, lat: lat, lng: lng)
-        return try await post("/api/agent/text", body: request, timeout: 30)
+        return try await post("/api/agent/text", body: request, timeout: timeout)
     }
 
     // MARK: - Private Helpers
