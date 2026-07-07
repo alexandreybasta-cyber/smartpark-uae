@@ -20,6 +20,9 @@ struct MapTabView: View {
     @State private var nearbyFreeSpots: [Spot] = []
     @State private var dynamicMockSpots: [Spot] = []
     
+    // Visible map center — tracks where the user is currently looking
+    @State private var visibleMapCenter: CLLocationCoordinate2D = DemoConstants.dubaiInternetCity
+    
     private var violationSpotIds: Set<String> {
         Set(MockViolations.violations.map(\.spotId))
     }
@@ -88,7 +91,10 @@ struct MapTabView: View {
                 MapCompass()
                 MapUserLocationButton()
             }
-            .onMapCameraChange(frequency: .onEnd) { _ in
+            .onMapCameraChange(frequency: .onEnd) { context in
+                // Track the visible map center for parking search
+                visibleMapCenter = context.camera.centerCoordinate
+                
                 // Show parking button when user interacts with map
                 if !showParkingButton {
                     withAnimation(.easeOut(duration: 0.3)) {
@@ -295,7 +301,7 @@ struct MapTabView: View {
     // MARK: - Parking Results Card
     
     private var parkingResultsCard: some View {
-        let center = searchedLocation ?? DemoConstants.dubaiInternetCity
+        let center = visibleMapCenter
         let nearest = nearbyFreeSpots.min(by: {
             $0.coordinate.distance(to: center) < $1.coordinate.distance(to: center)
         })
@@ -422,7 +428,8 @@ struct MapTabView: View {
     // MARK: - Parking Search Logic
     
     private func searchForParking() {
-        let center = searchedLocation ?? DemoConstants.dubaiInternetCity
+        // Use where the map is currently looking (visible center)
+        let center = visibleMapCenter
         
         // Combine real spots + any dynamic mock spots
         let allSpots = appState.spots + dynamicMockSpots
@@ -466,7 +473,7 @@ struct MapTabView: View {
     }
     
     private func navigateToNearestSpot() {
-        let center = searchedLocation ?? DemoConstants.dubaiInternetCity
+        let center = visibleMapCenter
         if let nearest = nearbyFreeSpots.min(by: {
             $0.coordinate.distance(to: center) < $1.coordinate.distance(to: center)
         }) {
