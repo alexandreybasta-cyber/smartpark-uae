@@ -1,10 +1,10 @@
 import SwiftUI
 
 enum DesignTokens {
-    // MARK: - Primary Colors
-    static let primaryOrange = Color(hex: "F97316")
-    static let primaryOrangeGradientStart = Color(hex: "F97316")
-    static let primaryOrangeGradientEnd = Color(hex: "EA580C")
+    // MARK: - Primary Colors (SpotSense Blue)
+    static let primaryOrange = Color(hex: "0A84FF")
+    static let primaryOrangeGradientStart = Color(hex: "0A84FF")
+    static let primaryOrangeGradientEnd = Color(hex: "0060E0")
     
     // MARK: - Background
     static let background = Color.white

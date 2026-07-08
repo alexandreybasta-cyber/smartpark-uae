@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Blue brand gradient -->
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0A84FF"/>
+      <stop offset="1" stop-color="#005EC4"/>
+    </linearGradient>
+    <!-- Subtle top sheen for depth -->
+    <radialGradient id="sheen" cx="0.5" cy="0.18" r="0.9">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.18"/>
+      <stop offset="0.6" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Soft shadow for the mark -->
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="14" stdDeviation="22" flood-color="#00306A" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Full-bleed background (iOS masks corners automatically) -->
+  <rect x="0" y="0" width="1024" height="1024" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1024" height="1024" fill="url(#sheen)"/>
+
+  <!-- Sensor / signal waves emanating from the top (the "Sense") -->
+  <g fill="none" stroke="#FFFFFF" stroke-linecap="round">
+    <path d="M 392 322 A 170 170 0 0 1 632 322" stroke-opacity="0.28" stroke-width="26"/>
+    <path d="M 436 300 A 108 108 0 0 1 588 300" stroke-opacity="0.55" stroke-width="26"/>
+  </g>
+
+  <!-- Sensor dot / location pin marker (the "Spot") -->
+  <circle cx="512" cy="292" r="42" fill="#FFFFFF" filter="url(#softShadow)"/>
+
+  <!-- Stylized "S" for SpotSense -->
+  <g filter="url(#softShadow)">
+    <path d="M 686 470
+             C 686 405, 626 366, 528 366
+             C 424 366, 356 410, 356 486
+             C 356 560, 420 588, 512 606
+             C 592 621, 626 634, 626 668
+             C 626 706, 582 726, 520 726
+             C 452 726, 404 700, 380 654
+             L 322 700
+             C 356 762, 428 800, 520 800
+             C 632 800, 704 752, 704 668
+             C 704 590, 640 560, 542 541
+             C 466 526, 434 514, 434 482
+             C 434 448, 474 430, 528 430
+             C 588 430, 626 452, 644 494
+             Z"
+          fill="#FFFFFF"/>
+  </g>
+</svg>
