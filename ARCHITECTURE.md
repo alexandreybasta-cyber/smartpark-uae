@@ -4,8 +4,8 @@
 
 Finding a parking spot in dense cities is slow, wasteful, and hard to police.
 Drivers circle the block looking for a free bay, and authorities run blind ANPR
-camera-car sweeps to catch unpaid vehicles. Existing zone-level systems (e.g.
-Parkin in Dubai) tell you which *zone* exists and let you pay, but never tell you
+camera-car sweeps to catch unpaid vehicles. Existing zone-level parking
+apps in Dubai tell you which *zone* exists and let you pay, but never tell you
 which *specific bay* is free — or which parked car is in violation.
 
 **SpotSense** closes that gap. It is an IoT + agentic-AI smart-parking platform
@@ -144,7 +144,7 @@ broadcast, so no client changes are required to go from simulated to real data.
   engine to a Qwen `qwen-plus` tool-calling loop (tools: `resolve_saved_place`,
   `search_zones_nearby`, `get_zone_predictions`, `rank_zones`) while keeping the
   deterministic path as an offline fallback and preserving the response contract.
-- **Enforcement loop** — violation model + mock Parkin/RTA payment records +
+- **Enforcement loop** — violation model + mock operator/RTA payment records +
   fine-confirmation webhook to demonstrate the closed enforcement loop.
 - **Alibaba Cloud hosting** — production deployment on Alibaba Cloud
   (ECS for compute, RDS for the database, OSS for assets/firmware binaries).

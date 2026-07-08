@@ -20,7 +20,7 @@ export default function EnforceFooter() {
         </span>
       </div>
       <p className="text-[13px] mb-1" style={{ color: T.text2 }}>
-        Automated parking compliance for RTA &amp; Dubai Police — sensors, Parkin payment sync, agentic patrol dispatch.
+        Automated parking compliance for RTA &amp; Dubai Police — sensors, payment sync, agentic patrol dispatch.
       </p>
       <p className="text-[12px]" style={{ color: T.text3 }}>
         Built for the Qwen Cloud Challenge · EdgeAgent Track 2026 · Alibaba Cloud + Qwen-Max

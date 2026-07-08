@@ -10,7 +10,7 @@
 ## Problem & Solution
 
 Drivers waste time circling the block for a free spot, and authorities run blind
-ANPR camera-car sweeps to find unpaid vehicles. Zone-level systems (e.g. Parkin)
+ANPR camera-car sweeps to find unpaid vehicles. Zone-level parking apps
 show which *zone* exists and let you pay, but never which *specific bay* is free —
 or which parked car is in violation.
 

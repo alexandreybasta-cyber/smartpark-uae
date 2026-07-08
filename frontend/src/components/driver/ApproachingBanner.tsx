@@ -41,7 +41,7 @@ export default function ApproachingBanner() {
         onClick={() => router.push('/parkin-mock?spot=314-08')}
         className="w-full py-2.5 rounded-full bg-sp-cyan text-white font-semibold text-sm shadow-md hover:brightness-110 transition active:scale-[0.98]"
       >
-        Open Parkin
+        Open payment
       </button>
     </div>
   );

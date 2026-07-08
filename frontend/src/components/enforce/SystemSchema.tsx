@@ -22,7 +22,7 @@ const NODES: Node[] = [
   { id: 'sensor', x: 20, y: 170, w: 128, label: 'Bay Sensor', sub: 'ToF · light-powered', color: T.green },
   { id: 'gateway', x: 188, y: 170, w: 128, label: 'Zone Gateway', sub: 'Thread mesh · 1/block', color: T.blue },
   { id: 'platform', x: 356, y: 158, w: 158, label: 'Enforce Platform', sub: 'Alibaba Cloud · Qwen', color: T.cyan },
-  { id: 'payments', x: 356, y: 30, w: 158, label: 'Parkin / RTA Payments', sub: 'session lookup', color: T.blue },
+  { id: 'payments', x: 356, y: 30, w: 158, label: 'Operator / RTA Payments', sub: 'session lookup', color: T.blue },
   { id: 'agent', x: 566, y: 158, w: 140, label: 'Dispatch Agent', sub: 'Qwen-Max · voice', color: T.purple },
   { id: 'patrol', x: 758, y: 158, w: 128, label: 'ANPR Patrol', sub: 'plate confirmation', color: T.amber },
   { id: 'fines', x: 566, y: 300, w: 140, label: 'RTA Fine System', sub: 'existing · unchanged', color: T.red },
@@ -51,7 +51,7 @@ const EDGES: Edge[] = [
 const STAGES: { caption: string; nodes: string[]; edges: string[] }[] = [
   { caption: '1 · The bay sensor detects a parked car', nodes: ['sensor'], edges: [] },
   { caption: '2 · Status streams over the mesh to the platform', nodes: ['sensor', 'gateway', 'platform'], edges: ['e-sg', 'e-gp'] },
-  { caption: '3 · The platform checks Parkin — no active session found', nodes: ['platform', 'payments'], edges: ['e-pp'] },
+  { caption: '3 · The platform checks the operator — no active session found', nodes: ['platform', 'payments'], edges: ['e-pp'] },
   { caption: '4 · Grace timer expires → violation flagged to the authority', nodes: ['platform', 'agent'], edges: ['e-pa'] },
   { caption: '5 · The agent routes the nearest patrol straight to the bay', nodes: ['agent', 'patrol'], edges: ['e-ap'] },
   { caption: '6 · ANPR confirms the plate — the existing RTA system issues the fine', nodes: ['patrol', 'fines'], edges: ['e-pf'] },

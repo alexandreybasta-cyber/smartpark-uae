@@ -57,7 +57,7 @@ export default function EnforceHero() {
         </h1>
 
         <p className="text-lg leading-relaxed max-w-[600px] mx-auto mb-10" style={{ color: T.text2 }}>
-          A light-powered sensor in every parking bay, cross-checked live against Parkin payments.
+          A light-powered sensor in every parking bay, cross-checked live against operator payments.
           No payment after the grace period? The violation is pushed to the authority platform and the
           nearest ANPR patrol is routed <em>straight to the car</em> — no more blind street sweeps.
         </p>

@@ -44,7 +44,7 @@ export default function MapCard({ data }: MapCardProps) {
           Navigate
         </button>
         <button className="flex-1 px-3 py-2 rounded-lg bg-sp-amber/10 text-sp-amber text-xs font-medium hover:bg-sp-amber/20 transition-colors">
-          Pay via Parkin
+          Pay via app
         </button>
       </div>
     </div>

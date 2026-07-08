@@ -61,7 +61,7 @@ export default function ParkinMock() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-sp-text-1">Parkin</h1>
+            <h1 className="text-xl font-bold text-sp-text-1">Payment</h1>
             <p className="text-[10px] text-sp-text-3">Digital Parking Payment</p>
           </div>
           <div className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-medium border border-emerald-200">
@@ -141,7 +141,7 @@ export default function ParkinMock() {
 
         {/* Footer */}
         <p className="text-center text-[10px] text-sp-text-3">
-          This is a demo placeholder for future Parkin integration
+          This is a demo placeholder for future payment integration
         </p>
       </div>
     );
@@ -212,7 +212,7 @@ export default function ParkinMock() {
         </div>
 
         <p className="text-center text-[10px] text-sp-text-3">
-          This is a demo placeholder for future Parkin integration
+          This is a demo placeholder for future payment integration
         </p>
       </div>
     );
@@ -263,7 +263,7 @@ export default function ParkinMock() {
       </button>
 
       <p className="text-center text-[10px] text-sp-text-3">
-        This is a demo placeholder for future Parkin integration
+        This is a demo placeholder for future payment integration
       </p>
     </div>
   );

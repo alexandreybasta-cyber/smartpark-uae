@@ -8,7 +8,7 @@ const NODES = [
   { icon: '📡', title: 'Thread Mesh', sub: 'Low-power · Self-healing' },
   { icon: '🖥️', title: 'Zone Gateway', sub: 'Raspberry Pi · Zone Agent' },
   { icon: '☁️', title: 'Alibaba Cloud', sub: 'IoT · Qwen · PolarDB', highlight: true },
-  { icon: '📱', title: 'Driver App', sub: 'Parkin · RTA · Maps' },
+  { icon: '📱', title: 'Driver App', sub: 'Payment · RTA · Maps' },
   { icon: '🛡️', title: 'Enforcement System', sub: 'Fines · Violations · 24/7' },
 ];
 

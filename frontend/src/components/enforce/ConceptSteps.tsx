@@ -13,7 +13,7 @@ const STEPS = [
   },
   {
     title: 'Payment is checked automatically',
-    desc: 'The platform matches the occupied bay against Parkin / RTA payment records in real time. A paid session ends the story here — nothing is flagged.',
+    desc: 'The platform matches the occupied bay against operator / RTA payment records in real time. A paid session ends the story here — nothing is flagged.',
     tag: 'VERIFY',
     color: T.purple,
   },
@@ -242,7 +242,7 @@ function BayScene({ step }: { step: number }) {
               className="w-2 h-2 rounded-full"
               style={{ backgroundColor: step >= 2 ? T.red : T.purple }}
             />
-            Parkin / RTA check:&nbsp;
+            Operator / RTA check:&nbsp;
             <span style={{ color: T.red, opacity: step >= 1 ? 1 : 0 }} className="font-bold">
               no active session
             </span>

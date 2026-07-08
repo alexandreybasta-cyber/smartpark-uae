@@ -101,7 +101,7 @@ export default function SpotSheet({ spot, onClose }: SpotSheetProps) {
             href="#"
             className="flex-1 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-sm font-medium text-center transition-colors"
           >
-            Pay via Parkin
+            Pay via app
           </a>
         </div>
       </div>

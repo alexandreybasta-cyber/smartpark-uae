@@ -28,7 +28,7 @@ const SCRIPT: Line[] = [
   },
   {
     kind: 'agent',
-    text: '3 active violations near you. Closest: Bay 314-09 on Street 2C — occupied 34 min, no Parkin session. 240m ahead on your right. The other two are queued on your return loop.',
+    text: '3 active violations near you. Closest: Bay 314-09 on Street 2C — occupied 34 min, no active parking session. 240m ahead on your right. The other two are queued on your return loop.',
   },
   { kind: 'officer', text: 'Was a fine signaled for bay 312-05?' },
   {

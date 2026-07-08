@@ -144,7 +144,7 @@ export function runLocalAgent(
   if (intent === 'pay') {
     return {
       text: 'Payment integration is available. Your session will be auto-charged at AED 4/hr when you leave the zone.',
-      reasoning_steps: ['Detected payment intent', 'Demo mode: simulated Parkin payment response'],
+      reasoning_steps: ['Detected payment intent', 'Demo mode: simulated payment response'],
     };
   }
 

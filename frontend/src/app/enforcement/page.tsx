@@ -87,7 +87,7 @@ function initEvents(spots: SpotData[]): TimelineEvent[] {
     events.push({
       id: `ev-${s.id}-paid`,
       time: formatTime(Date.now() - Math.random() * 1800000),
-      message: `Spot ${s.id} payment confirmed via Parkin`,
+      message: `Spot ${s.id} payment confirmed via the parking app`,
       type: 'resolved',
     });
   });
@@ -169,7 +169,7 @@ export default function EnforcementPage() {
             setEvents((evts) => ([{
               id: `ev-${Date.now()}-res`,
               time: getTimeNow(),
-              message: `Spot ${target.id} payment confirmed via Parkin — violation resolved`,
+              message: `Spot ${target.id} payment confirmed via the parking app — violation resolved`,
               type: 'resolved' as const,
             }, ...evts] satisfies TimelineEvent[]).slice(0, 30));
           }

@@ -47,7 +47,7 @@ export default function ViolationDetail({ violation, onClose, onAction }: Violat
             </div>
             <div>
               <span className="text-sp-text-3 block mb-0.5">Payment Status</span>
-              <span className="font-medium text-sp-red">No active session found in Parkin</span>
+              <span className="font-medium text-sp-red">No active session found in the payment system</span>
             </div>
           </div>
 

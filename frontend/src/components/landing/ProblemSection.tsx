@@ -23,7 +23,7 @@ const PROBLEMS = [
     ),
     iconBg: 'bg-sp-amber/15',
     title: 'No Real-Time Intelligence',
-    desc: 'Most parking systems show static data. No predictive guidance, no zone coordination, no integration with navigation apps like Parkin or RTA.',
+    desc: 'Most parking systems show static data. No predictive guidance, no zone coordination, no integration with navigation apps like city parking apps or RTA.',
   },
   {
     icon: (

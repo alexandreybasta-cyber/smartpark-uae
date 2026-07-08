@@ -11,8 +11,8 @@ const CASES = [
     color: T.cyan,
     kicker: 'DRIVER COPILOT',
     title: 'Find. Park. Pay.',
-    body: 'A driver asks — by voice — "any parking near my work?" The agent knows every free bay in real time, ranks by distance and predicted availability, navigates them in, and hands payment to Parkin.',
-    points: ['Voice-first, Arabic & English', 'Ranked by distance + prediction', 'Deep-links into Parkin to pay'],
+    body: 'A driver asks — by voice — "any parking near my work?" The agent knows every free bay in real time, ranks by distance and predicted availability, navigates them in, and hands off payment.',
+    points: ['Voice-first, Arabic & English', 'Ranked by distance + prediction', 'Deep-links into the parking app to pay'],
     demo: 'driver' as const,
   },
   {
@@ -20,7 +20,7 @@ const CASES = [
     color: T.red,
     kicker: 'ENFORCEMENT',
     title: 'Detect. Flag. Fine.',
-    body: 'The same sensor sees a car with no Parkin session. Grace timer runs out — the bay is flagged to the authority platform and the nearest ANPR patrol is routed straight to it. The existing RTA fine system closes the loop.',
+    body: 'The same sensor sees a car with no active parking session. Grace timer runs out — the bay is flagged to the authority platform and the nearest ANPR patrol is routed straight to it. The existing RTA fine system closes the loop.',
     points: ['No more blind camera-car sweeps', 'Patrols routed by the agent', 'Fine confirmation synced back'],
     demo: 'enforce' as const,
     href: '#concept',
@@ -138,7 +138,7 @@ function DriverMiniDemo() {
         transition={{ delay: 1.1 }}
       >
         Bay <span className="font-mono font-bold" style={{ color: T.green }}>314-09</span> is free —
-        2 min walk. Navigating… payment ready in Parkin.
+        2 min walk. Navigating… payment ready in the parking app.
       </motion.div>
     </div>
   );

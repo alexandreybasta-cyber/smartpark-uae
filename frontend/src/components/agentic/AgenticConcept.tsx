@@ -30,7 +30,7 @@ const STAGES = [
     title: 'REASON',
     color: T.cyan,
     heading: 'A Qwen agent thinks about every event',
-    body: 'This is what makes the IoT agentic. For every occupied bay the agent evaluates context: Is there a Parkin session? How long has it been unpaid? Who needs to know — a driver looking for a spot, or a patrol two streets away?',
+    body: 'This is what makes the IoT agentic. For every occupied bay the agent evaluates context: Is there a parking session? How long has it been unpaid? Who needs to know — a driver looking for a spot, or a patrol two streets away?',
   },
   {
     id: 'act',
@@ -219,7 +219,7 @@ function ConnectVisual() {
 // 03 — agent core with orbiting context chips
 function ReasonVisual() {
   const chips = [
-    { label: 'Parkin session?', angle: 0 },
+    { label: 'Parking session?', angle: 0 },
     { label: 'unpaid 12 min', angle: 90 },
     { label: 'patrol 240m', angle: 180 },
     { label: 'driver nearby?', angle: 270 },

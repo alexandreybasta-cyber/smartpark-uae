@@ -39,8 +39,8 @@ export default function SpotSheet({ spot, zone, onClose }: Props) {
       await Linking.openURL('parkin://pay');
     } catch {
       Alert.alert(
-        'Parkin integration (mock)',
-        `In production this deep-links into the Parkin app to pay for spot ${spot.id} at AED ${zone?.price_per_hour ?? 4}/hr. SpotSense finds the spot — Parkin handles payment.`
+        'Payment integration (mock)',
+        `In production this deep-links into the parking app to pay for spot ${spot.id} at AED ${zone?.price_per_hour ?? 4}/hr. SpotSense finds the spot — the parking app handles payment.`
       );
     }
   };
@@ -76,7 +76,7 @@ export default function SpotSheet({ spot, zone, onClose }: Props) {
           <Text style={styles.primaryText}>Navigate</Text>
         </Pressable>
         <Pressable style={[styles.button, styles.secondary]} onPress={payWithParkin}>
-          <Text style={styles.secondaryText}>Pay via Parkin</Text>
+          <Text style={styles.secondaryText}>Pay via app</Text>
         </Pressable>
       </View>
     </View>

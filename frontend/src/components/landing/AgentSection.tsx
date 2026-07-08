@@ -52,7 +52,7 @@ const AGENTS = [
     iconBg: 'bg-sp-amber/15',
     title: 'Driver Guidance Agent',
     subtitle: 'Conversational navigation interface',
-    desc: 'Natural-language interface integrated with Parkin and RTA apps. Guides drivers to the nearest available spot, answers questions about availability, and proactively suggests alternatives.',
+    desc: 'Natural-language interface integrated with city parking and RTA apps. Guides drivers to the nearest available spot, answers questions about availability, and proactively suggests alternatives.',
   },
   {
     icon: (
@@ -64,7 +64,7 @@ const AGENTS = [
     iconBg: 'bg-red-500/15',
     title: 'Enforcement Agent',
     subtitle: 'Automated violation detection',
-    desc: 'Detects occupied spots, cross-checks payment status with Parkin. Flags unpaid vehicles automatically — no inspectors needed. Covers 100% of monitored streets 24/7.',
+    desc: 'Detects occupied spots, cross-checks payment status with the operator. Flags unpaid vehicles automatically — no inspectors needed. Covers 100% of monitored streets 24/7.',
   },
 ];
 

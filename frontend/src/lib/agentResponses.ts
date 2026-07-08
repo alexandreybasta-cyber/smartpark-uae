@@ -123,10 +123,10 @@ export function processQuery(query: string, savedPlaces: SavedPlace[]): AgentRes
   // enforcement: "enforce" or "fine" or "paid" or "violation" or "inspector"
   if (q.includes('enforce') || q.includes('fine') || q.includes('paid') || q.includes('violation') || q.includes('inspector')) {
     return {
-      text: 'SpotSense\'s sensors detect vehicle occupancy in real-time and cross-reference with Parkin\'s payment database. When a spot is occupied without active payment, the system automatically flags it for enforcement — eliminating the need for manual inspectors. This covers 100% of monitored streets 24/7.',
+      text: 'SpotSense\'s sensors detect vehicle occupancy in real-time and cross-reference with the operator\'s payment database. When a spot is occupied without active payment, the system automatically flags it for enforcement — eliminating the need for manual inspectors. This covers 100% of monitored streets 24/7.',
       reasoningSteps: [
         '✓ Sensor detects vehicle in spot B-07...',
-        '✓ Querying Parkin payment API for spot B-07...',
+        '✓ Querying the payment API for spot B-07...',
         '✓ No active payment session found',
         '✓ Grace period (5 min) elapsed',
         '✓ Flagging vehicle for enforcement',

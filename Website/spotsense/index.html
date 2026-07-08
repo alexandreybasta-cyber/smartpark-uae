@@ -55,7 +55,7 @@
         <div class="story__feed mono">
           <p class="feed-line" data-feed>LD2410 &nbsp;· presence=1 · micro-motion 0.02 m/s</p>
           <p class="feed-line" data-feed>QWEN-MAX &nbsp;· intent: enforce · confidence 0.97</p>
-          <p class="feed-line" data-feed>PARKIN &nbsp;· session #88231 · settled · AED 4.00</p>
+          <p class="feed-line" data-feed>PAYMENT &nbsp;· session #88231 · settled · AED 4.00</p>
           <p class="feed-line feed-line--dim" data-feed>no camera · no plate read · no human in the loop<span class="caret"></span></p>
         </div>
       </div>
@@ -73,7 +73,7 @@
      usecase1-loop.mp4 as the "monitored feed" with the countdown
      HUD laid over it (the timer is UI, not in the video), plus
      the live dispatch mini-map beneath — sensor blink → 4:00
-     countdown → Parkin handshake → Glid reroute, all on scroll.
+     countdown → payment handshake → Glid reroute, all on scroll.
 ============================================================ -->
 <section class="uc1" id="uc1">
   <div class="uc1__stage">
@@ -114,7 +114,7 @@
           <circle id="uc1-ping2" cx="522" cy="365" r="8"/>
           <g id="uc1-parkin" class="uc1-node">
             <rect x="300" y="330" width="150" height="54" rx="6"/>
-            <text class="mono" x="375" y="352" text-anchor="middle">PARKIN API</text>
+            <text class="mono" x="375" y="352" text-anchor="middle">PAYMENT API</text>
             <text class="mono uc1-node__sub" x="375" y="371" text-anchor="middle">POST /enforce</text>
           </g>
           <path id="uc1-handshake" d="M 500 365 L 452 361" />
@@ -145,7 +145,7 @@
         </li>
         <li class="uc1__step" data-step="2">
           <span class="mono uc1__step-key">02 SETTLE</span>
-          <p>EnforcementAgent calls Parkin. The bay bills itself.</p>
+          <p>EnforcementAgent calls the payment API. The bay bills itself.</p>
         </li>
         <li class="uc1__step" data-step="3">
           <span class="mono uc1__step-key">03 DISPATCH</span>
@@ -289,7 +289,7 @@
       <g class="arch-col-label mono"><text x="1160" y="60">CITY</text></g>
       <g class="arch-node" data-arch="4">
         <rect x="1090" y="88" width="230" height="60" rx="6"/>
-        <text class="mono arch-node__name" x="1205" y="112" text-anchor="middle">Parkin API</text>
+        <text class="mono arch-node__name" x="1205" y="112" text-anchor="middle">Payment API</text>
         <text class="mono arch-node__sub"  x="1205" y="132" text-anchor="middle">sessions · billing</text>
       </g>
       <g class="arch-node" data-arch="4">
@@ -338,7 +338,7 @@
 ============================================================ -->
 <div class="ribbon" aria-label="Technology stack">
   <p class="ribbon__row mono">
-    <span>LD2410</span><span>ESP32-S3</span><span>MQTT</span><span>ALIBABA CLOUD IOT</span><span>QWEN-MAX</span><span>QWEN-PLUS</span><span>PARKIN API</span><span>GLID DISPATCH</span><span>DEEP LINKS</span>
+    <span>LD2410</span><span>ESP32-S3</span><span>MQTT</span><span>ALIBABA CLOUD IOT</span><span>QWEN-MAX</span><span>QWEN-PLUS</span><span>PAYMENT API</span><span>GLID DISPATCH</span><span>DEEP LINKS</span>
   </p>
 </div>
 
@@ -353,7 +353,7 @@
     <div class="impact__grid">
       <div class="impact__stat">
         <span class="impact__num" data-count="18" data-prefix="+" data-suffix="%">+0%</span>
-        <span class="impact__label mono">PARKIN REVENUE CAPTURE</span>
+        <span class="impact__label mono">OPERATOR REVENUE CAPTURE</span>
       </div>
       <div class="impact__stat">
         <span class="impact__num" data-count="6" data-prefix="&lt;" data-suffix="&nbsp;min">&lt;0&nbsp;min</span>
@@ -375,7 +375,7 @@
   <div class="pilot__inner">
     <h2 class="pilot__title" data-pilot>Pilot one street.</h2>
     <p class="pilot__spec mono" data-pilot>200 SENSORS · 4 WEEKS · JBR — THE WALK</p>
-    <p class="pilot__body" data-pilot>One street, fully self-aware. Parkin sees the revenue.<br>Glid sees the dispatch times. Drivers just stop circling.</p>
+    <p class="pilot__body" data-pilot>One street, fully self-aware. The operator sees the revenue.<br>Glid sees the dispatch times. Drivers just stop circling.</p>
     <!-- PLACEHOLDER[pilot-contact]: wire this button to the real
          contact/demo destination when it exists. Intentionally inert. -->
     <a class="pilot__btn" href="#pilot" data-pilot data-placeholder="contact">Request the pilot deck</a>
@@ -423,7 +423,7 @@
     </details>
     <details class="faq__item">
       <summary>Why no cameras?</summary>
-      <p>mmWave radar reads presence, not identity. No plates, no faces, nothing stored that can leak. Enforcement stays with Parkin's own systems.</p>
+      <p>mmWave radar reads presence, not identity. No plates, no faces, nothing stored that can leak. Enforcement stays with the operator's own systems.</p>
     </details>
     <details class="faq__item">
       <summary>What does one bay cost?</summary>
