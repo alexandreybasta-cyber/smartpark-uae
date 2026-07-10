@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpotSense — IoT Prototype Kit</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1a1a1a; line-height: 1.6; background: #fafafa; }
+  
+  .hero { background: #18181b; color: #fff; padding: 40px 24px 32px; text-align: center; }
+  .hero h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+  .hero h1 span { color: #F97316; }
+  .hero .subtitle { color: #a1a1aa; font-size: 14px; margin-bottom: 16px; }
+  .hero .badge { display: inline-block; background: #F97316; color: #fff; font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 20px; }
+  .hero .budget { margin-top: 16px; font-size: 28px; font-weight: 700; }
+  .hero .budget small { font-size: 14px; color: #a1a1aa; font-weight: 400; }
+
+  .container { max-width: 800px; margin: 0 auto; padding: 24px 16px; }
+  
+  h2 { font-size: 18px; font-weight: 700; margin: 32px 0 12px; padding-bottom: 8px; border-bottom: 2px solid #F97316; display: inline-block; }
+  h3 { font-size: 15px; font-weight: 600; color: #52525b; margin: 16px 0 8px; }
+
+  .cards { display: grid; gap: 12px; margin-top: 12px; }
+  .card { background: #fff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 16px; }
+  .card .item-name { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+  .card .item-desc { font-size: 13px; color: #71717a; margin-bottom: 10px; }
+  .card .price-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .card .price { font-size: 18px; font-weight: 700; color: #18181b; }
+  .card .delivery { font-size: 12px; color: #16a34a; font-weight: 500; }
+  .card .stock-warn { font-size: 12px; color: #dc2626; font-weight: 500; }
+  
+  .btn { display: inline-block; background: #F97316; color: #fff; font-size: 13px; font-weight: 600; padding: 8px 16px; border-radius: 8px; text-decoration: none; transition: background 0.2s; }
+  .btn:hover { background: #ea580c; }
+  .btn-outline { background: transparent; border: 1.5px solid #F97316; color: #F97316; }
+  .btn-outline:hover { background: #FFF7ED; }
+  .btn-sm { padding: 5px 12px; font-size: 12px; }
+
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  @media (max-width: 600px) { .compare { grid-template-columns: 1fr; } }
+  .compare .col { background: #fff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 16px; }
+  .compare .col h3 { margin-top: 0; color: #18181b; }
+  .compare .col ul { list-style: none; padding: 0; font-size: 13px; }
+  .compare .col ul li { padding: 4px 0; border-bottom: 1px solid #f4f4f5; }
+  .compare .col ul li:last-child { border: none; }
+
+  pre { background: #18181b; color: #e4e4e7; padding: 16px; border-radius: 10px; font-size: 13px; overflow-x: auto; margin-top: 12px; }
+  code { background: #f4f4f5; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+
+  .flow { background: #fff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 20px; margin-top: 12px; }
+  .flow-step { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+  .flow-step:last-child { margin-bottom: 0; }
+  .flow-num { background: #F97316; color: #fff; min-width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
+  .flow-text { font-size: 14px; padding-top: 3px; }
+  .flow-text strong { color: #18181b; }
+
+  .timeline { margin-top: 12px; }
+  .timeline table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; border: 1px solid #e4e4e7; }
+  .timeline th { background: #18181b; color: #fff; padding: 10px 12px; font-size: 13px; text-align: left; }
+  .timeline td { padding: 10px 12px; font-size: 13px; border-bottom: 1px solid #f4f4f5; }
+
+  .checklist { margin-top: 12px; background: #fff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 16px; }
+  .checklist label { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: 14px; border-bottom: 1px solid #f4f4f5; cursor: pointer; }
+  .checklist label:last-child { border: none; }
+  .checklist input[type="checkbox"] { width: 18px; height: 18px; accent-color: #F97316; }
+
+  .note { font-size: 12px; color: #71717a; margin-top: 8px; }
+  .section-note { background: #FFF7ED; border: 1px solid #FDBA74; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: #9a3412; margin-top: 12px; }
+
+  .footer { text-align: center; padding: 32px 16px; color: #a1a1aa; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1><span>SpotSense</span> IoT Prototype Kit</h1>
+  <p class="subtitle">Edge mmWave sensor → WiFi → Backend → Live App</p>
+  <div class="badge">1 sensor + 1 ESP32 + power bank = working demo</div>
+  <div class="budget">~AED 111 <small>/ ~$30 USD</small></div>
+</div>
+
+<div class="container">
+
+  <!-- SHOPPING LIST -->
+  <h2>Shopping List — Ships to Dubai</h2>
+
+  <h3>ESP32-C3 SuperMini (WiFi Brain)</h3>
+  <div class="cards">
+    <div class="card">
+      <div class="item-name">ESP32-C3 SuperMini Development Board</div>
+      <div class="item-desc">WiFi + Bluetooth 5.0, USB-C, RISC-V, coin-sized. This reads the sensor and sends data to your backend over WiFi.</div>
+      <div class="price-row">
+        <div>
+          <span class="price">AED 34</span>
+          <span class="delivery">✓ In Stock — delivers Jul 12–13</span>
+        </div>
+        <a href="https://www.amazon.ae/ESP32-C3-Development-Board-Bluetooth-SuperMini/dp/B0F5MXD9DH" target="_blank" class="btn">Buy on Amazon.ae</a>
+      </div>
+    </div>
+  </div>
+
+  <h3>LD2410B mmWave Radar Sensor</h3>
+  <div class="cards">
+    <div class="card">
+      <div class="item-name">JESSINIE HLK-LD2410B-P (with Dupont cable)</div>
+      <div class="item-desc">24GHz mmWave presence sensor. Detects car/person presence. Comes with connection cable — no soldering needed.</div>
+      <div class="price-row">
+        <div>
+          <span class="price">AED 54</span>
+          <span class="stock-warn">⚠ Only 1 left — order now</span>
+        </div>
+        <a href="https://www.amazon.ae/JESSINIE-HLK-LD2410B-P-Presence-Bluetooth-LD2410B/dp/B0C36FRVHR" target="_blank" class="btn">Buy on Amazon.ae</a>
+      </div>
+    </div>
+    <div class="card">
+      <div class="item-name">EC Buying HLK-LD2410B (backup option)</div>
+      <div class="item-desc">Same LD2410B sensor. More expensive but reliable stock and FREE delivery.</div>
+      <div class="price-row">
+        <div>
+          <span class="price">AED 137</span>
+          <span class="delivery">✓ FREE delivery Jul 17–20</span>
+        </div>
+        <a href="https://www.amazon.ae/EC-Buying-HLK-LD2410B-Intelligent-Bluetooth/dp/B0BXDP2C8L" target="_blank" class="btn btn-outline">Buy on Amazon.ae</a>
+      </div>
+    </div>
+    <div class="card">
+      <div class="item-name">AEDIKO 4pcs LD2410B (multi-bay demo)</div>
+      <div class="item-desc">4-pack — if you want to demo multiple parking bays simultaneously.</div>
+      <div class="price-row">
+        <div>
+          <span class="price">4-pack</span>
+        </div>
+        <a href="https://www.amazon.ae/AEDIKO-LD2410B-Presence-Bluetooth-HLK-LD2410/dp/B0GWM4TKJD" target="_blank" class="btn btn-outline">Buy on Amazon.ae</a>
+      </div>
+    </div>
+  </div>
+
+  <h3>Jumper Wires</h3>
+  <div class="cards">
+    <div class="card">
+      <div class="item-name">MMOBIEL 120pcs Dupont Jumper Wires</div>
+      <div class="item-desc">Male-Male, Male-Female, Female-Female included. Everything you need for prototyping.</div>
+      <div class="price-row">
+        <div>
+          <span class="price">AED 23</span>
+          <span class="delivery">✓ Next-Day delivery available</span>
+        </div>
+        <a href="https://www.amazon.ae/MMOBIEL-120-Multicolored-Dupont-Breadboard/dp/B09CGZVLMQ" target="_blank" class="btn">Buy on Amazon.ae</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-note">
+    <strong>Power:</strong> Use any USB power bank you already have. Plug USB-C into the ESP32. That's it — no batteries to buy for the demo.
+  </div>
+
+  <!-- FASTEST vs CHEAPEST -->
+  <h2>Fastest vs Cheapest</h2>
+  <div class="compare">
+    <div class="col">
+      <h3>⚡ Fastest (Amazon.ae)</h3>
+      <ul>
+        <li><strong>AED 111 total</strong></li>
+        <li>ESP32-C3: AED 34 — Jul 12–13</li>
+        <li>LD2410B: AED 54 — ~5 days</li>
+        <li>Wires: AED 23 — tomorrow</li>
+        <li>Start building: this weekend</li>
+      </ul>
+    </div>
+    <div class="col">
+      <h3>💰 Cheapest (AliExpress)</h3>
+      <ul>
+        <li><strong>~AED 40 total (~$10)</strong></li>
+        <li><a href="https://www.aliexpress.com/item/1005005877531694.html" target="_blank">ESP32-C3 ~$2</a></li>
+        <li><a href="https://www.aliexpress.com/item/1005005266032192.html" target="_blank">LD2410B ~$4</a></li>
+        <li><a href="https://www.aliexpress.com/item/1005004229929779.html" target="_blank">LD2410B alt ~$4</a></li>
+        <li>Delivery: 7–15 days to UAE</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- WIRING -->
+  <h2>Wiring (4 wires only)</h2>
+  <pre>LD2410B          ESP32-C3 SuperMini
+───────          ──────────────────
+VCC    ────────→ 3.3V
+GND    ────────→ GND
+OUT    ────────→ GPIO 4  (digital: HIGH = car detected)
+TX     ────────→ GPIO 5  (optional: distance data via UART)</pre>
+  <p class="note">OUT pin goes HIGH when something is within range (car parked), LOW when bay is clear.</p>
+
+  <!-- APP INTEGRATION -->
+  <h2>How It Connects to the App</h2>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-num">1</div>
+      <div class="flow-text"><strong>LD2410B sensor</strong> detects presence (car parked or not)</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">2</div>
+      <div class="flow-text"><strong>ESP32</strong> reads GPIO pin, connects to WiFi (or phone hotspot)</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">3</div>
+      <div class="flow-text"><strong>HTTP POST</strong> → <code>POST /api/sensors/{sensor_id}/heartbeat</code> with <code>{"occupied": true}</code></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">4</div>
+      <div class="flow-text"><strong>Backend</strong> updates Spot status in database</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">5</div>
+      <div class="flow-text"><strong>WebSocket broadcast</strong> → all connected apps update in real-time</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">6</div>
+      <div class="flow-text"><strong>iOS / Web / Mobile</strong> — spot turns red (occupied) or green (free) live</div>
+    </div>
+  </div>
+
+  <!-- 4G NOTE -->
+  <h2>Future: 3G/4G Connectivity</h2>
+  <div class="section-note">
+    For the demo, WiFi (or phone hotspot) is enough. For field deployment without WiFi, swap the ESP32-C3 for a <strong>LilyGO T-SIM7600</strong> (~AED 100–130) — it's an ESP32 with a built-in 4G modem. Insert any UAE SIM card and it works anywhere with cellular coverage.
+  </div>
+
+  <!-- 3-DAY PLAN -->
+  <h2>3-Day Plan</h2>
+  <div class="timeline">
+    <table>
+      <tr><th>Day</th><th>You</th><th>Software (ready when hardware arrives)</th></tr>
+      <tr><td><strong>1</strong></td><td>Order parts on Amazon.ae</td><td>ESP32 firmware + backend endpoint written</td></tr>
+      <tr><td><strong>2</strong></td><td>Wire 4 cables, flash firmware via USB-C</td><td>Test full pipeline end-to-end</td></tr>
+      <tr><td><strong>3</strong></td><td>Place near parking spot, walk in/out</td><td>Watch app update live — demo ready</td></tr>
+    </table>
+  </div>
+
+  <!-- CHECKLIST -->
+  <h2>Checklist</h2>
+  <div class="checklist">
+    <label><input type="checkbox"> Order ESP32-C3 SuperMini on Amazon.ae</label>
+    <label><input type="checkbox"> Order LD2410B sensor on Amazon.ae</label>
+    <label><input type="checkbox"> Order jumper wires (or confirm you have some)</label>
+    <label><input type="checkbox"> Confirm USB-C cable + power bank on hand</label>
+    <label><input type="checkbox"> Backend: <code>/api/sensors/{id}/heartbeat</code> endpoint added</label>
+    <label><input type="checkbox"> Firmware: ESP32 Arduino .ino written and tested</label>
+    <label><input type="checkbox"> Wire sensor → ESP32 (4 wires)</label>
+    <label><input type="checkbox"> Flash firmware via USB</label>
+    <label><input type="checkbox"> Connect to WiFi / hotspot</label>
+    <label><input type="checkbox"> End-to-end test: sensor → backend → app shows live update</label>
+  </div>
+
+</div>
+
+<div class="footer">
+  SpotSense IoT Prototype Kit — Updated July 2026
+</div>
+
+</body>
+</html>
