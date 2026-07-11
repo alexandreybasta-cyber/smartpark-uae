@@ -90,6 +90,23 @@ actor APIClient {
         return try await post("/api/agent/text", body: request, timeout: timeout)
     }
 
+    // MARK: - Recommend
+
+    func fetchRecommendedSpot(
+        destinationLat: Double,
+        destinationLng: Double,
+        savedPlaceLat: Double?,
+        savedPlaceLng: Double?,
+        userLat: Double,
+        userLng: Double
+    ) async throws -> RecommendResponse {
+        var path = "/api/recommend?dest_lat=\(destinationLat)&dest_lng=\(destinationLng)&user_lat=\(userLat)&user_lng=\(userLng)"
+        if let spLat = savedPlaceLat, let spLng = savedPlaceLng {
+            path += "&place_lat=\(spLat)&place_lng=\(spLng)"
+        }
+        return try await get(path)
+    }
+
     // MARK: - Private Helpers
 
     private func get<T: Decodable>(_ path: String, timeout: TimeInterval = 5) async throws -> T {

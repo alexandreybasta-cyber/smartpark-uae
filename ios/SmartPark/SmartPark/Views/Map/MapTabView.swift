@@ -3,6 +3,7 @@ import MapKit
 
 struct MapTabView: View {
     @Environment(AppState.self) private var appState
+    @Environment(NavigationViewModel.self) private var navigationVM
     @State private var viewModel = MapViewModel()
     @State private var proximitySpot: Spot?
     @State private var showProximityBanner = true
@@ -28,6 +29,7 @@ struct MapTabView: View {
     }
     
     var body: some View {
+        @Bindable var navVM = navigationVM
         ZStack(alignment: .top) {
             // Map with annotations and overlays
             Map(position: $viewModel.cameraPosition) {
@@ -162,6 +164,20 @@ struct MapTabView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .padding(.top, 70)
             
+            // Geofence active banner
+            if navigationVM.isNavigating, let dest = navigationVM.activeDestination {
+                VStack {
+                    Spacer()
+                    GeofenceActiveBanner(
+                        destinationName: dest.customName ?? dest.label,
+                        onCancel: { navigationVM.cancelNavigation() }
+                    )
+                    .padding(.horizontal, DesignTokens.spacingLG)
+                    .padding(.bottom, showParkingResults ? 200 : (showParkingButton ? 80 : 24))
+                }
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+            
             // Floating "Search for Parking" button
             if showParkingButton && !showParkingResults {
                 VStack {
@@ -199,6 +215,10 @@ struct MapTabView: View {
                 SpotDetailSheet(spot: spot)
                     .presentationDetents([.height(280)])
             }
+        }
+        .sheet(isPresented: $navVM.showNavigateSheet) {
+            NavigateSheet(navigationVM: navigationVM)
+                .environment(appState)
         }
         .onChange(of: appState.mapFocusCoordinate) { _, newValue in
             if let coord = newValue {
@@ -365,6 +385,20 @@ struct MapTabView: View {
             }
             .buttonStyle(.borderedProminent)
             .tint(DesignTokens.primaryOrange)
+            
+            // Navigate to destination button
+            if navigationVM.activeDestination != nil {
+                Button(action: showNavigateSheet) {
+                    HStack {
+                        Image(systemName: "location.fill")
+                        Text("Navigate to Destination")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                }
+                .buttonStyle(.bordered)
+                .tint(DesignTokens.primaryOrange)
+            }
         }
         .padding(DesignTokens.spacingLG)
         .background(DesignTokens.cardBackground)
@@ -412,6 +446,18 @@ struct MapTabView: View {
         withAnimation(.easeOut(duration: 0.3)) {
             showParkingButton = true
         }
+        
+        // Set up navigation destination from search result
+        let place = SavedPlace(
+            id: 0,
+            userId: "search",
+            label: item.name ?? "Destination",
+            customName: item.name,
+            lat: coordinate.latitude,
+            lng: coordinate.longitude,
+            address: item.placemark.title
+        )
+        navigationVM.activeDestination = place
     }
     
     private func clearSearch() {
@@ -480,6 +526,12 @@ struct MapTabView: View {
             viewModel.focusOn(nearest.coordinate)
             viewModel.selectSpot(nearest)
         }
+    }
+    
+    /// Shows the NavigateSheet for the current search destination
+    private func showNavigateSheet() {
+        guard navigationVM.activeDestination != nil else { return }
+        navigationVM.showNavigateSheet = true
     }
     
     // MARK: - Helpers

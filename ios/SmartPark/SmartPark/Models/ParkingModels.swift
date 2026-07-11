@@ -184,6 +184,29 @@ struct SpotUpdate: Codable {
     }
 }
 
+// MARK: - Recommend Response
+struct RecommendResponse: Codable {
+    let spotId: String
+    let spotLat: Double
+    let spotLng: Double
+    let spotName: String
+    let zoneName: String
+    let walkingDistanceMeters: Int
+    let score: Double
+    let timeFreeSeconds: Int
+
+    enum CodingKeys: String, CodingKey {
+        case spotId = "spot_id"
+        case spotLat = "spot_lat"
+        case spotLng = "spot_lng"
+        case spotName = "spot_name"
+        case zoneName = "zone_name"
+        case walkingDistanceMeters = "walking_distance_meters"
+        case score
+        case timeFreeSeconds = "time_free_seconds"
+    }
+}
+
 // MARK: - App Enums
 enum ConnectionMode {
     case connecting

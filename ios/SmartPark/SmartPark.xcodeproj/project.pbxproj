@@ -37,6 +37,12 @@
 		A1000028 /* MockViolations.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000038 /* MockViolations.swift */; };
 		A1000029 /* ProximityBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000039 /* ProximityBanner.swift */; };
 		A1000030 /* SpeechRecognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000040 /* SpeechRecognitionService.swift */; };
+		A1000031 /* GeofenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000041 /* GeofenceService.swift */; };
+		A1000032 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000042 /* NotificationService.swift */; };
+		A1000033 /* NavigationRedirectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000043 /* NavigationRedirectService.swift */; };
+		A1000034 /* SpotRecommendationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000044 /* SpotRecommendationEngine.swift */; };
+		A1000035 /* NavigationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000045 /* NavigationViewModel.swift */; };
+		A1000036 /* NavigateSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000046 /* NavigateSheet.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -72,6 +78,12 @@
 		B1000038 /* MockViolations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockViolations.swift; sourceTree = "<group>"; };
 		B1000039 /* ProximityBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProximityBanner.swift; sourceTree = "<group>"; };
 		B1000040 /* SpeechRecognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionService.swift; sourceTree = "<group>"; };
+		B1000041 /* GeofenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeofenceService.swift; sourceTree = "<group>"; };
+		B1000042 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		B1000043 /* NavigationRedirectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationRedirectService.swift; sourceTree = "<group>"; };
+		B1000044 /* SpotRecommendationEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotRecommendationEngine.swift; sourceTree = "<group>"; };
+		B1000045 /* NavigationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationViewModel.swift; sourceTree = "<group>"; };
+		B1000046 /* NavigateSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigateSheet.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,6 +149,10 @@
 				B1000030 /* QwenAgentService.swift */,
 				B1000031 /* SpeechService.swift */,
 				B1000040 /* SpeechRecognitionService.swift */,
+				B1000041 /* GeofenceService.swift */,
+				B1000042 /* NotificationService.swift */,
+				B1000043 /* NavigationRedirectService.swift */,
+				B1000044 /* SpotRecommendationEngine.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -148,6 +164,7 @@
 				B1000018 /* InsightsViewModel.swift */,
 				B1000021 /* MapViewModel.swift */,
 				B1000032 /* AgentViewModel.swift */,
+				B1000045 /* NavigationViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -161,6 +178,7 @@
 				D1000013 /* Map */,
 				D1000014 /* Agent */,
 				D1000015 /* Settings */,
+				D1000016 /* Navigation */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -225,6 +243,14 @@
 				B1000037 /* SettingsView.swift */,
 			);
 			path = Settings;
+			sourceTree = "<group>";
+		};
+		D1000016 /* Navigation */ = {
+			isa = PBXGroup;
+			children = (
+				B1000046 /* NavigateSheet.swift */,
+			);
+			path = Navigation;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -325,6 +351,12 @@
 				A1000028 /* MockViolations.swift in Sources */,
 				A1000029 /* ProximityBanner.swift in Sources */,
 				A1000030 /* SpeechRecognitionService.swift in Sources */,
+				A1000031 /* GeofenceService.swift in Sources */,
+				A1000032 /* NotificationService.swift in Sources */,
+				A1000033 /* NavigationRedirectService.swift in Sources */,
+				A1000034 /* SpotRecommendationEngine.swift in Sources */,
+				A1000035 /* NavigationViewModel.swift in Sources */,
+				A1000036 /* NavigateSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -460,6 +492,8 @@
 				DEVELOPMENT_TEAM = T3KX3F4LGB;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = SpotSense;
+				INFOPLIST_KEY_LSApplicationQueriesSchemes = "comgooglemaps waze";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "SpotSense needs your location to notify you of free parking spots when you arrive at your destination.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "SpotSense needs your location to find nearby parking spots.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "SpotSense uses the microphone for voice commands to the parking agent.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "SpotSense uses speech recognition to understand your parking requests.";
@@ -468,6 +502,7 @@
 				INFOPLIST_KEY_SMARTPARK_API_BASE_URL = "$(SMARTPARK_API_BASE_URL)";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UIBackgroundModes = location;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -495,6 +530,8 @@
 				DEVELOPMENT_TEAM = T3KX3F4LGB;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = SpotSense;
+				INFOPLIST_KEY_LSApplicationQueriesSchemes = "comgooglemaps waze";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "SpotSense needs your location to notify you of free parking spots when you arrive at your destination.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "SpotSense needs your location to find nearby parking spots.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "SpotSense uses the microphone for voice commands to the parking agent.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "SpotSense uses speech recognition to understand your parking requests.";
@@ -503,6 +540,7 @@
 				INFOPLIST_KEY_SMARTPARK_API_BASE_URL = "$(SMARTPARK_API_BASE_URL)";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UIBackgroundModes = location;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";

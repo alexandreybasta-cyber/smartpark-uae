@@ -3,9 +3,11 @@ import MapKit
 
 struct PlacesTabView: View {
     @Environment(AppState.self) private var appState
+    @Environment(NavigationViewModel.self) private var navigationVM
     @State private var viewModel = PlacesViewModel()
 
     var body: some View {
+        @Bindable var navVM = navigationVM
         NavigationStack {
             Group {
                 if viewModel.isLoading && viewModel.places.isEmpty {
@@ -21,6 +23,9 @@ struct PlacesTabView: View {
                         ForEach(viewModel.places) { place in
                             PlaceRow(place: place, onFindParking: {
                                 appState.askAgent(query: "Find parking near my \(place.label) at \(place.customName ?? place.label)")
+                            }, onNavigate: {
+                                navigationVM.activeDestination = place
+                                navigationVM.showNavigateSheet = true
                             })
                         }
                         .onDelete { indexSet in
@@ -52,6 +57,10 @@ struct PlacesTabView: View {
             .refreshable {
                 await viewModel.loadPlaces()
             }
+            .sheet(isPresented: $navVM.showNavigateSheet) {
+                NavigateSheet(navigationVM: navigationVM)
+                    .environment(appState)
+            }
         }
     }
 }
@@ -60,6 +69,7 @@ struct PlacesTabView: View {
 struct PlaceRow: View {
     let place: SavedPlace
     let onFindParking: () -> Void
+    let onNavigate: () -> Void
 
     var body: some View {
         HStack(spacing: DesignTokens.spacingMD) {
@@ -80,6 +90,16 @@ struct PlaceRow: View {
             }
 
             Spacer()
+
+            Button(action: onNavigate) {
+                Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
+                    .font(.body)
+                    .foregroundColor(.white)
+                    .padding(8)
+                    .background(DesignTokens.primaryOrange)
+                    .clipShape(Circle())
+            }
+            .buttonStyle(.plain)
 
             Button("Find Parking", action: onFindParking)
                 .font(.caption.bold())
