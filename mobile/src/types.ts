@@ -65,5 +65,28 @@ export interface LatLng {
   longitude: number;
 }
 
+// Navigation / geofence types
+export interface RecommendRequest {
+  destination_lat: number;
+  destination_lng: number;
+  saved_place_lat?: number;
+  saved_place_lng?: number;
+  user_lat: number;
+  user_lng: number;
+}
+
+export interface RecommendResponse {
+  spot_id: string;
+  spot_lat: number;
+  spot_lng: number;
+  spot_name: string;
+  zone_name: string;
+  walking_distance_meters: number;
+  score: number;
+  time_free_seconds: number;
+}
+
+export type GPSApp = 'apple_maps' | 'google_maps' | 'waze';
+
 // Demo user location = "Work" (DIC Building 3), same as the web demo.
 export const DEMO_LOCATION = { lat: 25.092, lng: 55.16 };

@@ -1,20 +1,24 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
+  Linking,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   View,
 } from 'react-native';
-import { createPlace, deletePlace, fetchPlaces } from '../api';
-import { BriefcaseIcon, DumbbellIcon, HomeIcon, StarIcon, TrashIcon } from '../components/icons';
+import { createPlace, deletePlace, fetchPlaces, fetchRecommendedSpot } from '../api';
+import { BriefcaseIcon, DumbbellIcon, HomeIcon, NavigateIcon, StarIcon, TrashIcon } from '../components/icons';
 import { useApp } from '../context/AppContext';
 import { haversine } from '../localAgent';
 import { seedPlaces } from '../seed';
 import { colors, radius } from '../theme';
-import { SavedPlace } from '../types';
+import { DEMO_LOCATION, GPSApp, RecommendResponse, SavedPlace } from '../types';
 
 const LABELS = ['home', 'work', 'gym', 'custom'] as const;
 
@@ -26,6 +30,25 @@ function PlaceIcon({ label }: { label: string }) {
   return <StarIcon {...props} />;
 }
 
+function buildNavURL(app: GPSApp, lat: number, lng: number): string {
+  switch (app) {
+    case 'apple_maps':
+      return `maps://?daddr=${lat},${lng}&dirflg=d`;
+    case 'google_maps':
+      return `comgooglemaps://?daddr=${lat},${lng}&directionsmode=driving`;
+    case 'waze':
+      return `waze://?ll=${lat},${lng}&navigate=yes`;
+  }
+}
+
+function appLabel(app: GPSApp): string {
+  switch (app) {
+    case 'apple_maps': return 'Apple Maps';
+    case 'google_maps': return 'Google Maps';
+    case 'waze': return 'Waze';
+  }
+}
+
 export default function PlacesScreen() {
   const { mode, zones, spots, askAgent } = useApp();
   const [places, setPlaces] = useState<SavedPlace[]>([]);
@@ -35,6 +58,12 @@ export default function PlacesScreen() {
   const [formAddress, setFormAddress] = useState('');
   const [formLat, setFormLat] = useState('25.0920');
   const [formLng, setFormLng] = useState('55.1600');
+
+  // Navigation modal state
+  const [navPlace, setNavPlace] = useState<SavedPlace | null>(null);
+  const [findSpot, setFindSpot] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [recommendedSpot, setRecommendedSpot] = useState<RecommendResponse | null>(null);
 
   const load = useCallback(async () => {
     if (mode === 'offline') {
@@ -109,6 +138,92 @@ export default function PlacesScreen() {
         },
       },
     ]);
+  };
+
+  // Navigation modal handlers
+  const openNavModal = (place: SavedPlace) => {
+    setNavPlace(place);
+    setRecommendedSpot(null);
+    setFindSpot(true);
+    setLoading(false);
+  };
+
+  const closeNavModal = () => {
+    setNavPlace(null);
+    setRecommendedSpot(null);
+    setLoading(false);
+  };
+
+  const onFindSpotToggle = async (value: boolean) => {
+    setFindSpot(value);
+    if (value && navPlace && !recommendedSpot) {
+      setLoading(true);
+      try {
+        const result = await fetchRecommendedSpot({
+          destination_lat: navPlace.lat,
+          destination_lng: navPlace.lng,
+          saved_place_lat: navPlace.lat,
+          saved_place_lng: navPlace.lng,
+          user_lat: DEMO_LOCATION.lat,
+          user_lng: DEMO_LOCATION.lng,
+        });
+        setRecommendedSpot(result);
+      } catch {
+        Alert.alert('No spots', 'Could not find a recommended parking spot nearby.');
+        setFindSpot(false);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const onSelectApp = async (app: GPSApp) => {
+    if (!navPlace) return;
+
+    // If "find best spot" is on but spot hasn't loaded yet, fetch first
+    if (findSpot && !recommendedSpot) {
+      setLoading(true);
+      try {
+        const result = await fetchRecommendedSpot({
+          destination_lat: navPlace.lat,
+          destination_lng: navPlace.lng,
+          saved_place_lat: navPlace.lat,
+          saved_place_lng: navPlace.lng,
+          user_lat: DEMO_LOCATION.lat,
+          user_lng: DEMO_LOCATION.lng,
+        });
+        setRecommendedSpot(result);
+        const url = buildNavURL(app, result.spot_lat, result.spot_lng);
+        await Linking.openURL(url);
+      } catch {
+        // Fallback to place coords
+        const url = buildNavURL(app, navPlace.lat, navPlace.lng);
+        await Linking.openURL(url);
+      } finally {
+        setLoading(false);
+        closeNavModal();
+      }
+      return;
+    }
+
+    // Navigate to spot or place
+    const lat = findSpot && recommendedSpot ? recommendedSpot.spot_lat : navPlace.lat;
+    const lng = findSpot && recommendedSpot ? recommendedSpot.spot_lng : navPlace.lng;
+    const url = buildNavURL(app, lat, lng);
+
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        // Fallback to Apple Maps web if app not installed
+        const fallback = `https://maps.apple.com/?daddr=${lat},${lng}&dirflg=d`;
+        await Linking.openURL(fallback);
+      }
+    } catch {
+      Alert.alert('Error', `Could not open ${appLabel(app)}.`);
+    }
+    closeNavModal();
   };
 
   return (
@@ -188,6 +303,13 @@ export default function PlacesScreen() {
             </View>
             <View style={styles.cardActions}>
               <Pressable
+                style={styles.navButton}
+                onPress={() => openNavModal(place)}
+              >
+                <NavigateIcon color="#fff" size={14} />
+                <Text style={styles.navButtonText}>Navigate</Text>
+              </Pressable>
+              <Pressable
                 style={styles.findButton}
                 onPress={() => askAgent(`Find parking near my ${place.label === 'custom' ? place.custom_name : place.label}`)}
               >
@@ -202,6 +324,77 @@ export default function PlacesScreen() {
       })}
 
       {zones.length === 0 && <Text style={styles.loading}>Loading zones…</Text>}
+
+      {/* Navigation Modal */}
+      <Modal
+        visible={!!navPlace}
+        animationType="slide"
+        transparent
+        onRequestClose={closeNavModal}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalSheet}>
+            {/* Header */}
+            <View style={styles.modalHandle} />
+            <Text style={styles.modalTitle}>
+              {navPlace?.custom_name ?? navPlace?.label}
+            </Text>
+            {!!navPlace?.address && (
+              <Text style={styles.modalAddress}>{navPlace.address}</Text>
+            )}
+
+            {/* Find best spot toggle */}
+            <View style={styles.toggleRow}>
+              <Text style={styles.toggleLabel}>Find best parking spot first</Text>
+              <Switch
+                value={findSpot}
+                onValueChange={onFindSpotToggle}
+                trackColor={{ false: colors.bg3, true: `${colors.amber}60` }}
+                thumbColor={findSpot ? colors.amber : colors.text3}
+              />
+            </View>
+
+            {/* Recommended spot info */}
+            {loading && (
+              <View style={styles.spotInfo}>
+                <ActivityIndicator color={colors.amber} />
+                <Text style={styles.spotInfoText}>Finding best spot…</Text>
+              </View>
+            )}
+            {!loading && findSpot && recommendedSpot && (
+              <View style={styles.spotInfo}>
+                <Text style={styles.spotName}>{recommendedSpot.spot_name}</Text>
+                <Text style={styles.spotDetail}>
+                  {recommendedSpot.zone_name} • {Math.round(recommendedSpot.walking_distance_meters)}m walk
+                </Text>
+                <Text style={styles.spotDetail}>
+                  Score: {(recommendedSpot.score * 100).toFixed(0)}% • Free for {Math.round(recommendedSpot.time_free_seconds / 60)} min
+                </Text>
+              </View>
+            )}
+
+            {/* GPS app picker */}
+            <Text style={styles.chooseLabel}>Choose navigation app:</Text>
+            <View style={styles.appRow}>
+              {(['apple_maps', 'google_maps', 'waze'] as GPSApp[]).map((app) => (
+                <Pressable
+                  key={app}
+                  style={styles.appButton}
+                  onPress={() => onSelectApp(app)}
+                  disabled={loading}
+                >
+                  <Text style={styles.appButtonText}>{appLabel(app)}</Text>
+                </Pressable>
+              ))}
+            </View>
+
+            {/* Cancel */}
+            <Pressable style={styles.cancelButton} onPress={closeNavModal}>
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -343,6 +536,20 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     gap: 8,
   },
+  navButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: colors.amber,
+    borderRadius: radius.badge,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+  },
+  navButtonText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '700',
+  },
   findButton: {
     backgroundColor: `${colors.cyan}15`,
     borderWidth: 1,
@@ -363,5 +570,107 @@ const styles = StyleSheet.create({
     color: colors.text3,
     textAlign: 'center',
     marginTop: 12,
+  },
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'flex-end',
+  },
+  modalSheet: {
+    backgroundColor: colors.bg1,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    paddingBottom: 40,
+    gap: 12,
+  },
+  modalHandle: {
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.text3,
+    alignSelf: 'center',
+    marginBottom: 8,
+  },
+  modalTitle: {
+    color: colors.text1,
+    fontSize: 20,
+    fontWeight: '800',
+    textTransform: 'capitalize',
+  },
+  modalAddress: {
+    color: colors.text3,
+    fontSize: 13,
+    marginTop: -4,
+  },
+  toggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colors.bg2,
+    borderRadius: radius.card,
+    padding: 14,
+    marginTop: 4,
+  },
+  toggleLabel: {
+    color: colors.text2,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  spotInfo: {
+    backgroundColor: colors.bg2,
+    borderRadius: radius.card,
+    padding: 14,
+    gap: 4,
+    borderWidth: 1,
+    borderColor: `${colors.amber}30`,
+  },
+  spotInfoText: {
+    color: colors.text2,
+    fontSize: 13,
+  },
+  spotName: {
+    color: colors.amber,
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  spotDetail: {
+    color: colors.text2,
+    fontSize: 13,
+  },
+  chooseLabel: {
+    color: colors.text2,
+    fontSize: 14,
+    fontWeight: '600',
+    marginTop: 4,
+  },
+  appRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  appButton: {
+    flex: 1,
+    backgroundColor: colors.amber,
+    borderRadius: radius.input,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  appButtonText: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  cancelButton: {
+    backgroundColor: colors.bg2,
+    borderRadius: radius.input,
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  cancelButtonText: {
+    color: colors.text2,
+    fontSize: 14,
+    fontWeight: '600',
   },
 });

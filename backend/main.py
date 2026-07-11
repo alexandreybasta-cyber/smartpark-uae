@@ -7,7 +7,7 @@ from database import init_db
 from seed import seed_database
 from simulator import run_simulator
 from ws import manager, websocket_endpoint
-from routers import zones, spots, predict, agent_router, places, sensors
+from routers import zones, spots, predict, agent_router, places, sensors, recommend
 
 
 @asynccontextmanager
@@ -53,6 +53,7 @@ app.include_router(predict.router)
 app.include_router(agent_router.router)
 app.include_router(places.router)
 app.include_router(sensors.router)
+app.include_router(recommend.router)
 
 # WebSocket endpoint
 app.websocket("/ws/spots")(websocket_endpoint)

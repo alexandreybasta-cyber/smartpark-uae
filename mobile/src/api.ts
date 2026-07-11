@@ -1,5 +1,5 @@
 import Constants from 'expo-constants';
-import { AgentResponse, Prediction, SavedPlace, Spot, Zone } from './types';
+import { AgentResponse, Prediction, RecommendRequest, RecommendResponse, SavedPlace, Spot, Zone } from './types';
 
 // Derive the backend host from the Expo dev-server host, so a physical
 // iPhone on the same Wi-Fi reaches the FastAPI server on the dev machine
@@ -64,6 +64,18 @@ export function sendAgentQuery(text: string, lat: number, lng: number): Promise<
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text, lat, lng }),
+    },
+    10000
+  );
+}
+
+export function fetchRecommendedSpot(request: RecommendRequest): Promise<RecommendResponse> {
+  return fetchJson<RecommendResponse>(
+    '/api/recommend/optimal-spot',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
     },
     10000
   );

@@ -124,3 +124,24 @@ class SavedPlaceOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# Recommend schemas
+class RecommendRequest(BaseModel):
+    destination_lat: float
+    destination_lng: float
+    saved_place_lat: Optional[float] = None
+    saved_place_lng: Optional[float] = None
+    user_lat: float
+    user_lng: float
+
+
+class RecommendResponse(BaseModel):
+    spot_id: str
+    spot_lat: float
+    spot_lng: float
+    spot_name: str
+    zone_name: str
+    walking_distance_meters: int
+    score: float
+    time_free_seconds: int
