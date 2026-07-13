@@ -30,7 +30,9 @@ class GeofenceService: NSObject, CLLocationManagerDelegate {
     override init() {
         super.init()
         manager.delegate = self
-        manager.allowsBackgroundLocationUpdates = true
+        if manager.authorizationStatus == .authorizedAlways {
+            manager.allowsBackgroundLocationUpdates = true
+        }
         restoreActiveGeofence()
     }
 
@@ -51,6 +53,9 @@ class GeofenceService: NSObject, CLLocationManagerDelegate {
         region.notifyOnEntry = true
         region.notifyOnExit = false
 
+        if manager.authorizationStatus == .authorizedAlways {
+            manager.allowsBackgroundLocationUpdates = true
+        }
         manager.startMonitoring(for: region)
         activeGeofenceId = identifier
         isMonitoring = true
@@ -108,11 +113,11 @@ class GeofenceService: NSObject, CLLocationManagerDelegate {
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         switch manager.authorizationStatus {
         case .authorizedAlways:
-            break
+            manager.allowsBackgroundLocationUpdates = true
         case .authorizedWhenInUse:
             manager.requestAlwaysAuthorization()
         default:
-            break
+            manager.allowsBackgroundLocationUpdates = false
         }
     }
 

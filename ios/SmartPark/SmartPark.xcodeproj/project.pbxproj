@@ -43,6 +43,9 @@
 		A1000034 /* SpotRecommendationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000044 /* SpotRecommendationEngine.swift */; };
 		A1000035 /* NavigationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000045 /* NavigationViewModel.swift */; };
 		A1000036 /* NavigateSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000046 /* NavigateSheet.swift */; };
+		A1000037 /* CarPlaySceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000050 /* CarPlaySceneDelegate.swift */; };
+		A1000038 /* CarPlayManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000051 /* CarPlayManager.swift */; };
+		A1000039 /* CarPlay.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B1000052 /* CarPlay.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -84,6 +87,11 @@
 		B1000044 /* SpotRecommendationEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotRecommendationEngine.swift; sourceTree = "<group>"; };
 		B1000045 /* NavigationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationViewModel.swift; sourceTree = "<group>"; };
 		B1000046 /* NavigateSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigateSheet.swift; sourceTree = "<group>"; };
+		B1000050 /* CarPlaySceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarPlaySceneDelegate.swift; sourceTree = "<group>"; };
+		B1000051 /* CarPlayManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarPlayManager.swift; sourceTree = "<group>"; };
+		B1000052 /* CarPlay.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CarPlay.framework; path = System/Library/Frameworks/CarPlay.framework; sourceTree = SDKROOT; };
+		B1000053 /* SmartPark.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SmartPark.entitlements; sourceTree = "<group>"; };
+		B1000054 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,6 +99,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1000039 /* CarPlay.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -116,6 +125,8 @@
 				D1000007 /* Views */,
 				D1000008 /* Utils */,
 				B1000006 /* Assets.xcassets */,
+				B1000053 /* SmartPark.entitlements */,
+				B1000054 /* Info.plist */,
 			);
 			path = SmartPark;
 			sourceTree = "<group>";
@@ -153,6 +164,8 @@
 				B1000042 /* NotificationService.swift */,
 				B1000043 /* NavigationRedirectService.swift */,
 				B1000044 /* SpotRecommendationEngine.swift */,
+				B1000050 /* CarPlaySceneDelegate.swift */,
+				B1000051 /* CarPlayManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -357,6 +370,8 @@
 				A1000034 /* SpotRecommendationEngine.swift in Sources */,
 				A1000035 /* NavigationViewModel.swift in Sources */,
 				A1000036 /* NavigateSheet.swift in Sources */,
+				A1000037 /* CarPlaySceneDelegate.swift in Sources */,
+				A1000038 /* CarPlayManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -487,10 +502,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SmartPark/SmartPark.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = T3KX3F4LGB;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SmartPark/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SpotSense;
 				INFOPLIST_KEY_LSApplicationQueriesSchemes = "comgooglemaps waze";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "SpotSense needs your location to notify you of free parking spots when you arrive at your destination.";
@@ -500,9 +517,7 @@
 				INFOPLIST_KEY_QODER_AGENT_API_KEY = "$(QODER_AGENT_API_KEY)";
 				INFOPLIST_KEY_QWEN_API_KEY = "$(QWEN_API_KEY)";
 				INFOPLIST_KEY_SMARTPARK_API_BASE_URL = "$(SMARTPARK_API_BASE_URL)";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UIBackgroundModes = location;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -525,10 +540,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SmartPark/SmartPark.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = T3KX3F4LGB;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SmartPark/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SpotSense;
 				INFOPLIST_KEY_LSApplicationQueriesSchemes = "comgooglemaps waze";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "SpotSense needs your location to notify you of free parking spots when you arrive at your destination.";
@@ -538,9 +555,7 @@
 				INFOPLIST_KEY_QODER_AGENT_API_KEY = "$(QODER_AGENT_API_KEY)";
 				INFOPLIST_KEY_QWEN_API_KEY = "$(QWEN_API_KEY)";
 				INFOPLIST_KEY_SMARTPARK_API_BASE_URL = "$(SMARTPARK_API_BASE_URL)";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UIBackgroundModes = location;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
