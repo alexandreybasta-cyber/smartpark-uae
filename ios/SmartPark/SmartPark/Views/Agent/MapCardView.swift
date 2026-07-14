@@ -39,7 +39,6 @@ struct MapCardView: View {
                             .font(.caption.bold())
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(DesignTokens.primaryOrange)
                     .controlSize(.small)
                 }
             }

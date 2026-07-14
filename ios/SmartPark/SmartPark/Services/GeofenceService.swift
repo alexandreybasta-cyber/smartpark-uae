@@ -61,6 +61,23 @@ class GeofenceService: NSObject, CLLocationManagerDelegate {
         isMonitoring = true
 
         persistGeofenceMetadata(identifier: identifier, center: center)
+
+        // Check if user is already inside the region
+        if let userLocation = manager.location?.coordinate {
+            let distance = CLLocation(latitude: userLocation.latitude, longitude: userLocation.longitude)
+                .distance(from: CLLocation(latitude: center.latitude, longitude: center.longitude))
+            if distance <= clampedRadius {
+                // User is already inside — trigger immediately after a brief delay
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                    self?.onGeofenceTriggered?(identifier)
+                    NotificationCenter.default.post(
+                        name: .geofenceTriggered,
+                        object: nil,
+                        userInfo: ["identifier": identifier]
+                    )
+                }
+            }
+        }
     }
 
     /// Removes all monitored geofences.

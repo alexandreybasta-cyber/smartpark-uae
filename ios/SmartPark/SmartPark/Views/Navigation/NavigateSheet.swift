@@ -40,7 +40,7 @@ struct NavigateSheet: View {
         HStack(spacing: 14) {
             Image(systemName: "mappin.circle.fill")
                 .font(.title)
-                .foregroundColor(DesignTokens.primaryOrange)
+                .foregroundStyle(.tint)
 
             VStack(alignment: .leading, spacing: 4) {
                 if let destination = navigationVM.activeDestination {
@@ -92,12 +92,12 @@ struct NavigateSheet: View {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
-            .background(isSelected ? DesignTokens.primaryOrange.opacity(0.12) : Color.gray.opacity(0.08))
-            .foregroundColor(isSelected ? DesignTokens.primaryOrange : DesignTokens.textSecondary)
+            .background(isSelected ? Color(.secondarySystemFill) : Color.gray.opacity(0.08))
+            .foregroundColor(isSelected ? DesignTokens.textPrimary : DesignTokens.textSecondary)
             .clipShape(RoundedRectangle(cornerRadius: DesignTokens.radiusMedium))
             .overlay(
                 RoundedRectangle(cornerRadius: DesignTokens.radiusMedium)
-                    .stroke(isSelected ? DesignTokens.primaryOrange : Color.clear, lineWidth: 2)
+                    .stroke(isSelected ? Color(.separator) : Color.clear, lineWidth: 2)
             )
         }
         .buttonStyle(.plain)
@@ -114,11 +114,8 @@ struct NavigateSheet: View {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
-            .background(DesignTokens.primaryOrange)
-            .foregroundColor(.white)
-            .clipShape(RoundedRectangle(cornerRadius: DesignTokens.radiusMedium))
-            .shadow(color: DesignTokens.primaryOrange.opacity(0.4), radius: 8, y: 4)
         }
+        .buttonStyle(.borderedProminent)
         .disabled(navigationVM.activeDestination == nil)
         .opacity(navigationVM.activeDestination == nil ? 0.5 : 1.0)
     }
@@ -158,26 +155,26 @@ struct GeofenceActiveBanner: View {
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "location.circle.fill")
-                .foregroundColor(.white)
+                .foregroundStyle(.primary)
                 .font(.subheadline)
 
             Text("Monitoring: \(destinationName)")
                 .font(.caption.bold())
-                .foregroundColor(.white)
+                .foregroundColor(.primary)
                 .lineLimit(1)
 
             Spacer()
 
             Button(action: onCancel) {
                 Image(systemName: "xmark.circle.fill")
-                    .foregroundColor(.white.opacity(0.8))
+                    .foregroundColor(.secondary)
                     .font(.subheadline)
             }
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 8)
-        .background(DesignTokens.primaryOrange.opacity(0.9))
+        .background(Color(.systemFill))
         .clipShape(Capsule())
-        .shadow(color: DesignTokens.primaryOrange.opacity(0.3), radius: 4, y: 2)
+        .shadow(color: Color(.shadow).opacity(0.15), radius: 4, y: 2)
     }
 }

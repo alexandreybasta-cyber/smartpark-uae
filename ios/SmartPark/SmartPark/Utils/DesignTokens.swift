@@ -7,9 +7,9 @@ enum DesignTokens {
     static let primaryOrangeGradientEnd = Color(hex: "0060E0")
     
     // MARK: - Background
-    static let background = Color.white
-    static let cardBackground = Color.white
-    static let surfaceBackground = Color(hex: "F8FAFC")
+    static let background = Color(.systemBackground)
+    static let cardBackground = Color(.secondarySystemBackground)
+    static let surfaceBackground = Color(.systemGroupedBackground)
     
     // MARK: - Spot Status Colors
     static let spotFree = Color(hex: "22C55E")       // green
@@ -23,14 +23,14 @@ enum DesignTokens {
     static let zoneFull = Color(hex: "EF4444")       // <10% free
     
     // MARK: - Text
-    static let textPrimary = Color(hex: "1E293B")
-    static let textSecondary = Color(hex: "64748B")
-    static let textTertiary = Color(hex: "94A3B8")
+    static let textPrimary = Color(.label)
+    static let textSecondary = Color(.secondaryLabel)
+    static let textTertiary = Color(.tertiaryLabel)
     
     // MARK: - Shadows & Borders
     static let cardShadowColor = Color.black.opacity(0.08)
     static let cardShadowRadius: CGFloat = 8
-    static let borderLight = Color(hex: "E2E8F0")
+    static let borderLight = Color(.separator)
     
     // MARK: - Spacing
     static let spacingXS: CGFloat = 4
@@ -45,15 +45,6 @@ enum DesignTokens {
     static let radiusMedium: CGFloat = 10
     static let radiusLarge: CGFloat = 16
     static let radiusBadge: CGFloat = 20
-    
-    // MARK: - Gradients
-    static var orangeGradient: LinearGradient {
-        LinearGradient(
-            colors: [primaryOrangeGradientStart, primaryOrangeGradientEnd],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-    }
     
     // MARK: - Helpers
     static func spotColor(for status: SpotStatus) -> Color {

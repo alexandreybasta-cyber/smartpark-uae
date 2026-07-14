@@ -54,12 +54,12 @@ struct InsightsTabView: View {
                             .padding(.vertical, 8)
                             .background(
                                 viewModel.selectedZoneId == zone.id
-                                    ? DesignTokens.primaryOrange
+                                    ? Color(.secondarySystemFill)
                                     : DesignTokens.surfaceBackground
                             )
                             .foregroundColor(
                                 viewModel.selectedZoneId == zone.id
-                                    ? .white
+                                    ? DesignTokens.textPrimary
                                     : DesignTokens.textSecondary
                             )
                             .clipShape(Capsule())
@@ -90,7 +90,7 @@ struct InsightsTabView: View {
                     x: .value("Time", prediction.timestamp),
                     y: .value("Occupancy", prediction.predictedOccupancy)
                 )
-                .foregroundStyle(DesignTokens.primaryOrange)
+                .foregroundStyle(DesignTokens.textSecondary)
                 .interpolationMethod(.catmullRom)
 
                 AreaMark(
@@ -99,7 +99,7 @@ struct InsightsTabView: View {
                 )
                 .foregroundStyle(
                     LinearGradient(
-                        colors: [DesignTokens.primaryOrange.opacity(0.3), .clear],
+                        colors: [DesignTokens.textTertiary.opacity(0.3), .clear],
                         startPoint: .top,
                         endPoint: .bottom
                     )

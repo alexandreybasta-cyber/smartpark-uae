@@ -44,7 +44,7 @@ struct PlacesTabView: View {
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: { viewModel.showAddForm = true }) {
                         Image(systemName: "plus.circle.fill")
-                            .foregroundColor(DesignTokens.primaryOrange)
+                            .foregroundStyle(.tint)
                     }
                 }
             }
@@ -75,7 +75,7 @@ struct PlaceRow: View {
         HStack(spacing: DesignTokens.spacingMD) {
             Image(systemName: PlacesViewModel.icon(for: place.label))
                 .font(.title2)
-                .foregroundColor(DesignTokens.primaryOrange)
+                .foregroundStyle(.secondary)
                 .frame(width: 40)
 
             VStack(alignment: .leading, spacing: 2) {
@@ -94,19 +94,16 @@ struct PlaceRow: View {
             Button(action: onNavigate) {
                 Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
                     .font(.body)
-                    .foregroundColor(.white)
-                    .padding(8)
-                    .background(DesignTokens.primaryOrange)
-                    .clipShape(Circle())
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.bordered)
+            .clipShape(Circle())
 
             Button("Find Parking", action: onFindParking)
                 .font(.caption.bold())
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
-                .background(DesignTokens.primaryOrange.opacity(0.1))
-                .foregroundColor(DesignTokens.primaryOrange)
+                .background(Color(.tertiarySystemFill))
+                .foregroundColor(.primary)
                 .clipShape(Capsule())
         }
         .padding(.vertical, 4)
@@ -166,7 +163,7 @@ struct AddPlaceSheet: View {
                     } else {
                         HStack {
                             Image(systemName: "mappin.circle.fill")
-                                .foregroundColor(DesignTokens.primaryOrange)
+                                .foregroundStyle(.tint)
                             Text(selectedLocation?.name ?? "Selected Location")
                                 .font(.subheadline)
                                 .foregroundColor(DesignTokens.textPrimary)
@@ -179,14 +176,14 @@ struct AddPlaceSheet: View {
                                 viewModel.newAddress = ""
                             }
                             .font(.caption)
-                            .foregroundColor(DesignTokens.primaryOrange)
+                            .foregroundStyle(.tint)
                         }
                     }
 
                     Button(action: useCurrentLocation) {
                         Label("Use Current Location", systemImage: "location.fill")
                     }
-                    .foregroundColor(DesignTokens.primaryOrange)
+                    .foregroundStyle(.tint)
                 }
 
                 Section("Details") {
@@ -224,7 +221,7 @@ struct AddPlaceSheet: View {
                             }
                         }
                         .disabled(selectedLocation == nil && viewModel.newLat.isEmpty)
-                        .tint(DesignTokens.primaryOrange)
+                        .tint(.accentColor)
                     }
                 }
             }

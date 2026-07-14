@@ -5,8 +5,6 @@ struct MapTabView: View {
     @Environment(AppState.self) private var appState
     @Environment(NavigationViewModel.self) private var navigationVM
     @State private var viewModel = MapViewModel()
-    @State private var proximitySpot: Spot?
-    @State private var showProximityBanner = true
     
     // Search
     @State private var searchText = ""
@@ -84,14 +82,13 @@ struct MapTabView: View {
                     Annotation("Searched Location", coordinate: loc) {
                         Image(systemName: "mappin.circle.fill")
                             .font(.title)
-                            .foregroundColor(DesignTokens.primaryOrange)
+                            .foregroundStyle(.tint)
                     }
                 }
             }
             .mapStyle(.standard)
             .mapControls {
                 MapCompass()
-                MapUserLocationButton()
             }
             .onMapCameraChange(frequency: .onEnd) { context in
                 // Track the visible map center for parking search
@@ -117,20 +114,19 @@ struct MapTabView: View {
             .padding(.top, 8)
             .padding(.horizontal, DesignTokens.spacingLG)
             
-            // Proximity notification banner
-            if let spot = proximitySpot, showProximityBanner {
-                ProximityBanner(spot: spot, zoneName: zoneNameFor(spot), onTap: {
-                    viewModel.selectSpot(spot)
-                    viewModel.focusOn(spot.coordinate)
-                }, onDismiss: {
-                    withAnimation(.spring) {
-                        showProximityBanner = false
-                    }
-                })
-                .transition(.move(edge: .top).combined(with: .opacity))
-                .padding(.horizontal)
-                .padding(.top, 100)
+            // Recenter button - positioned below search bar
+            Button(action: recenterOnUser) {
+                Image(systemName: "location.fill")
+                    .font(.body)
+                    .foregroundStyle(.tint)
+                    .padding(10)
+                    .background(DesignTokens.cardBackground)
+                    .clipShape(Circle())
+                    .shadow(color: .black.opacity(0.15), radius: 4, y: 2)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+            .padding(.top, 60)
+            .padding(.trailing, 12)
             
             // Top badges
             VStack(spacing: 6) {
@@ -191,11 +187,9 @@ struct MapTabView: View {
                         }
                         .padding(.horizontal, 20)
                         .padding(.vertical, 14)
-                        .background(DesignTokens.primaryOrange)
-                        .foregroundColor(.white)
-                        .clipShape(Capsule())
-                        .shadow(color: DesignTokens.primaryOrange.opacity(0.4), radius: 8, y: 4)
                     }
+                    .buttonStyle(.borderedProminent)
+                    .clipShape(Capsule())
                     .padding(.bottom, 24)
                 }
                 .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -247,19 +241,6 @@ struct MapTabView: View {
                 appState.mapFocusCoordinate = nil
             }
         }
-        .task {
-            // Simulate proximity: find nearest free spot after a brief delay
-            try? await Task.sleep(for: .seconds(2))
-            let userLocation = appState.locationService.effectiveLocation
-            let freeSpots = appState.spots.filter { $0.status == .free }
-            if let nearest = freeSpots.min(by: {
-                $0.coordinate.distance(to: userLocation) < $1.coordinate.distance(to: userLocation)
-            }) {
-                withAnimation(.spring) {
-                    proximitySpot = nearest
-                }
-            }
-        }
     }
     
     // MARK: - Search Bar
@@ -305,7 +286,7 @@ struct MapTabView: View {
                 Button(action: { selectSearchResult(item) }) {
                     HStack(spacing: 10) {
                         Image(systemName: "mappin.and.ellipse")
-                            .foregroundColor(DesignTokens.primaryOrange)
+                            .foregroundStyle(.secondary)
                             .frame(width: 24)
                         
                         VStack(alignment: .leading, spacing: 2) {
@@ -378,7 +359,7 @@ struct MapTabView: View {
                 VStack {
                     Text("\(distanceMeters)m")
                         .font(.title2.bold())
-                        .foregroundColor(DesignTokens.primaryOrange)
+                        .foregroundColor(DesignTokens.textPrimary)
                     Text("Nearest")
                         .font(.caption)
                         .foregroundColor(DesignTokens.textSecondary)
@@ -405,7 +386,7 @@ struct MapTabView: View {
                 .padding(.vertical, 12)
             }
             .buttonStyle(.borderedProminent)
-            .tint(DesignTokens.primaryOrange)
+            .clipShape(Capsule())
             
             // Navigate to destination button
             if navigationVM.activeDestination != nil {
@@ -418,7 +399,6 @@ struct MapTabView: View {
                     .padding(.vertical, 12)
                 }
                 .buttonStyle(.bordered)
-                .tint(DesignTokens.primaryOrange)
             }
         }
         .padding(DesignTokens.spacingLG)
@@ -565,6 +545,11 @@ struct MapTabView: View {
     
     private func parseZonePolygon(_ zone: Zone) -> [CLLocationCoordinate2D] {
         viewModel.parsePolygon(zone.geojsonPolygon)
+    }
+    
+    private func recenterOnUser() {
+        let userLocation = appState.locationService.effectiveLocation
+        viewModel.focusOn(userLocation)
     }
     
     private func zoneNameFor(_ spot: Spot) -> String {

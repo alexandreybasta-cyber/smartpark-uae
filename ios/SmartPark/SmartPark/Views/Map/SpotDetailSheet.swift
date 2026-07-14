@@ -56,7 +56,6 @@ struct SpotDetailSheet: View {
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(DesignTokens.primaryOrange)
                 
                 // Ask Agent button
                 Button(action: askAgent) {
@@ -64,7 +63,6 @@ struct SpotDetailSheet: View {
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.bordered)
-                .tint(DesignTokens.primaryOrange)
             }
         }
         .padding(DesignTokens.spacingXL)

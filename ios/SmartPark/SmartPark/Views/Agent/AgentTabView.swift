@@ -60,7 +60,7 @@ struct AgentTabView: View {
                         }
                     }) {
                         Image(systemName: viewModel.speechService.isSpeaking ? "speaker.slash.fill" : "speaker.wave.2.fill")
-                            .foregroundColor(DesignTokens.primaryOrange)
+                            .foregroundStyle(.tint)
                     }
                 }
             }
@@ -87,7 +87,7 @@ struct AgentTabView: View {
             Button(action: toggleRecording) {
                 Image(systemName: speechRecognition.isRecording ? "mic.fill" : "mic")
                     .font(.title3)
-                    .foregroundColor(speechRecognition.isRecording ? .red : DesignTokens.primaryOrange)
+                    .foregroundColor(speechRecognition.isRecording ? .red : .secondary)
                     .frame(width: 36, height: 36)
                     .background(speechRecognition.isRecording ? Color.red.opacity(0.1) : DesignTokens.surfaceBackground)
                     .clipShape(Circle())
@@ -110,7 +110,7 @@ struct AgentTabView: View {
             Button(action: sendMessage) {
                 Image(systemName: "arrow.up.circle.fill")
                     .font(.title2)
-                    .foregroundColor(viewModel.inputText.isEmpty ? DesignTokens.textTertiary : DesignTokens.primaryOrange)
+                    .foregroundColor(viewModel.inputText.isEmpty ? DesignTokens.textTertiary : .secondary)
             }
             .disabled(viewModel.inputText.isEmpty || viewModel.isLoading)
         }
@@ -167,9 +167,9 @@ struct ChatBubble: View {
             VStack(alignment: message.isUser ? .trailing : .leading, spacing: DesignTokens.spacingSM) {
                 Text(message.text)
                     .font(.body)
-                    .foregroundColor(message.isUser ? .white : DesignTokens.textPrimary)
+                    .foregroundColor(DesignTokens.textPrimary)
                     .padding(DesignTokens.spacingMD)
-                    .background(message.isUser ? DesignTokens.primaryOrange : DesignTokens.surfaceBackground)
+                    .background(message.isUser ? Color(.secondarySystemFill) : DesignTokens.surfaceBackground)
                     .clipShape(RoundedRectangle(cornerRadius: DesignTokens.radiusLarge))
 
                 // Agent-only: reasoning steps
@@ -196,10 +196,9 @@ struct ChatBubble: View {
                             .font(.caption.bold())
                             .padding(.horizontal, 14)
                             .padding(.vertical, 8)
-                            .background(DesignTokens.primaryOrange)
-                            .foregroundColor(.white)
-                            .clipShape(Capsule())
                         }
+                        .buttonStyle(.bordered)
+                        .clipShape(Capsule())
                         .padding(.top, 4)
                     } else {
                         // No explicit coordinates — use search to find location from text
@@ -213,10 +212,9 @@ struct ChatBubble: View {
                             .font(.caption.bold())
                             .padding(.horizontal, 14)
                             .padding(.vertical, 8)
-                            .background(DesignTokens.primaryOrange)
-                            .foregroundColor(.white)
-                            .clipShape(Capsule())
                         }
+                        .buttonStyle(.bordered)
+                        .clipShape(Capsule())
                         .padding(.top, 4)
                     }
                 }
