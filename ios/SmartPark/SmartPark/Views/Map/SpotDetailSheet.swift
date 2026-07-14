@@ -9,8 +9,17 @@ struct SpotDetailSheet: View {
         appState.zones.first(where: { $0.id == spot.zoneId })?.name ?? "Unknown Zone"
     }
     
-    private var walkingMinutes: Int {
-        appState.locationService.effectiveLocation.walkingMinutes(to: spot.coordinate)
+    private var drivingMinutes: Int {
+        let dist = appState.locationService.effectiveLocation.distance(to: spot.coordinate)
+        return max(1, Int(ceil(Double(dist) / 400.0)))
+    }
+    
+    private var currentViolations: [Violation] {
+        if appState.appMode == .enforcement {
+            let coord = appState.locationService.effectiveLocation
+            return MockViolations.violationsNear(coord) + MockViolations.violations
+        }
+        return []
     }
     
     var body: some View {
@@ -38,13 +47,41 @@ struct SpotDetailSheet: View {
             
             // Info row
             HStack(spacing: DesignTokens.spacingXL) {
-                Label("\(walkingMinutes) min walk", systemImage: "figure.walk")
+                Label("\(drivingMinutes) min drive", systemImage: "car.fill")
                 if let since = spot.occupiedSince {
                     Label("Since \(since)", systemImage: "clock")
                 }
             }
             .font(.subheadline)
             .foregroundColor(DesignTokens.textSecondary)
+            
+            // Show violation info if this is a violation spot
+            if let violation = currentViolations.first(where: { $0.spotId == spot.id }) {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.orange)
+                        Text("Parked for: \(violation.unpaidDuration)")
+                            .font(.subheadline.bold())
+                            .foregroundColor(DesignTokens.textPrimary)
+                    }
+                    HStack {
+                        Text("Plate: \(violation.plateNumber)")
+                            .font(.caption)
+                            .foregroundColor(DesignTokens.textSecondary)
+                        Spacer()
+                        Text(violation.gracePeriodExpired ? "Grace expired" : "In grace period")
+                            .font(.caption.bold())
+                            .foregroundColor(violation.gracePeriodExpired ? .red : .green)
+                    }
+                    Text(violation.recommendedAction)
+                        .font(.caption)
+                        .foregroundColor(.orange)
+                }
+                .padding(12)
+                .background(Color.orange.opacity(0.08))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
             
             Divider()
             
@@ -72,7 +109,7 @@ struct SpotDetailSheet: View {
         let placemark = MKPlacemark(coordinate: spot.coordinate)
         let mapItem = MKMapItem(placemark: placemark)
         mapItem.name = "Bay \(spot.id)"
-        mapItem.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeWalking])
+        mapItem.openInMaps(launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving])
     }
     
     private func askAgent() {

@@ -71,10 +71,25 @@ class NavigationViewModel {
 
         let destCoord = CLLocationCoordinate2D(latitude: destination.lat, longitude: destination.lng)
 
+        // Filter spots near the destination (within 500m)
+        let nearbySpots = freeSpots.filter { spot in
+            let spotLoc = CLLocation(latitude: spot.lat, longitude: spot.lng)
+            let destLoc = CLLocation(latitude: destCoord.latitude, longitude: destCoord.longitude)
+            return spotLoc.distance(from: destLoc) <= 500
+        }
+
+        // If no real spots nearby, generate mock spots near destination
+        let spotsToUse: [Spot]
+        if nearbySpots.isEmpty {
+            spotsToUse = generateMockSpotsNearDestination(destCoord)
+        } else {
+            spotsToUse = nearbySpots
+        }
+
         let input = RecommendationInput(
             destinationCoordinate: destCoord,
-            savedPlaceCoordinate: nil,  // No separate saved place — use destination-only scoring
-            freeSpots: freeSpots
+            savedPlaceCoordinate: nil,
+            freeSpots: spotsToUse
         )
 
         let result = SpotRecommendationEngine.recommend(input: input)
@@ -96,6 +111,28 @@ class NavigationViewModel {
 
         // Remove geofence after trigger — single use
         geofenceService.removeAllGeofences()
+    }
+
+    private func generateMockSpotsNearDestination(_ coord: CLLocationCoordinate2D) -> [Spot] {
+        var spots: [Spot] = []
+        for i in 0..<8 {
+            let angle = Double(i) * (.pi * 2 / 8)
+            let distance = Double.random(in: 50...200) // meters
+            let latOffset = distance * cos(angle) / 111_320
+            let lngOffset = distance * sin(angle) / (111_320 * cos(coord.latitude * .pi / 180))
+            let status: SpotStatus = i < 5 ? .free : (i < 7 ? .occupied : .reserved)
+            spots.append(Spot(
+                id: "GEO-\(String(format: "%02d", i + 1))",
+                zoneId: 0,
+                lat: coord.latitude + latOffset,
+                lng: coord.longitude + lngOffset,
+                status: status,
+                lastChangedAt: nil,
+                sensorId: nil,
+                occupiedSince: nil
+            ))
+        }
+        return spots
     }
 
     /// Called when user taps "Navigate to Spot" on the notification.

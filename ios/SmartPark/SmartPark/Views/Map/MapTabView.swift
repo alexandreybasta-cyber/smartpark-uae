@@ -22,8 +22,33 @@ struct MapTabView: View {
     // Visible map center — tracks where the user is currently looking
     @State private var visibleMapCenter: CLLocationCoordinate2D = DemoConstants.dubaiInternetCity
     
+    // Dynamic violations based on user location
+    private var currentViolations: [Violation] {
+        if appState.appMode == .enforcement {
+            let coord = appState.locationService.effectiveLocation
+            let nearby = MockViolations.violationsNear(coord)
+            return nearby + MockViolations.violations  // Include static ones too
+        }
+        return []
+    }
     private var violationSpotIds: Set<String> {
-        Set(MockViolations.violations.map(\.spotId))
+        Set(currentViolations.map(\.spotId))
+    }
+    
+    // Violation mock spots (occupied spots at violation coordinates)
+    private var violationMockSpots: [Spot] {
+        currentViolations.map { v in
+            Spot(
+                id: v.spotId,
+                zoneId: 1,
+                lat: v.lat,
+                lng: v.lng,
+                status: .occupied,
+                lastChangedAt: nil,
+                sensorId: nil,
+                occupiedSince: v.unpaidDuration
+            )
+        }
     }
     
     var body: some View {
@@ -53,27 +78,34 @@ struct MapTabView: View {
                 // Spot markers
                 ForEach(appState.spots) { spot in
                     Annotation("", coordinate: spot.coordinate) {
-                        if appState.appMode == .enforcement && violationSpotIds.contains(spot.id) {
-                            ViolationAnnotationView(isSelected: viewModel.selectedSpot?.id == spot.id)
-                                .onTapGesture {
-                                    viewModel.selectSpot(spot)
-                                }
-                        } else {
-                            SpotAnnotationView(spot: spot, isSelected: viewModel.selectedSpot?.id == spot.id)
-                                .onTapGesture {
-                                    viewModel.selectSpot(spot)
-                                }
+                        Button(action: { viewModel.selectSpot(spot) }) {
+                            if appState.appMode == .enforcement && violationSpotIds.contains(spot.id) {
+                                ViolationAnnotationView(isSelected: viewModel.selectedSpot?.id == spot.id)
+                            } else {
+                                SpotAnnotationView(spot: spot, isSelected: viewModel.selectedSpot?.id == spot.id)
+                            }
                         }
+                        .buttonStyle(.plain)
                     }
                 }
                 
                 // Dynamic mock spots (generated for demo when searching far from seed data)
                 ForEach(dynamicMockSpots) { spot in
                     Annotation("", coordinate: spot.coordinate) {
-                        SpotAnnotationView(spot: spot, isSelected: viewModel.selectedSpot?.id == spot.id)
-                            .onTapGesture {
-                                viewModel.selectSpot(spot)
-                            }
+                        Button(action: { viewModel.selectSpot(spot) }) {
+                            SpotAnnotationView(spot: spot, isSelected: viewModel.selectedSpot?.id == spot.id)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                
+                // Violation mock spots (enforcement mode)
+                ForEach(violationMockSpots) { spot in
+                    Annotation("", coordinate: spot.coordinate) {
+                        Button(action: { viewModel.selectSpot(spot) }) {
+                            ViolationAnnotationView(isSelected: viewModel.selectedSpot?.id == spot.id)
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
                 
@@ -131,7 +163,7 @@ struct MapTabView: View {
             // Top badges
             VStack(spacing: 6) {
                 if appState.appMode == .enforcement {
-                    let expiredCount = MockViolations.violations.filter(\.gracePeriodExpired).count
+                    let expiredCount = currentViolations.filter(\.gracePeriodExpired).count
                     HStack(spacing: 4) {
                         Image(systemName: "exclamationmark.shield.fill")
                         Text("\(expiredCount) VIOLATIONS")
@@ -207,7 +239,7 @@ struct MapTabView: View {
         .sheet(isPresented: $viewModel.showSpotDetail) {
             if let spot = viewModel.selectedSpot {
                 SpotDetailSheet(spot: spot)
-                    .presentationDetents([.height(280)])
+                    .presentationDetents([.height(340)])
             }
         }
         .sheet(isPresented: $navVM.showNavigateSheet) {
@@ -328,7 +360,7 @@ struct MapTabView: View {
             $0.coordinate.distance(to: center) < $1.coordinate.distance(to: center)
         })
         let distanceMeters = Int(nearest?.coordinate.distance(to: center) ?? 0)
-        let walkingMinutes = max(1, Int(ceil(Double(distanceMeters) / 80.0)))
+        let drivingMinutes = max(1, Int(ceil(Double(distanceMeters) / 400.0)))
         
         return VStack(alignment: .leading, spacing: 12) {
             // Header
@@ -366,10 +398,10 @@ struct MapTabView: View {
                 }
                 
                 VStack {
-                    Text("\(walkingMinutes) min")
+                    Text("\(drivingMinutes) min")
                         .font(.title2.bold())
                         .foregroundColor(DesignTokens.textPrimary)
-                    Text("Walk")
+                    Text("Drive")
                         .font(.caption)
                         .foregroundColor(DesignTokens.textSecondary)
                 }
@@ -580,7 +612,7 @@ struct ViolationAnnotationView: View {
         .animation(.spring(duration: 0.3), value: isSelected)
         // Expand hit area to 44x44 (Apple HIG minimum tap target)
         .frame(width: 44, height: 44)
-        .contentShape(Circle())
+        .contentShape(Rectangle())
     }
 }
 

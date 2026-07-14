@@ -44,9 +44,9 @@ extension CLLocationCoordinate2D {
         return location1.distance(from: location2)
     }
     
-    /// Walking time in minutes (avg 80m/min)
-    func walkingMinutes(to other: CLLocationCoordinate2D) -> Int {
-        Int(ceil(distance(to: other) / 80.0))
+    /// Driving time in minutes (avg 400m/min)
+    func drivingMinutes(to other: CLLocationCoordinate2D) -> Int {
+        max(1, Int(ceil(distance(to: other) / 400.0)))
     }
 }
 

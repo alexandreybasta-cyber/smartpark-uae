@@ -45,7 +45,7 @@ class AgentViewModel {
 
             // Enrich response with synthetic mapCard if none was provided
             if response.mapCard == nil {
-                let syntheticMapCard = createMapCardFromContext(zones: zones, spots: spots)
+                let syntheticMapCard = createMapCardFromContext(zones: zones, spots: spots, userLocation: location)
                 response = AgentResponse(
                     text: response.text,
                     reasoningSteps: response.reasoningSteps,
@@ -184,10 +184,30 @@ class AgentViewModel {
 
     // MARK: - Synthetic Map Card
 
-    private func createMapCardFromContext(zones: [Zone], spots: [Spot]) -> MapCard? {
-        guard let bestZone = zones.max(by: { $0.freeCount < $1.freeCount }) else { return nil }
-        
-        // Compute center from actual spots in this zone (not hardcoded)
+    private func createMapCardFromContext(zones: [Zone], spots: [Spot], userLocation: CLLocationCoordinate2D) -> MapCard? {
+        // Compute center for each zone from its spots
+        func zoneCenter(zoneId: Int) -> (lat: Double, lng: Double)? {
+            let zoneSpots = spots.filter { $0.zoneId == zoneId }
+            guard !zoneSpots.isEmpty else { return nil }
+            return (
+                zoneSpots.map(\.lat).reduce(0, +) / Double(zoneSpots.count),
+                zoneSpots.map(\.lng).reduce(0, +) / Double(zoneSpots.count)
+            )
+        }
+
+        // Find zones near the user (within 2 km)
+        let userCL = CLLocation(latitude: userLocation.latitude, longitude: userLocation.longitude)
+        let nearbyZones = zones.filter { zone in
+            guard let center = zoneCenter(zoneId: zone.id) else { return false }
+            let dist = userCL.distance(from: CLLocation(latitude: center.lat, longitude: center.lng))
+            return dist <= 2000
+        }
+
+        // Use nearby zones if any; otherwise fall back to all zones
+        let candidateZones = nearbyZones.isEmpty ? zones : nearbyZones
+        guard let bestZone = candidateZones.max(by: { $0.freeCount < $1.freeCount }) else { return nil }
+
+        // Compute center from actual spots in this zone
         let zoneSpots = spots.filter { $0.zoneId == bestZone.id }
         let centerLat: Double
         let centerLng: Double
@@ -195,11 +215,14 @@ class AgentViewModel {
             centerLat = zoneSpots.map(\.lat).reduce(0, +) / Double(zoneSpots.count)
             centerLng = zoneSpots.map(\.lng).reduce(0, +) / Double(zoneSpots.count)
         } else {
-            // Fallback only when no spots available
-            centerLat = DemoConstants.dubaiInternetCity.latitude
-            centerLng = DemoConstants.dubaiInternetCity.longitude
+            centerLat = userLocation.latitude
+            centerLng = userLocation.longitude
         }
-        
+
+        // Calculate driving time from user to zone center (~400 m/min ≈ 24 km/h)
+        let distanceMeters = userCL.distance(from: CLLocation(latitude: centerLat, longitude: centerLng))
+        let drivingMinutes = max(1, Int(ceil(distanceMeters / 400.0)))
+
         return MapCard(
             zoneId: bestZone.id,
             zoneName: bestZone.name,
@@ -208,7 +231,7 @@ class AgentViewModel {
             freeSpots: bestZone.freeCount,
             totalSpots: bestZone.totalSpots,
             pricePerHour: bestZone.pricePerHour,
-            walkingMinutes: 3
+            drivingMinutes: drivingMinutes
         )
     }
 }

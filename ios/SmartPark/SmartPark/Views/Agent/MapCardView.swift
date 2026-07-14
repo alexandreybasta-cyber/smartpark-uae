@@ -22,8 +22,8 @@ struct MapCardView: View {
                 if let price = mapCard.pricePerHour {
                     Label("AED \(String(format: "%.0f", price))/hr", systemImage: "creditcard")
                 }
-                if let walk = mapCard.walkingMinutes {
-                    Label("\(walk) min", systemImage: "figure.walk")
+                if let drive = mapCard.drivingMinutes {
+                    Label("\(drive) min", systemImage: "car.fill")
                 }
             }
             .font(.caption)

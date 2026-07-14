@@ -154,7 +154,7 @@ struct MapCard: Codable {
     let freeSpots: Int?
     let totalSpots: Int?
     let pricePerHour: Double?
-    let walkingMinutes: Int?
+    let drivingMinutes: Int?
     
     enum CodingKeys: String, CodingKey {
         case lat, lng
@@ -163,7 +163,7 @@ struct MapCard: Codable {
         case freeSpots = "free_spots"
         case totalSpots = "total_spots"
         case pricePerHour = "price_per_hour"
-        case walkingMinutes = "walking_minutes"
+        case drivingMinutes = "driving_minutes"
     }
 }
 

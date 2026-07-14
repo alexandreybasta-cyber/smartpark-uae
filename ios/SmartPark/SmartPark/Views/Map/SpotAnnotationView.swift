@@ -17,7 +17,7 @@ struct SpotAnnotationView: View {
             .animation(.easeInOut(duration: 0.5), value: spot.status)
             // Expand hit area to 44x44 (Apple HIG minimum tap target)
             .frame(width: 44, height: 44)
-            .contentShape(Circle())
+            .contentShape(Rectangle())
     }
 }
 
