@@ -157,6 +157,12 @@ struct AddPlaceSheet: View {
                                 }
                             }
                         }
+
+                        if selectedLocation == nil && viewModel.newLat.isEmpty && !locationQuery.isEmpty {
+                            Text("Tap a result above to select a location")
+                                .font(.caption)
+                                .foregroundColor(DesignTokens.textSecondary)
+                        }
                     } else {
                         HStack {
                             Image(systemName: "mappin.circle.fill")
@@ -186,26 +192,45 @@ struct AddPlaceSheet: View {
                 Section("Details") {
                     TextField("Name (optional)", text: $viewModel.newName)
                 }
+
+                if let error = viewModel.error {
+                    Section {
+                        Label(error, systemImage: "exclamationmark.triangle.fill")
+                            .font(.subheadline)
+                            .foregroundColor(.red)
+                    }
+                }
             }
             .navigationTitle("Add Place")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button("Cancel") {
+                        viewModel.error = nil
+                        dismiss()
+                    }
+                    .disabled(viewModel.isSaving)
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        Task {
-                            await viewModel.addPlace()
-                            dismiss()
+                    if viewModel.isSaving {
+                        ProgressView()
+                    } else {
+                        Button("Save") {
+                            Task {
+                                let success = await viewModel.addPlace()
+                                if success {
+                                    dismiss()
+                                }
+                            }
                         }
+                        .disabled(selectedLocation == nil && viewModel.newLat.isEmpty)
+                        .tint(DesignTokens.primaryOrange)
                     }
-                    .disabled(selectedLocation == nil && viewModel.newLat.isEmpty)
-                    .tint(DesignTokens.primaryOrange)
                 }
             }
         }
         .presentationDetents([.medium, .large])
+        .interactiveDismissDisabled(viewModel.isSaving)
     }
 
     private func selectCompletion(_ result: MKLocalSearchCompletion) {

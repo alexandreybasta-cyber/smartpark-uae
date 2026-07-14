@@ -8,6 +8,7 @@ class PlacesViewModel {
     var isLoading = false
     var error: String?
     var showAddForm = false
+    var isSaving = false
 
     // Form fields
     var newLabel: String = "home"
@@ -29,11 +30,15 @@ class PlacesViewModel {
         isLoading = false
     }
 
-    func addPlace() async {
+    /// Returns true on success, false on failure
+    func addPlace() async -> Bool {
         guard let lat = Double(newLat), let lng = Double(newLng) else {
-            error = "Invalid coordinates"
-            return
+            error = "Invalid coordinates. Please select a location from the search results or use your current location."
+            return false
         }
+
+        isSaving = true
+        error = nil
 
         let place = SavedPlaceCreate(
             label: newLabel,
@@ -47,9 +52,13 @@ class PlacesViewModel {
             let created = try await apiClient.createPlace(place)
             places.append(created)
             resetForm()
+            isSaving = false
             showAddForm = false
+            return true
         } catch {
             self.error = error.localizedDescription
+            isSaving = false
+            return false
         }
     }
 
