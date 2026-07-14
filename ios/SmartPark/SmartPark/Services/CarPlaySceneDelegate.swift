@@ -55,14 +55,12 @@ class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegate {
         let pois = await CarPlayManager.shared.makeAllPOIs(from: zones)
 
         if pois.isEmpty {
-            // Show an empty state
+            // Show an empty state — use title to communicate no results
             let emptyTemplate = CPPointOfInterestTemplate(
-                title: "SpotSense Parking",
+                title: "No Parking Zones Found",
                 pointsOfInterest: [],
                 selectedIndex: NSNotFound
             )
-            emptyTemplate.emptyViewTitleVariants = ["No Parking Zones Found"]
-            emptyTemplate.emptyViewSubtitleVariants = ["Pull to refresh or check your connection"]
             poiTemplate = emptyTemplate
             interfaceController?.setRootTemplate(emptyTemplate, animated: true, completion: nil)
             return
@@ -114,17 +112,17 @@ extension CarPlaySceneDelegate: CPPointOfInterestTemplateDelegate {
         let zoneName = pointOfInterest.title
 
         // Create Navigate button
-        let navigateAction = CPPointOfInterestTemplate.Button(
+        let navigateAction = CPTextButton(
             title: "Navigate",
-            type: .navigate
+            textStyle: .confirm
         ) { [weak self] _ in
             self?.launchNavigation(to: coordinate, name: zoneName)
         }
 
         // Create Refresh button
-        let refreshAction = CPPointOfInterestTemplate.Button(
+        let refreshAction = CPTextButton(
             title: "Refresh",
-            type: .custom
+            textStyle: .normal
         ) { [weak self] _ in
             self?.refreshData()
         }
