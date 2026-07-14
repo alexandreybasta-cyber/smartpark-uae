@@ -175,6 +175,6 @@ struct GeofenceActiveBanner: View {
         .padding(.vertical, 8)
         .background(Color(.systemFill))
         .clipShape(Capsule())
-        .shadow(color: Color(.shadow).opacity(0.15), radius: 4, y: 2)
+        .shadow(color: Color.black.opacity(0.15), radius: 4, y: 2)
     }
 }
