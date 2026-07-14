@@ -70,11 +70,10 @@ class NavigationViewModel {
         isLoadingRecommendation = true
 
         let destCoord = CLLocationCoordinate2D(latitude: destination.lat, longitude: destination.lng)
-        let savedPlaceCoord = CLLocationCoordinate2D(latitude: destination.lat, longitude: destination.lng)
 
         let input = RecommendationInput(
             destinationCoordinate: destCoord,
-            savedPlaceCoordinate: savedPlaceCoord,
+            savedPlaceCoordinate: nil,  // No separate saved place — use destination-only scoring
             freeSpots: freeSpots
         )
 

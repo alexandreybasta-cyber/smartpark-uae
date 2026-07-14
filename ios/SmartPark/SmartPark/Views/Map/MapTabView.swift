@@ -224,6 +224,18 @@ struct MapTabView: View {
             if let coord = newValue {
                 viewModel.focusOn(coord)
                 if appState.mapShouldAutoSearch {
+                    // Update activeDestination to reflect the actual focused coordinate
+                    let autoPlace = SavedPlace(
+                        id: 0,
+                        userId: "auto",
+                        label: "Destination",
+                        customName: "Destination",
+                        lat: coord.latitude,
+                        lng: coord.longitude,
+                        address: nil
+                    )
+                    navigationVM.activeDestination = autoPlace
+                    
                     // Auto-trigger parking search after a short delay to let the map settle
                     let searchCoord = coord
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -532,6 +544,12 @@ struct MapTabView: View {
         if let nearest = nearbyFreeSpots.min(by: {
             $0.coordinate.distance(to: center) < $1.coordinate.distance(to: center)
         }) {
+            // Open GPS app with directions to the nearest free spot
+            NavigationRedirectService.navigate(
+                to: nearest.coordinate,
+                label: "Bay \(nearest.id)",
+                using: navigationVM.selectedGPSApp
+            )
             viewModel.focusOn(nearest.coordinate)
             viewModel.selectSpot(nearest)
         }
@@ -575,6 +593,9 @@ struct ViolationAnnotationView: View {
         )
         .shadow(color: .red.opacity(0.4), radius: 3, y: 1)
         .animation(.spring(duration: 0.3), value: isSelected)
+        // Expand hit area to 44x44 (Apple HIG minimum tap target)
+        .frame(width: 44, height: 44)
+        .contentShape(Circle())
     }
 }
 

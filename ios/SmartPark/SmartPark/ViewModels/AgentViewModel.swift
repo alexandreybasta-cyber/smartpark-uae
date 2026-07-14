@@ -23,7 +23,7 @@ class AgentViewModel {
         let timestamp: Date
     }
 
-    func sendQuery(text: String, location: CLLocationCoordinate2D, appMode: AppMode, zones: [Zone]) async {
+    func sendQuery(text: String, location: CLLocationCoordinate2D, appMode: AppMode, zones: [Zone], spots: [Spot] = []) async {
         guard !text.isEmpty else { return }
 
         let userMessage = ChatMessage(isUser: true, text: text, response: nil, timestamp: .now)
@@ -45,7 +45,7 @@ class AgentViewModel {
 
             // Enrich response with synthetic mapCard if none was provided
             if response.mapCard == nil {
-                let syntheticMapCard = createMapCardFromContext(zones: zones)
+                let syntheticMapCard = createMapCardFromContext(zones: zones, spots: spots)
                 response = AgentResponse(
                     text: response.text,
                     reasoningSteps: response.reasoningSteps,
@@ -151,7 +151,7 @@ class AgentViewModel {
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = locationText
         request.region = MKCoordinateRegion(
-            center: DemoConstants.dubaiInternetCity,
+            center: appState.locationService.effectiveLocation,
             span: MKCoordinateSpan(latitudeDelta: 0.2, longitudeDelta: 0.2)
         )
 
@@ -184,13 +184,27 @@ class AgentViewModel {
 
     // MARK: - Synthetic Map Card
 
-    private func createMapCardFromContext(zones: [Zone]) -> MapCard? {
+    private func createMapCardFromContext(zones: [Zone], spots: [Spot]) -> MapCard? {
         guard let bestZone = zones.max(by: { $0.freeCount < $1.freeCount }) else { return nil }
+        
+        // Compute center from actual spots in this zone (not hardcoded)
+        let zoneSpots = spots.filter { $0.zoneId == bestZone.id }
+        let centerLat: Double
+        let centerLng: Double
+        if !zoneSpots.isEmpty {
+            centerLat = zoneSpots.map(\.lat).reduce(0, +) / Double(zoneSpots.count)
+            centerLng = zoneSpots.map(\.lng).reduce(0, +) / Double(zoneSpots.count)
+        } else {
+            // Fallback only when no spots available
+            centerLat = DemoConstants.dubaiInternetCity.latitude
+            centerLng = DemoConstants.dubaiInternetCity.longitude
+        }
+        
         return MapCard(
             zoneId: bestZone.id,
             zoneName: bestZone.name,
-            lat: DemoConstants.dubaiInternetCity.latitude,
-            lng: DemoConstants.dubaiInternetCity.longitude,
+            lat: centerLat,
+            lng: centerLng,
             freeSpots: bestZone.freeCount,
             totalSpots: bestZone.totalSpots,
             pricePerHour: bestZone.pricePerHour,

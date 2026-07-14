@@ -15,6 +15,9 @@ struct SpotAnnotationView: View {
             .shadow(color: .black.opacity(0.2), radius: 2, y: 1)
             .animation(.spring(duration: 0.3), value: isSelected)
             .animation(.easeInOut(duration: 0.5), value: spot.status)
+            // Expand hit area to 44x44 (Apple HIG minimum tap target)
+            .frame(width: 44, height: 44)
+            .contentShape(Circle())
     }
 }
 

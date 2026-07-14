@@ -71,7 +71,8 @@ struct AgentTabView: View {
                             text: query,
                             location: appState.locationService.effectiveLocation,
                             appMode: appState.appMode,
-                            zones: appState.zones
+                            zones: appState.zones,
+                            spots: appState.spots
                         )
                     }
                     appState.pendingAgentQuery = nil
@@ -124,7 +125,8 @@ struct AgentTabView: View {
                 text: text,
                 location: appState.locationService.effectiveLocation,
                 appMode: appState.appMode,
-                zones: appState.zones
+                zones: appState.zones,
+                spots: appState.spots
             )
             // After response, trigger location search on map
             if appState.appMode == .driver {
