@@ -1,0 +1,96 @@
+id,zone_id,zone_name,lat,lng,status,sensor_id,pricing_type,price_per_hour
+A-01,1,Al Sufouh Road (East),25.0990,55.1560,free,SEN-A1,dynamic,6.0
+A-02,1,Al Sufouh Road (East),25.0992,55.1562,free,SEN-A2,dynamic,6.0
+A-03,1,Al Sufouh Road (East),25.0994,55.1563,free,SEN-A3,dynamic,6.0
+A-04,1,Al Sufouh Road (East),25.0996,55.1564,free,SEN-A4,dynamic,6.0
+A-05,1,Al Sufouh Road (East),25.0997,55.1566,free,SEN-A5,dynamic,6.0
+A-06,1,Al Sufouh Road (East),25.0999,55.1567,free,SEN-A6,dynamic,6.0
+A-07,1,Al Sufouh Road (East),25.1001,55.1569,free,SEN-A7,dynamic,6.0
+A-08,1,Al Sufouh Road (East),25.1002,55.1571,free,SEN-A8,dynamic,6.0
+A-09,1,Al Sufouh Road (East),25.1003,55.1573,occupied,SEN-A9,dynamic,6.0
+A-10,1,Al Sufouh Road (East),25.1005,55.1574,occupied,SEN-A10,dynamic,6.0
+A-11,1,Al Sufouh Road (East),25.1006,55.1576,occupied,SEN-A11,dynamic,6.0
+A-12,1,Al Sufouh Road (East),25.1007,55.1578,occupied,SEN-A12,dynamic,6.0
+A-13,1,Al Sufouh Road (East),25.1008,55.1580,occupied,SEN-A13,dynamic,6.0
+A-14,1,Al Sufouh Road (East),25.1009,55.1582,occupied,SEN-A14,dynamic,6.0
+A-15,1,Al Sufouh Road (East),25.1010,55.1583,occupied,SEN-A15,dynamic,6.0
+A-16,1,Al Sufouh Road (East),25.0991,55.1561,occupied,SEN-A16,dynamic,6.0
+A-17,1,Al Sufouh Road (East),25.0993,55.1565,occupied,SEN-A17,dynamic,6.0
+A-18,1,Al Sufouh Road (East),25.0998,55.1568,occupied,SEN-A18,dynamic,6.0
+A-19,1,Al Sufouh Road (East),25.1000,55.1572,reserved,SEN-A19,dynamic,6.0
+A-20,1,Al Sufouh Road (East),25.1004,55.1577,reserved,SEN-A20,dynamic,6.0
+B-01,2,Dubai Internet City - Internal,25.0942,55.1575,free,SEN-B1,dynamic,5.0
+B-02,2,Dubai Internet City - Internal,25.0943,55.1575,free,SEN-B2,dynamic,5.0
+B-03,2,Dubai Internet City - Internal,25.0944,55.1576,free,SEN-B3,dynamic,5.0
+B-04,2,Dubai Internet City - Internal,25.0945,55.1576,free,SEN-B4,dynamic,5.0
+B-05,2,Dubai Internet City - Internal,25.0946,55.1577,free,SEN-B5,dynamic,5.0
+B-06,2,Dubai Internet City - Internal,25.0947,55.1577,free,SEN-B6,dynamic,5.0
+B-07,2,Dubai Internet City - Internal,25.0950,55.1585,free,SEN-B7,dynamic,5.0
+B-08,2,Dubai Internet City - Internal,25.0951,55.1585,free,SEN-B8,dynamic,5.0
+B-09,2,Dubai Internet City - Internal,25.0952,55.1586,free,SEN-B9,dynamic,5.0
+B-10,2,Dubai Internet City - Internal,25.0953,55.1586,free,SEN-B10,dynamic,5.0
+B-11,2,Dubai Internet City - Internal,25.0954,55.1587,free,SEN-B11,dynamic,5.0
+B-12,2,Dubai Internet City - Internal,25.0955,55.1587,free,SEN-B12,dynamic,5.0
+B-13,2,Dubai Internet City - Internal,25.0957,55.1595,occupied,SEN-B13,dynamic,5.0
+B-14,2,Dubai Internet City - Internal,25.0958,55.1595,occupied,SEN-B14,dynamic,5.0
+B-15,2,Dubai Internet City - Internal,25.0959,55.1596,occupied,SEN-B15,dynamic,5.0
+B-16,2,Dubai Internet City - Internal,25.0960,55.1596,occupied,SEN-B16,dynamic,5.0
+B-17,2,Dubai Internet City - Internal,25.0961,55.1597,occupied,SEN-B17,dynamic,5.0
+B-18,2,Dubai Internet City - Internal,25.0963,55.1605,occupied,SEN-B18,dynamic,5.0
+B-19,2,Dubai Internet City - Internal,25.0964,55.1605,occupied,SEN-B19,dynamic,5.0
+B-20,2,Dubai Internet City - Internal,25.0965,55.1606,occupied,SEN-B20,dynamic,5.0
+B-21,2,Dubai Internet City - Internal,25.0966,55.1606,occupied,SEN-B21,dynamic,5.0
+B-22,2,Dubai Internet City - Internal,25.0967,55.1607,occupied,SEN-B22,dynamic,5.0
+B-23,2,Dubai Internet City - Internal,25.0968,55.1607,occupied,SEN-B23,dynamic,5.0
+B-24,2,Dubai Internet City - Internal,25.0945,55.1610,occupied,SEN-B24,dynamic,5.0
+B-25,2,Dubai Internet City - Internal,25.0946,55.1611,occupied,SEN-B25,dynamic,5.0
+B-26,2,Dubai Internet City - Internal,25.0947,55.1612,occupied,SEN-B26,dynamic,5.0
+B-27,2,Dubai Internet City - Internal,25.0948,55.1612,occupied,SEN-B27,dynamic,5.0
+B-28,2,Dubai Internet City - Internal,25.0949,55.1613,occupied,SEN-B28,dynamic,5.0
+B-29,2,Dubai Internet City - Internal,25.0950,55.1614,occupied,SEN-B29,dynamic,5.0
+B-30,2,Dubai Internet City - Internal,25.0956,55.1580,occupied,SEN-B30,dynamic,5.0
+B-31,2,Dubai Internet City - Internal,25.0958,55.1583,reserved,SEN-B31,dynamic,5.0
+B-32,2,Dubai Internet City - Internal,25.0960,55.1588,reserved,SEN-B32,dynamic,5.0
+B-33,2,Dubai Internet City - Internal,25.0962,55.1592,reserved,SEN-B33,dynamic,5.0
+B-34,2,Dubai Internet City - Internal,25.0964,55.1598,reserved,SEN-B34,dynamic,5.0
+B-35,2,Dubai Internet City - Internal,25.0966,55.1602,reserved,SEN-B35,dynamic,5.0
+C-01,3,Knowledge Park,25.0920,55.1500,free,SEN-C1,fixed,4.0
+C-02,3,Knowledge Park,25.0921,55.1503,free,SEN-C2,fixed,4.0
+C-03,3,Knowledge Park,25.0922,55.1506,free,SEN-C3,fixed,4.0
+C-04,3,Knowledge Park,25.0923,55.1509,free,SEN-C4,fixed,4.0
+C-05,3,Knowledge Park,25.0924,55.1512,free,SEN-C5,fixed,4.0
+C-06,3,Knowledge Park,25.0925,55.1515,free,SEN-C6,fixed,4.0
+C-07,3,Knowledge Park,25.0926,55.1518,free,SEN-C7,fixed,4.0
+C-08,3,Knowledge Park,25.0927,55.1521,free,SEN-C8,fixed,4.0
+C-09,3,Knowledge Park,25.0928,55.1524,free,SEN-C9,fixed,4.0
+C-10,3,Knowledge Park,25.0929,55.1527,free,SEN-C10,fixed,4.0
+C-11,3,Knowledge Park,25.0930,55.1530,occupied,SEN-C11,fixed,4.0
+C-12,3,Knowledge Park,25.0919,55.1502,occupied,SEN-C12,fixed,4.0
+C-13,3,Knowledge Park,25.0919,55.1505,occupied,SEN-C13,fixed,4.0
+C-14,3,Knowledge Park,25.0919,55.1508,occupied,SEN-C14,fixed,4.0
+C-15,3,Knowledge Park,25.0919,55.1511,occupied,SEN-C15,fixed,4.0
+C-16,3,Knowledge Park,25.0919,55.1514,occupied,SEN-C16,fixed,4.0
+C-17,3,Knowledge Park,25.0919,55.1517,occupied,SEN-C17,fixed,4.0
+C-18,3,Knowledge Park,25.0919,55.1520,occupied,SEN-C18,fixed,4.0
+C-19,3,Knowledge Park,25.0935,55.1535,occupied,SEN-C19,fixed,4.0
+C-20,3,Knowledge Park,25.0936,55.1536,occupied,SEN-C20,fixed,4.0
+C-21,3,Knowledge Park,25.0937,55.1537,occupied,SEN-C21,fixed,4.0
+C-22,3,Knowledge Park,25.0938,55.1538,occupied,SEN-C22,fixed,4.0
+C-23,3,Knowledge Park,25.0939,55.1539,reserved,SEN-C23,fixed,4.0
+C-24,3,Knowledge Park,25.0940,55.1540,reserved,SEN-C24,fixed,4.0
+C-25,3,Knowledge Park,25.0938,55.1542,reserved,SEN-C25,fixed,4.0
+D-01,4,Media City,25.0960,55.1480,free,SEN-D1,dynamic,5.5
+D-02,4,Media City,25.0961,55.1483,free,SEN-D2,dynamic,5.5
+D-03,4,Media City,25.0962,55.1486,free,SEN-D3,dynamic,5.5
+D-04,4,Media City,25.0963,55.1489,free,SEN-D4,dynamic,5.5
+D-05,4,Media City,25.0964,55.1492,free,SEN-D5,dynamic,5.5
+D-06,4,Media City,25.0965,55.1495,occupied,SEN-D6,dynamic,5.5
+D-07,4,Media City,25.0966,55.1498,occupied,SEN-D7,dynamic,5.5
+D-08,4,Media City,25.0967,55.1501,occupied,SEN-D8,dynamic,5.5
+D-09,4,Media City,25.0968,55.1504,occupied,SEN-D9,dynamic,5.5
+D-10,4,Media City,25.0970,55.1507,occupied,SEN-D10,dynamic,5.5
+D-11,4,Media City,25.0972,55.1510,occupied,SEN-D11,dynamic,5.5
+D-12,4,Media City,25.0974,55.1513,occupied,SEN-D12,dynamic,5.5
+D-13,4,Media City,25.0976,55.1515,occupied,SEN-D13,dynamic,5.5
+D-14,4,Media City,25.0978,55.1517,reserved,SEN-D14,dynamic,5.5
+D-15,4,Media City,25.0980,55.1519,reserved,SEN-D15,dynamic,5.5

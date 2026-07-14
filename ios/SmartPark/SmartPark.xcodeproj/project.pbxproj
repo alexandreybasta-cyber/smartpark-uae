@@ -46,6 +46,7 @@
 		A1000037 /* CarPlaySceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000050 /* CarPlaySceneDelegate.swift */; };
 		A1000038 /* CarPlayManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000051 /* CarPlayManager.swift */; };
 		A1000039 /* CarPlay.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B1000052 /* CarPlay.framework */; };
+		A1000040 /* default.csv in Resources */ = {isa = PBXBuildFile; fileRef = B1000055 /* default.csv */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -92,6 +93,7 @@
 		B1000052 /* CarPlay.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CarPlay.framework; path = System/Library/Frameworks/CarPlay.framework; sourceTree = SDKROOT; };
 		B1000053 /* SmartPark.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SmartPark.entitlements; sourceTree = "<group>"; };
 		B1000054 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B1000055 /* default.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = default.csv; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,6 +127,7 @@
 				D1000007 /* Views */,
 				D1000008 /* Utils */,
 				B1000006 /* Assets.xcassets */,
+				B1000055 /* default.csv */,
 				B1000053 /* SmartPark.entitlements */,
 				B1000054 /* Info.plist */,
 			);
@@ -325,6 +328,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1000006 /* Assets.xcassets in Resources */,
+				A1000040 /* default.csv in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
