@@ -22,7 +22,7 @@ struct PlacesTabView: View {
                     List {
                         ForEach(viewModel.places) { place in
                             PlaceRow(place: place, onFindParking: {
-                                appState.askAgent(query: "Find parking near my \(place.label) at \(place.customName ?? place.label)")
+                                appState.showOnMapAndSearch(coordinate: CLLocationCoordinate2D(latitude: place.lat, longitude: place.lng))
                             }, onNavigate: {
                                 navigationVM.activeDestination = place
                                 navigationVM.showNavigateSheet = true

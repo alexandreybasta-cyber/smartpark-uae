@@ -158,7 +158,7 @@ class AgentViewModel {
         let search = MKLocalSearch(request: request)
         if let response = try? await search.start(),
            let item = response.mapItems.first {
-            appState.showOnMap(coordinate: item.placemark.coordinate)
+            appState.showOnMapAndSearch(coordinate: item.placemark.coordinate)
         }
     }
 

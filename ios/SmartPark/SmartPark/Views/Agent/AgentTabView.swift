@@ -180,30 +180,43 @@ struct ChatBubble: View {
                     MapCardView(mapCard: mapCard, onShowOnMap: onShowOnMap)
                 }
 
-                // Agent-only: always show "Show on Map" button (fallback when no mapCard)
+                // Agent-only: show "Show on Map" button only when valid coordinates exist
                 if !message.isUser {
-                    Button(action: {
-                        if let lat = message.response?.mapCard?.lat,
-                           let lng = message.response?.mapCard?.lng {
+                    if let lat = message.response?.mapCard?.lat,
+                       let lng = message.response?.mapCard?.lng {
+                        Button(action: {
                             onShowOnMap(CLLocationCoordinate2D(latitude: lat, longitude: lng))
-                        } else {
-                            // Extract location from message and search
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "map.fill")
+                                Text("Show on Map")
+                            }
+                            .font(.caption.bold())
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 8)
+                            .background(DesignTokens.primaryOrange)
+                            .foregroundColor(.white)
+                            .clipShape(Capsule())
+                        }
+                        .padding(.top, 4)
+                    } else {
+                        // No explicit coordinates — use search to find location from text
+                        Button(action: {
                             onSearchLocation?(message.text)
-                            onShowOnMap(DemoConstants.dubaiInternetCity)
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "map.fill")
+                                Text("Show on Map")
+                            }
+                            .font(.caption.bold())
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 8)
+                            .background(DesignTokens.primaryOrange)
+                            .foregroundColor(.white)
+                            .clipShape(Capsule())
                         }
-                    }) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "map.fill")
-                            Text("Show on Map")
-                        }
-                        .font(.caption.bold())
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 8)
-                        .background(DesignTokens.primaryOrange)
-                        .foregroundColor(.white)
-                        .clipShape(Capsule())
+                        .padding(.top, 4)
                     }
-                    .padding(.top, 4)
                 }
             }
             .frame(maxWidth: 300, alignment: message.isUser ? .trailing : .leading)

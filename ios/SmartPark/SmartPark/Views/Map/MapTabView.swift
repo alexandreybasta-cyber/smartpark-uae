@@ -223,6 +223,15 @@ struct MapTabView: View {
         .onChange(of: appState.mapFocusCoordinate) { _, newValue in
             if let coord = newValue {
                 viewModel.focusOn(coord)
+                if appState.mapShouldAutoSearch {
+                    // Auto-trigger parking search after a short delay to let the map settle
+                    let searchCoord = coord
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        visibleMapCenter = searchCoord
+                        searchForParking()
+                        appState.mapShouldAutoSearch = false
+                    }
+                }
                 appState.mapFocusCoordinate = nil
             }
         }

@@ -12,6 +12,7 @@ class AppState {
     var selectedTab: AppTab = .map
     var appMode: AppMode = .driver
     var mapFocusCoordinate: CLLocationCoordinate2D?
+    var mapShouldAutoSearch = false
     var pendingAgentQuery: String?
 
     // MARK: - Services
@@ -127,6 +128,13 @@ class AppState {
 
     func showOnMap(coordinate: CLLocationCoordinate2D) {
         mapFocusCoordinate = coordinate
+        mapShouldAutoSearch = true
+        selectedTab = .map
+    }
+
+    func showOnMapAndSearch(coordinate: CLLocationCoordinate2D) {
+        mapFocusCoordinate = coordinate
+        mapShouldAutoSearch = true
         selectedTab = .map
     }
 

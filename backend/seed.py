@@ -41,12 +41,53 @@ ZONES_DATA = [
     }
 ]
 
-# Base coordinates for spots in each zone
-ZONE_SPOT_BASES = [
-    {"lat": 25.0935, "lng": 55.1590, "count": 18},  # Zone A
-    {"lat": 25.0930, "lng": 55.1617, "count": 24},  # Zone B
-    {"lat": 25.0917, "lng": 55.1582, "count": 16},  # Zone C
+# Realistic parking spot coordinates for each zone (cluster-based, road-following)
+# Each zone is a list of (lat, lng) tuples representing actual parking locations
+# along roads in the Dubai Internet City / Media City area.
+
+ZONE_A_SPOTS = [
+    # Cluster 1: Curbside parking along DIC internal road (south section)
+    (25.0931, 55.1586), (25.0932, 55.1587), (25.0933, 55.1588),
+    (25.0934, 55.1589), (25.0935, 55.1590), (25.0936, 55.1591),
+    # Cluster 2: Parking strip near Building 3 (mid section)
+    (25.0938, 55.1593), (25.0939, 55.1594), (25.0940, 55.1595),
+    (25.0941, 55.1596), (25.0942, 55.1597), (25.0943, 55.1598),
+    # Cluster 3: Curbside near DIC roundabout (north section)
+    (25.0944, 55.1592), (25.0945, 55.1593), (25.0944, 55.1594),
+    (25.0943, 55.1595), (25.0942, 55.1593), (25.0941, 55.1592),
 ]
+
+ZONE_B_SPOTS = [
+    # Cluster 1: Parking lot between Buildings 4-5
+    (25.0926, 55.1607), (25.0927, 55.1607), (25.0928, 55.1608),
+    (25.0926, 55.1609), (25.0927, 55.1609),
+    # Cluster 2: Parking lot near Building 6
+    (25.0930, 55.1612), (25.0931, 55.1612), (25.0932, 55.1613),
+    (25.0930, 55.1614), (25.0931, 55.1614),
+    # Cluster 3: Parking strip along internal road near Building 7
+    (25.0933, 55.1617), (25.0934, 55.1618), (25.0935, 55.1619),
+    (25.0936, 55.1620), (25.0937, 55.1621),
+    # Cluster 4: Parking lot between Buildings 8-9
+    (25.0935, 55.1623), (25.0936, 55.1623), (25.0937, 55.1624),
+    (25.0935, 55.1625), (25.0936, 55.1625),
+    # Cluster 5: Street parking along east DIC road
+    (25.0938, 55.1610), (25.0939, 55.1612), (25.0940, 55.1614),
+    (25.0939, 55.1616),
+]
+
+ZONE_C_SPOTS = [
+    # Cluster 1: Street parking along Al Sufouh Road (west section)
+    (25.0912, 55.1572), (25.0913, 55.1574), (25.0914, 55.1576),
+    (25.0915, 55.1578), (25.0916, 55.1580),
+    # Cluster 2: Curbside parking along Al Sufouh Road (east section)
+    (25.0918, 55.1583), (25.0919, 55.1585), (25.0920, 55.1587),
+    (25.0921, 55.1589), (25.0922, 55.1590), (25.0923, 55.1591),
+    # Cluster 3: Knowledge Park internal lot
+    (25.0916, 55.1585), (25.0917, 55.1586), (25.0918, 55.1587),
+    (25.0916, 55.1588), (25.0917, 55.1589),
+]
+
+ALL_ZONE_SPOTS = [ZONE_A_SPOTS, ZONE_B_SPOTS, ZONE_C_SPOTS]
 
 SAVED_PLACES = [
     {"label": "home", "custom_name": "Dubai Marina Apartment", "lat": 25.0800, "lng": 55.1400, "address": "Marina Walk, Dubai Marina, Dubai"},
@@ -55,16 +96,15 @@ SAVED_PLACES = [
 ]
 
 
-def generate_spot_coords(base_lat: float, base_lng: float, count: int):
-    """Generate spot coordinates in a grid pattern around base."""
+def generate_spot_coords(zone_index: int):
+    """Return realistic parking coordinates with small jitter for a zone."""
+    base_coords = ALL_ZONE_SPOTS[zone_index]
     coords = []
-    cols = 6
-    for i in range(count):
-        row = i // cols
-        col = i % cols
-        lat = base_lat + (row * 0.0002) - (0.0002 * (count // cols) / 2)
-        lng = base_lng + (col * 0.0003) - (0.0003 * cols / 2)
-        coords.append((lat, lng))
+    for (lat, lng) in base_coords:
+        # Add ±3-5 meter jitter (approx 0.00003-0.00005 degrees)
+        jittered_lat = lat + random.uniform(-0.00004, 0.00004)
+        jittered_lng = lng + random.uniform(-0.00005, 0.00005)
+        coords.append((jittered_lat, jittered_lng))
     return coords
 
 
@@ -147,9 +187,8 @@ async def seed_database():
         # Create spots and sensors
         spot_index = 0
         for zone_idx, zone in enumerate(zones):
-            base = ZONE_SPOT_BASES[zone_idx]
-            coords = generate_spot_coords(base["lat"], base["lng"], base["count"])
-            statuses = assign_initial_statuses(base["count"])
+            coords = generate_spot_coords(zone_idx)
+            statuses = assign_initial_statuses(len(coords))
 
             for i, (lat, lng) in enumerate(coords):
                 spot_id = f"{zone.id}{zone_idx + 1:02d}-{i + 1:02d}"
