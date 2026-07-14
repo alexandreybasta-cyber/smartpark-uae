@@ -5,7 +5,7 @@ import MapKit
 
 // MARK: - CarPlay Manager
 
-/// Bridges between CarPlay templates and existing SmartPark services.
+/// Bridges between CarPlay templates and existing SpotSense services.
 /// Fetches nearby zones via APIClient and converts them to CarPlay POI objects.
 actor CarPlayManager {
     static let shared = CarPlayManager()

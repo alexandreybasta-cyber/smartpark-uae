@@ -13,7 +13,7 @@ interface PlacesContextValue {
 
 const PlacesContext = createContext<PlacesContextValue | null>(null);
 
-const STORAGE_KEY = 'smartpark-saved-places';
+const STORAGE_KEY = 'spotsense-saved-places';
 
 export function PlacesProvider({ children }: { children: ReactNode }) {
   const [places, setPlaces] = useState<SavedPlace[]>(seedPlaces);

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0a0a0a;
+      }
+      body { font-family: "Inter", sans-serif; }
+      .clip {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        visibility: hidden;
+      }
+      #title-text {
+        font-size: 80px;
+        font-weight: 700;
+        color: #ffffff;
+        text-align: center;
+      }
+      #subtitle-text {
+        font-size: 36px;
+        font-weight: 400;
+        color: #f97316;
+        margin-top: 24px;
+        text-align: center;
+      }
+      #badge {
+        position: absolute;
+        bottom: 60px;
+        right: 60px;
+        width: auto;
+        height: auto;
+        top: auto;
+        left: auto;
+        display: block;
+        background: #f97316;
+        color: #fff;
+        font-size: 20px;
+        font-weight: 600;
+        padding: 12px 28px;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="enforcement"
+      data-start="0"
+      data-duration="8"
+      data-width="1920"
+      data-height="1080"
+    >
+      <div id="intro" class="clip" data-start="0" data-duration="8" data-track-index="1">
+        <div id="title-text">Automated Parking Enforcement</div>
+        <div id="subtitle-text">AI-Powered Violation Detection</div>
+      </div>
+      <div id="badge" class="clip" data-start="2" data-duration="6" data-track-index="2">
+        SpotSense
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // Title fade in + slide up
+      tl.from("#title-text", { opacity: 0, y: 60, duration: 1.2, ease: "power3.out" }, 0.3);
+      // Subtitle fade in
+      tl.from("#subtitle-text", { opacity: 0, y: 30, duration: 1, ease: "power2.out" }, 1.2);
+      // Badge slide in from right
+      tl.from("#badge", { opacity: 0, x: 80, duration: 0.8, ease: "back.out(1.7)" }, 2.0);
+
+      window.__timelines["enforcement"] = tl;
+    </script>
+  </body>
+</html>
