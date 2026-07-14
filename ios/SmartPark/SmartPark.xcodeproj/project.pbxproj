@@ -108,12 +108,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		24EA26AD30063F8500F552E8 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				B1000052 /* CarPlay.framework */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
 		D1000001 = {
 			isa = PBXGroup;
 			children = (
 				B1000020 /* Secrets.xcconfig */,
 				D1000002 /* SmartPark */,
 				D1000010 /* Products */,
+				24EA26AD30063F8500F552E8 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};

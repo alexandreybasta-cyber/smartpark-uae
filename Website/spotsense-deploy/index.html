@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpotSense — Every curb, self-aware</title>
+<meta name="description" content="SpotSense turns every Dubai curb into a Qwen-powered edge agent. Sense, settle, dispatch — without a camera.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============================================================
+     NAV
+============================================================ -->
+<header class="nav" id="nav">
+  <a class="nav__mark" href="#hero">SpotSense</a>
+</header>
+
+<!-- ============================================================
+     01 · HERO — video playhead scrubbed against scroll
+     hero-loop.mp4: low-angle SZR at dusk, car easing into a
+     cyan-lit bay. The car "arrives" as the user scrolls in.
+     hero-still.jpg: poster + reduced-motion + decode fallback.
+============================================================ -->
+<section class="hero" id="hero">
+  <div class="hero__stage">
+    <!-- fallback scrub source only — the primary scrub path is the JPEG
+         frame sequence in assets/hero/frames/ (regenerate with:
+         ffmpeg -i hero-loop.mp4 -vf "fps=15,scale=1280:-2" -q:v 3 frame_%04d.jpg
+         and update manifest.json count) -->
+    <!-- VIDEO: hero-loop.mp4 -->
+    <canvas class="hero__canvas" id="hero-canvas" aria-label="Sheikh Zayed Road at dusk, a car easing into a cyan-lit parking bay"></canvas>
+    <div class="hero__bar hero__bar--top"></div>
+    <div class="hero__bar hero__bar--bottom"></div>
+    <div class="hero__content">
+      <h1 class="hero__title" id="hero-title" aria-label="SpotSense">SPOTSENSE</h1>
+      <p class="hero__sub mono" id="hero-sub">SZR-114 · BAY 07 · PRESENCE 1 · 0.4 W</p>
+    </div>
+    <div class="hero__cue mono" id="hero-cue">SCROLL<span class="hero__cue-line"></span></div>
+  </div>
+</section>
+
+<!-- ============================================================
+     02 · STORY — Every curb, self-aware  (+ ambient-overhead loop)
+============================================================ -->
+<section class="story" id="story">
+  <div class="story__stage">
+    <div class="story__grid">
+      <div class="story__inner">
+        <p class="story__eyebrow mono">DUBAI · 1.2M PARKING EVENTS / DAY</p>
+        <h2 class="story__line" data-line>Every curb,</h2>
+        <h2 class="story__line story__line--accent" data-line>self-aware.</h2>
+        <p class="story__body" data-line>A forty-dirham sensor. A language model at the edge.<br>A parking bay that settles its own accounts.</p>
+        <div class="story__feed mono">
+          <p class="feed-line" data-feed>LD2410 &nbsp;· presence=1 · micro-motion 0.02 m/s</p>
+          <p class="feed-line" data-feed>QWEN-MAX &nbsp;· intent: enforce · confidence 0.97</p>
+          <p class="feed-line" data-feed>PAYMENT &nbsp;· session #88231 · settled · AED 4.00</p>
+          <p class="feed-line feed-line--dim" data-feed>no camera · no plate read · no human in the loop<span class="caret"></span></p>
+        </div>
+      </div>
+      <figure class="frame story__rain" data-line>
+        <!-- VIDEO: ambient-overhead.mp4 -->
+        <span class="frame__fade"></span>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     03 · USE CASE 1 — The curb that collects itself
+     usecase1-loop.mp4 as the "monitored feed" with the countdown
+     HUD laid over it (the timer is UI, not in the video), plus
+     the live dispatch mini-map beneath — sensor blink → 4:00
+     countdown → payment handshake → Glid reroute, all on scroll.
+============================================================ -->
+<section class="uc1" id="uc1">
+  <div class="uc1__stage">
+    <div class="uc1__media">
+      <figure class="frame uc1__video">
+        <!-- VIDEO: usecase1-loop.mp4 -->
+        <span class="frame__fade"></span>
+        <span class="frame__hud mono">FEED / AL WASL RD · TOP-DOWN · BAY 04</span>
+        <div class="uc1__countdown mono" id="uc1-countdown">4:00</div>
+        <div class="uc1__verdict mono" id="uc1-verdict">UNPAID → DISPATCH · ETA 5:40</div>
+      </figure>
+      <figure class="frame uc1__map">
+        <svg id="uc1-map" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-label="Dispatch map of Al Wasl Road">
+          <g class="uc1-blocks">
+            <rect x="60"  y="40"  width="300" height="180" rx="6"/>
+            <rect x="60"  y="260" width="300" height="220" rx="6"/>
+            <rect x="60"  y="520" width="300" height="240" rx="6"/>
+            <rect x="820" y="40"  width="320" height="150" rx="6"/>
+            <rect x="820" y="230" width="320" height="250" rx="6"/>
+            <rect x="820" y="520" width="320" height="240" rx="6"/>
+          </g>
+          <g class="uc1-cross">
+            <line x1="0" y1="235" x2="1200" y2="225"/>
+            <line x1="0" y1="500" x2="1200" y2="505"/>
+          </g>
+          <path id="uc1-road" class="uc1-road" d="M 560 -20 C 555 200, 570 420, 560 560 C 555 660, 565 740, 560 820" />
+          <path class="uc1-road uc1-road--thin" d="M 660 -20 C 655 200, 670 420, 660 560 C 655 660, 665 740, 660 820" />
+          <text class="uc1-roadlabel mono" x="588" y="120" transform="rotate(90 588 120)">AL WASL RD</text>
+          <g class="uc1-bays">
+            <rect x="500" y="280" width="44" height="26" rx="4"/>
+            <rect x="500" y="316" width="44" height="26" rx="4"/>
+            <rect x="500" y="352" width="44" height="26" rx="4" id="uc1-bay" class="uc1-bay-target"/>
+            <rect x="500" y="388" width="44" height="26" rx="4"/>
+            <rect x="500" y="424" width="44" height="26" rx="4"/>
+          </g>
+          <circle id="uc1-ping" cx="522" cy="365" r="8"/>
+          <circle id="uc1-ping2" cx="522" cy="365" r="8"/>
+          <g id="uc1-parkin" class="uc1-node">
+            <rect x="300" y="330" width="150" height="54" rx="6"/>
+            <text class="mono" x="375" y="352" text-anchor="middle">PAYMENT API</text>
+            <text class="mono uc1-node__sub" x="375" y="371" text-anchor="middle">POST /enforce</text>
+          </g>
+          <path id="uc1-handshake" d="M 500 365 L 452 361" />
+          <path id="uc1-route-old" d="M 900 780 C 900 700, 910 640, 980 620 C 1060 597, 1100 520, 1100 430"/>
+          <path id="uc1-route" d="M 900 780 C 900 700, 880 640, 800 620 C 700 595, 640 520, 610 460 C 590 420, 570 390, 548 372"/>
+          <g id="uc1-glid">
+            <rect x="-14" y="-9" width="28" height="18" rx="5"/>
+            <circle class="uc1-glid__beacon" cx="0" cy="0" r="3"/>
+          </g>
+          <text id="uc1-glid-label" class="mono" x="0" y="0">GLID-07</text>
+        </svg>
+        <span class="frame__fade"></span>
+        <span class="frame__hud mono">DISPATCH / GLID-07 · REROUTE</span>
+      </figure>
+    </div>
+
+    <div class="uc1__rail">
+      <p class="uc1__eyebrow mono">01 / AL WASL ROAD</p>
+      <h2 class="uc1__title">The curb that collects itself.</h2>
+      <ol class="uc1__steps">
+        <li class="uc1__step" data-step="0">
+          <span class="mono uc1__step-key">00 SENSE</span>
+          <p>mmWave sees the car. No camera. No plate.</p>
+        </li>
+        <li class="uc1__step" data-step="1">
+          <span class="mono uc1__step-key">01 GRACE</span>
+          <p>Four minutes to pay. The bay counts quietly.</p>
+        </li>
+        <li class="uc1__step" data-step="2">
+          <span class="mono uc1__step-key">02 SETTLE</span>
+          <p>EnforcementAgent calls the payment API. The bay bills itself.</p>
+        </li>
+        <li class="uc1__step" data-step="3">
+          <span class="mono uc1__step-key">03 DISPATCH</span>
+          <p>Still unpaid? A Glid car is already turning.</p>
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Hardware subsection -->
+  <div class="hw" data-reveal-group>
+    <figure class="frame hw__img" data-reveal>
+      <img src="assets/media/sensor-render.jpg" alt="LD2410 mmWave and ESP32 in a weatherproof enclosure" loading="lazy">
+      <span class="frame__fade"></span>
+      <span class="frame__hud mono">SENSOR / LD2410 + ESP32-S3 / IP66</span>
+    </figure>
+    <div class="hw__copy">
+      <p class="hw__eyebrow mono" data-reveal>HARDWARE</p>
+      <h3 class="hw__title" data-reveal>The whole thing costs less<br>than one fine.</h3>
+      <dl class="hw__specs mono" data-reveal>
+        <div><dt>RADAR</dt><dd>LD2410 · 24 GHz mmWave</dd></div>
+        <div><dt>MCU</dt><dd>ESP32-S3</dd></div>
+        <div><dt>BACKHAUL</dt><dd>NB-IoT · MQTT</dd></div>
+        <div><dt>POWER</dt><dd>0.4 W · solar trickle</dd></div>
+        <div><dt>DETECTION</dt><dd>presence · micro-motion</dd></div>
+        <div><dt>ENCLOSURE</dt><dd>IP66 · curb-flush</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     04 · USE CASE 2 — The parking whisper
+     usecase2-loop.mp4 full-bleed behind the CarPlay screen:
+     driver POV, DIFC towers, three bays answer, one is held.
+============================================================ -->
+<section class="uc2" id="uc2">
+  <div class="uc2__stage">
+    <!-- VIDEO: usecase2-loop.mp4 -->
+    <div class="uc2__dim"></div>
+    <div class="uc2__windshield"></div>
+    <div class="uc2__dash"></div>
+    <div class="uc2__screen frame">
+      <div class="uc2__screen-head mono">
+        <span>MAPS</span>
+        <span id="uc2-eta">DIFC · 8 MIN</span>
+      </div>
+      <svg id="uc2-map" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice" aria-label="CarPlay navigation, three reserved bays near DIFC">
+        <g class="uc2-grid">
+          <line x1="0" y1="90"  x2="640" y2="80"/>
+          <line x1="0" y1="180" x2="640" y2="175"/>
+          <line x1="0" y1="270" x2="640" y2="268"/>
+          <line x1="110" y1="0" x2="120" y2="360"/>
+          <line x1="480" y1="0" x2="470" y2="360"/>
+        </g>
+        <g class="uc2-blocks">
+          <rect x="150" y="20"  width="130" height="45" rx="4"/>
+          <rect x="330" y="15"  width="120" height="50" rx="4"/>
+          <rect x="150" y="105" width="130" height="55" rx="4"/>
+          <rect x="330" y="100" width="120" height="60" rx="4"/>
+        </g>
+        <text class="uc2-district mono" x="392" y="92">DIFC</text>
+        <path id="uc2-route" d="M 320 380 L 318 300 C 316 250, 320 220, 340 195 C 358 173, 380 150, 388 120"/>
+        <g id="uc2-chevron">
+          <path d="M 0 -11 L 9 8 L 0 3 L -9 8 Z"/>
+        </g>
+        <g class="uc2-bay" id="uc2-bay-a"><circle class="uc2-bay__ring" r="14"/><circle class="uc2-bay__dot" r="5"/></g>
+        <g class="uc2-bay" id="uc2-bay-b"><circle class="uc2-bay__ring" r="14"/><circle class="uc2-bay__dot" r="5"/></g>
+        <g class="uc2-bay" id="uc2-bay-c"><circle class="uc2-bay__ring" r="14"/><circle class="uc2-bay__dot" r="5"/></g>
+      </svg>
+      <div class="uc2__chip mono" id="uc2-chip">
+        <span class="uc2__chip-dot"></span>reserved for you · <span id="uc2-chip-timer">3:00</span>
+      </div>
+      <span class="frame__hud frame__hud--top mono">DASH / CARPLAY NAV · QWEN-PLUS NAVIGATOR</span>
+    </div>
+
+    <div class="uc2__copy">
+      <p class="uc2__eyebrow mono">02 / APPROACHING DIFC</p>
+      <h2 class="uc2__title">The parking whisper.</h2>
+      <p class="uc2__line" data-uc2line>You never asked where to park.</p>
+      <p class="uc2__line" data-uc2line>NavigatorAgent read your route. Three bays answered.</p>
+      <p class="uc2__line" data-uc2line>Turn. Stop. Walk away. The curb handles the rest.</p>
+    </div>
+  </div>
+
+  <!-- Handoff subsection -->
+  <div class="handoff" data-reveal-group>
+    <div class="handoff__copy">
+      <p class="handoff__eyebrow mono" data-reveal>HANDOFF</p>
+      <h3 class="handoff__title" data-reveal>The suggestion,<br>not the app.</h3>
+      <p class="handoff__body" data-reveal>Nothing to install. NavigatorAgent drops the reserved bay straight into the navigation you already run.</p>
+      <p class="handoff__links mono" data-reveal>GOOGLE · APPLE · WAZE · YANGO</p>
+    </div>
+    <figure class="frame handoff__img" data-reveal>
+      <img src="assets/media/phone-cradle.jpg" alt="Phone in a dashboard cradle at night showing navigation" loading="lazy">
+      <span class="frame__fade"></span>
+      <span class="frame__hud mono">HANDOFF / DEEP LINK · NO INSTALL</span>
+    </figure>
+  </div>
+</section>
+
+<!-- ============================================================
+     05 · ARCHITECTURE — monochrome system diagram
+============================================================ -->
+<section class="arch" id="arch">
+  <div class="arch__head">
+    <p class="arch__eyebrow mono">SYSTEM</p>
+    <h2 class="arch__title">Six agents. One curb.</h2>
+  </div>
+  <div class="arch__diagram-wrap">
+    <svg id="arch-svg" viewBox="0 0 1400 620" aria-label="SpotSense architecture: edge sensors to Alibaba Cloud IoT to Qwen agents to city APIs">
+      <g class="arch-col-label mono"><text x="150" y="60">EDGE</text></g>
+      <g class="arch-node" data-arch="1">
+        <rect x="60" y="100" width="200" height="72" rx="6"/>
+        <text class="mono arch-node__name" x="160" y="130" text-anchor="middle">LD2410 mmWave</text>
+        <text class="mono arch-node__sub"  x="160" y="152" text-anchor="middle">presence · 24 GHz</text>
+      </g>
+      <g class="arch-node" data-arch="1">
+        <rect x="60" y="210" width="200" height="72" rx="6"/>
+        <text class="mono arch-node__name" x="160" y="240" text-anchor="middle">ESP32</text>
+        <text class="mono arch-node__sub"  x="160" y="262" text-anchor="middle">edge runtime · MQTT</text>
+      </g>
+      <g class="arch-col-label mono"><text x="480" y="60">CLOUD</text></g>
+      <g class="arch-node" data-arch="2">
+        <rect x="390" y="150" width="220" height="90" rx="6"/>
+        <text class="mono arch-node__name" x="500" y="186" text-anchor="middle">Alibaba Cloud IoT</text>
+        <text class="mono arch-node__sub"  x="500" y="208" text-anchor="middle">device shadow · rules</text>
+      </g>
+      <g class="arch-col-label mono"><text x="810" y="60">REASONING</text></g>
+      <g class="arch-node arch-node--qwen" data-arch="3">
+        <rect x="720" y="100" width="240" height="80" rx="6"/>
+        <text class="mono arch-node__name" x="840" y="132" text-anchor="middle">Qwen-Max</text>
+        <text class="mono arch-node__sub"  x="840" y="154" text-anchor="middle">EnforcementAgent</text>
+      </g>
+      <g class="arch-node arch-node--qwen" data-arch="3">
+        <rect x="720" y="220" width="240" height="80" rx="6"/>
+        <text class="mono arch-node__name" x="840" y="252" text-anchor="middle">Qwen-Plus</text>
+        <text class="mono arch-node__sub"  x="840" y="274" text-anchor="middle">NavigatorAgent</text>
+      </g>
+      <g class="arch-col-label mono"><text x="1160" y="60">CITY</text></g>
+      <g class="arch-node" data-arch="4">
+        <rect x="1090" y="88" width="230" height="60" rx="6"/>
+        <text class="mono arch-node__name" x="1205" y="112" text-anchor="middle">Payment API</text>
+        <text class="mono arch-node__sub"  x="1205" y="132" text-anchor="middle">sessions · billing</text>
+      </g>
+      <g class="arch-node" data-arch="4">
+        <rect x="1090" y="172" width="230" height="60" rx="6"/>
+        <text class="mono arch-node__name" x="1205" y="196" text-anchor="middle">Glid dispatch</text>
+        <text class="mono arch-node__sub"  x="1205" y="216" text-anchor="middle">patrol rerouting</text>
+      </g>
+      <g class="arch-node" data-arch="4">
+        <rect x="1090" y="256" width="230" height="60" rx="6"/>
+        <text class="mono arch-node__name" x="1205" y="280" text-anchor="middle">Nav deep links</text>
+        <text class="mono arch-node__sub"  x="1205" y="300" text-anchor="middle">Google · Waze · Apple</text>
+      </g>
+      <g class="arch-wires">
+        <path data-wire d="M 260 136 C 320 136, 330 170, 390 178"/>
+        <path data-wire d="M 260 246 C 320 246, 330 216, 390 210"/>
+        <path data-wire d="M 610 175 C 660 168, 670 145, 720 140"/>
+        <path data-wire d="M 610 215 C 660 222, 670 252, 720 258"/>
+        <path data-wire d="M 960 128 C 1020 124, 1030 118, 1090 116"/>
+        <path data-wire d="M 960 152 C 1020 165, 1030 192, 1090 199"/>
+        <path data-wire d="M 960 262 C 1020 268, 1030 282, 1090 285"/>
+        <path data-wire d="M 960 286 C 1010 300, 1040 262, 1090 240" class="arch-wire--dim"/>
+      </g>
+      <g class="arch-node arch-node--memory" data-arch="5">
+        <rect x="390" y="380" width="570" height="58" rx="6"/>
+        <text class="mono arch-node__name" x="675" y="405" text-anchor="middle">Agent memory</text>
+        <text class="mono arch-node__sub"  x="675" y="425" text-anchor="middle">bay history · payer patterns · patrol heatmaps</text>
+      </g>
+      <g class="arch-wires">
+        <path data-wire d="M 500 240 L 500 380" class="arch-wire--dim"/>
+        <path data-wire d="M 840 300 L 840 380" class="arch-wire--dim"/>
+      </g>
+      <g class="arch-chips" data-arch="6">
+        <g class="arch-chip"><rect x="140"  y="520" width="130" height="40" rx="20"/><text class="mono" x="205"  y="545" text-anchor="middle">SENSOR</text></g>
+        <g class="arch-chip"><rect x="310"  y="520" width="140" height="40" rx="20"/><text class="mono" x="380"  y="545" text-anchor="middle">PAYMENT</text></g>
+        <g class="arch-chip"><rect x="490"  y="520" width="190" height="40" rx="20"/><text class="mono" x="585"  y="545" text-anchor="middle">ENFORCEMENT</text></g>
+        <g class="arch-chip"><rect x="720"  y="520" width="150" height="40" rx="20"/><text class="mono" x="795"  y="545" text-anchor="middle">DISPATCH</text></g>
+        <g class="arch-chip"><rect x="910"  y="520" width="160" height="40" rx="20"/><text class="mono" x="990"  y="545" text-anchor="middle">NAVIGATOR</text></g>
+        <g class="arch-chip"><rect x="1110" y="520" width="140" height="40" rx="20"/><text class="mono" x="1180" y="545" text-anchor="middle">MEMORY</text></g>
+      </g>
+    </svg>
+  </div>
+</section>
+
+<!-- ============================================================
+     05b · TECH RIBBON
+============================================================ -->
+<div class="ribbon" aria-label="Technology stack">
+  <p class="ribbon__row mono">
+    <span>LD2410</span><span>ESP32-S3</span><span>MQTT</span><span>ALIBABA CLOUD IOT</span><span>QWEN-MAX</span><span>QWEN-PLUS</span><span>PAYMENT API</span><span>GLID DISPATCH</span><span>DEEP LINKS</span>
+  </p>
+</div>
+
+<!-- ============================================================
+     06 · IMPACT — projections strip  (+ ambient-skyline loop)
+============================================================ -->
+<section class="impact" id="impact">
+  <!-- VIDEO: ambient-skyline.mp4 -->
+  <div class="impact__inner">
+    <p class="impact__eyebrow mono">PROJECTIONS · JBR PILOT MODEL</p>
+    <div class="impact__grid">
+      <div class="impact__stat">
+        <span class="impact__num" data-count="18" data-prefix="+" data-suffix="%">+0%</span>
+        <span class="impact__label mono">OPERATOR REVENUE CAPTURE</span>
+      </div>
+      <div class="impact__stat">
+        <span class="impact__num" data-count="6" data-prefix="&lt;" data-suffix="&nbsp;min">&lt;0&nbsp;min</span>
+        <span class="impact__label mono">GLID DISPATCH TIME</span>
+      </div>
+      <div class="impact__stat">
+        <span class="impact__num" data-count="70" data-prefix="−" data-suffix="%">−0%</span>
+        <span class="impact__label mono">DRIVER SEARCH TIME</span>
+      </div>
+    </div>
+    <p class="impact__note mono">modeled, not measured — a 4-week pilot makes these real numbers</p>
+  </div>
+</section>
+
+<!-- ============================================================
+     07 · CTA — Pilot one street  (texture-asphalt backdrop)
+============================================================ -->
+<section class="pilot" id="pilot">
+  <div class="pilot__inner">
+    <h2 class="pilot__title" data-pilot>Pilot one street.</h2>
+    <p class="pilot__spec mono" data-pilot>200 SENSORS · 4 WEEKS · JBR — THE WALK</p>
+    <p class="pilot__body" data-pilot>One street, fully self-aware. The operator sees the revenue.<br>Glid sees the dispatch times. Drivers just stop circling.</p>
+    <!-- PLACEHOLDER[pilot-contact]: wire this button to the real
+         contact/demo destination when it exists. Intentionally inert. -->
+    <a class="pilot__btn" href="#pilot" data-pilot data-placeholder="contact">Request the pilot deck</a>
+
+    <ul class="pilot__links mono" data-pilot>
+      <!-- PLACEHOLDER[demo-video-url] · PLACEHOLDER[github-repo-url]
+           · PLACEHOLDER[devpost-url] · PLACEHOLDER[partner-name]
+           Replace hrefs / text below when available. -->
+      <li><a href="#" data-placeholder="demo-video">DEMO FILM — LINK PENDING</a></li>
+      <li><a href="#" data-placeholder="github">GITHUB — LINK PENDING</a></li>
+      <li><a href="#" data-placeholder="devpost">DEVPOST — LINK PENDING</a></li>
+      <li><span data-placeholder="partner">PILOT PARTNER — TBD</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================
+     08 · TEAM
+============================================================ -->
+<section class="team" id="team" data-reveal-group>
+  <p class="team__eyebrow mono" data-reveal>TEAM</p>
+  <div class="team__row">
+    <figure class="frame team__photo" data-reveal>
+      <img src="assets/media/founder-alexandre.png" alt="Alexandre Basta, founder of SpotSense" loading="lazy">
+      <span class="frame__fade"></span>
+      <span class="frame__hud mono">FOUNDER / DXB</span>
+    </figure>
+    <div class="team__copy">
+      <h3 class="team__name" data-reveal>Alexandre Basta</h3>
+      <p class="team__role mono" data-reveal>FOUNDER</p>
+      <p class="team__bio" data-reveal>One person, two hundred sensors, and a conviction that a curb can run itself.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     09 · FAQ
+============================================================ -->
+<section class="faq" id="faq" data-reveal-group>
+  <p class="faq__eyebrow mono" data-reveal>QUESTIONS</p>
+  <div class="faq__list" data-reveal>
+    <details class="faq__item">
+      <summary>Is SpotSense live today?</summary>
+      <p>No. SpotSense is a concept built for the Qwen Cloud Hackathon. The JBR pilot above is the proposal on the table.</p>
+    </details>
+    <details class="faq__item">
+      <summary>Why no cameras?</summary>
+      <p>mmWave radar reads presence, not identity. No plates, no faces, nothing stored that can leak. Enforcement stays with the operator's own systems.</p>
+    </details>
+    <details class="faq__item">
+      <summary>What does one bay cost?</summary>
+      <p>Under forty dirhams in parts — LD2410, ESP32-S3, enclosure. A 0.4 W draw runs on solar trickle. Install is curb-flush, one visit.</p>
+    </details>
+    <details class="faq__item">
+      <summary>What do the agents actually decide?</summary>
+      <p>Qwen-Max arbitrates enforcement — grace, settle, or dispatch. Qwen-Plus whispers open bays into drivers' navigation. Shared memory keeps both honest about what each bay tends to do.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+============================================================ -->
+<footer class="footer">
+  <span class="footer__fine mono">SpotSense is a concept. All metrics are projections.</span>
+</footer>
+
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/ScrollTrigger.min.js"></script>
+<script src="vendor/lenis.min.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
