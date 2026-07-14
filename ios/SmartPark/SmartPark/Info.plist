@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <key>SMARTPARK_API_BASE_URL</key>
+    <string>$(SMARTPARK_API_BASE_URL)</string>
+    <key>QWEN_API_KEY</key>
+    <string>$(QWEN_API_KEY)</string>
+    <key>QODER_AGENT_API_KEY</key>
+    <string>$(QODER_AGENT_API_KEY)</string>
     <key>CFBundleDisplayName</key>
     <string>SpotSense</string>
     <key>NSLocationWhenInUseUsageDescription</key>
