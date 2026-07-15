@@ -56,7 +56,7 @@ struct SettingsView: View {
 
                 // MARK: - Developer
                 Section("Developer") {
-                    TextField("API URL Override", text: $customAPIURL, prompt: Text("http://localhost:8000"))
+                    TextField("API URL Override", text: $customAPIURL, prompt: Text("https://test.smartparkai.com"))
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .keyboardType(.URL)

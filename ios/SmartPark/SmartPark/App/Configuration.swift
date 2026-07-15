@@ -3,7 +3,7 @@ import Foundation
 enum Configuration {
     static var apiBaseURL: String {
         guard let url = Bundle.main.infoDictionary?["SMARTPARK_API_BASE_URL"] as? String, !url.isEmpty else {
-            return "http://localhost:8000"
+            return "https://test.smartparkai.com"
         }
         return url
     }

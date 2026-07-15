@@ -8,11 +8,6 @@
     <string>$(QWEN_API_KEY)</string>
     <key>QODER_AGENT_API_KEY</key>
     <string>$(QODER_AGENT_API_KEY)</string>
-    <key>NSAppTransportSecurity</key>
-    <dict>
-        <key>NSAllowsArbitraryLoads</key>
-        <true/>
-    </dict>
     <key>CFBundleDisplayName</key>
     <string>SpotSense</string>
     <key>NSLocationWhenInUseUsageDescription</key>
