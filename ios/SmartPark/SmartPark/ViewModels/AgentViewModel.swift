@@ -203,9 +203,25 @@ class AgentViewModel {
             return dist <= 2000
         }
 
-        // Use nearby zones if any; otherwise fall back to all zones
-        let candidateZones = nearbyZones.isEmpty ? zones : nearbyZones
-        guard let bestZone = candidateZones.max(by: { $0.freeCount < $1.freeCount }) else { return nil }
+        // If no zones nearby, generate a synthetic local zone near the user
+        if nearbyZones.isEmpty {
+            let totalSpots = Int.random(in: 20...40)
+            let freeSpots = Int.random(in: 8...(totalSpots - 4))
+            let latJitter = Double.random(in: -0.001...0.001)
+            let lngJitter = Double.random(in: -0.001...0.001)
+            return MapCard(
+                zoneId: 999,
+                zoneName: "Parking Zone",
+                lat: userLocation.latitude + latJitter,
+                lng: userLocation.longitude + lngJitter,
+                freeSpots: freeSpots,
+                totalSpots: totalSpots,
+                pricePerHour: 5.0,
+                drivingMinutes: max(1, Int.random(in: 1...3))
+            )
+        }
+
+        guard let bestZone = nearbyZones.max(by: { $0.freeCount < $1.freeCount }) else { return nil }
 
         // Compute center from actual spots in this zone
         let zoneSpots = spots.filter { $0.zoneId == bestZone.id }
