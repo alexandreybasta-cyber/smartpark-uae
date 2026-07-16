@@ -5,8 +5,8 @@
 # Purpose: Set up nginx reverse proxy with Let's Encrypt SSL for SpotSense
 # Server: 47.82.153.110
 # Backend: FastAPI/uvicorn running on port 8001 via PM2
-# Domain: test.smartparkai.com (API backend only)
-# Note:   smartparkai.com is the Vercel website — NOT served from this server
+# Domain: api.spotsense.app (API backend only)
+# Note:   spotsense.app is the Vercel website — NOT served from this server
 # ============================================================================
 
 set -e  # Exit on error
@@ -14,10 +14,10 @@ set -e  # Exit on error
 # ============================================================================
 # CONFIGURATION - Edit these values if needed
 # ============================================================================
-SERVER_NAME="test.smartparkai.com"
-BACKEND_PORT="8001"
+SERVER_NAME="api.spotsense.app"
+BACKEND_PORT="8002"
 SERVER_IP="47.82.153.110"
-EMAIL="admin@smartparkai.com"  # Let's Encrypt notification email
+EMAIL="admin@spotsense.app"  # Let's Encrypt notification email
 
 # ============================================================================
 # COLOR OUTPUT
@@ -54,12 +54,12 @@ check_dns() {
     echo ""
     echo "  Type  | Name                 | Value"
     echo "  ------|----------------------|----------------"
-    echo "  A     | test.smartparkai.com | $SERVER_IP"
+    echo "  A     | api.spotsense.app   | $SERVER_IP"
     echo ""
-    echo "  Note: smartparkai.com points to Vercel (website) — do NOT point it here."
+    echo "  Note: spotsense.app points to Vercel (website) — do NOT point it here."
     echo ""
     echo "  DNS propagation can take 5-30 minutes. Verify with:"
-    echo "    dig +short test.smartparkai.com"
+    echo "    dig +short api.spotsense.app"
     echo ""
     read -p "Have you already pointed the DNS A-record to $SERVER_IP? (y/n): " -n 1 -r
     echo
@@ -120,7 +120,7 @@ create_nginx_config() {
 # SpotSense Nginx Configuration
 # ============================================================================
 # Domain: ${SERVER_NAME} (API backend)
-# Note:   smartparkai.com is the Vercel website — NOT served from this server
+# Note:   spotsense.app is the Vercel website — NOT served from this server
 # Handles:
 #   - HTTP to HTTPS redirect for ${SERVER_NAME}
 #   - Reverse proxy to backend on port ${BACKEND_PORT}
@@ -381,7 +381,7 @@ verify_setup() {
     echo "Backend: http://127.0.0.1:$BACKEND_PORT"
     echo "WebSocket: wss://$SERVER_NAME/ws/spots"
     echo ""
-    echo "Note: smartparkai.com is the Vercel website (NOT this server)"
+    echo "Note: spotsense.app is the Vercel website (NOT this server)"
     echo ""
     echo "Certificate renewal: Automated via cron (twice daily)"
     echo ""

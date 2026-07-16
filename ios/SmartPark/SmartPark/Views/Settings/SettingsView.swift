@@ -56,7 +56,7 @@ struct SettingsView: View {
 
                 // MARK: - Developer
                 Section("Developer") {
-                    TextField("API URL Override", text: $customAPIURL, prompt: Text("https://test.smartparkai.com"))
+                    TextField("API URL Override", text: $customAPIURL, prompt: Text("https://api.spotsense.app"))
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .keyboardType(.URL)

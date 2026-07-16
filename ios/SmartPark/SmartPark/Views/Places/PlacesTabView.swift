@@ -12,6 +12,17 @@ struct PlacesTabView: View {
             Group {
                 if viewModel.isLoading && viewModel.places.isEmpty {
                     ProgressView("Loading places...")
+                } else if let error = viewModel.error, viewModel.places.isEmpty {
+                    ContentUnavailableView {
+                        Label("Unable to Load Places", systemImage: "exclamationmark.triangle")
+                    } description: {
+                        Text(error)
+                    } actions: {
+                        Button("Retry") {
+                            Task { await viewModel.loadPlaces() }
+                        }
+                        .buttonStyle(.bordered)
+                    }
                 } else if viewModel.places.isEmpty {
                     ContentUnavailableView(
                         "No Saved Places",

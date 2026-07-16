@@ -115,22 +115,39 @@ class NavigationViewModel {
 
     private func generateMockSpotsNearDestination(_ coord: CLLocationCoordinate2D) -> [Spot] {
         var spots: [Spot] = []
-        for i in 0..<8 {
-            let angle = Double(i) * (.pi * 2 / 8)
-            let distance = Double.random(in: 50...200) // meters
-            let latOffset = distance * cos(angle) / 111_320
-            let lngOffset = distance * sin(angle) / (111_320 * cos(coord.latitude * .pi / 180))
-            let status: SpotStatus = i < 5 ? .free : (i < 7 ? .occupied : .reserved)
-            spots.append(Spot(
-                id: "GEO-\(String(format: "%02d", i + 1))",
-                zoneId: 0,
-                lat: coord.latitude + latOffset,
-                lng: coord.longitude + lngOffset,
-                status: status,
-                lastChangedAt: nil,
-                sensorId: nil,
-                occupiedSince: nil
-            ))
+        let streetBearings: [Double] = [
+            Double.random(in: 340...360),   // north-ish
+            Double.random(in: 60...90),     // east-ish  
+            Double.random(in: 240...270)    // west-ish
+        ]
+        
+        var spotIndex = 0
+        for bearing in streetBearings {
+            let bearingRad = bearing * .pi / 180
+            let spotsOnStreet = Int.random(in: 2...4)
+            
+            for j in 0..<spotsOnStreet {
+                let distance = Double(j + 1) * Double.random(in: 25...45)
+                let latOffset = distance * cos(bearingRad) / 111_320
+                let lngOffset = distance * sin(bearingRad) / (111_320 * cos(coord.latitude * .pi / 180))
+                let perpOffset = Double.random(in: 5...8) * (Bool.random() ? 1 : -1)
+                let perpBearing = bearingRad + .pi / 2
+                let perpLat = perpOffset * cos(perpBearing) / 111_320
+                let perpLng = perpOffset * sin(perpBearing) / (111_320 * cos(coord.latitude * .pi / 180))
+                
+                let status: SpotStatus = spotIndex < 5 ? .free : (spotIndex < 7 ? .occupied : .reserved)
+                spots.append(Spot(
+                    id: "GEO-\(String(format: "%02d", spotIndex + 1))",
+                    zoneId: 0,
+                    lat: coord.latitude + latOffset + perpLat,
+                    lng: coord.longitude + lngOffset + perpLng,
+                    status: status,
+                    lastChangedAt: nil,
+                    sensorId: nil,
+                    occupiedSince: nil
+                ))
+                spotIndex += 1
+            }
         }
         return spots
     }

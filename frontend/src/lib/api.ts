@@ -1,4 +1,4 @@
-export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://test.smartparkai.com';
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://api.spotsense.app';
 
 export async function fetchZones() {
   const res = await fetch(`${API_BASE}/api/zones`);

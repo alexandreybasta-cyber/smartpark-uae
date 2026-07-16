@@ -533,20 +533,49 @@ struct MapTabView: View {
     
     private func generateMockSpots(near center: CLLocationCoordinate2D) -> [Spot] {
         var spots: [Spot] = []
-        for i in 0..<10 {
-            let lat = center.latitude + Double(i - 5) * 0.0002
-            let lng = center.longitude + Double.random(in: -0.0001...0.0001)
-            let status: SpotStatus = i < 6 ? .free : (i < 9 ? .occupied : .reserved)
-            spots.append(Spot(
-                id: "P-\(String(format: "%02d", i + 1))",
-                zoneId: 1,
-                lat: lat,
-                lng: lng,
-                status: status,
-                lastChangedAt: nil,
-                sensorId: nil,
-                occupiedSince: nil
-            ))
+        // Simulate 2-3 street segments radiating from center
+        // Each segment is a direction (bearing) with spots placed along it
+        let streetBearings: [Double] = [
+            Double.random(in: 0...30),      // roughly north
+            Double.random(in: 80...100),    // roughly east
+            Double.random(in: 170...190)    // roughly south
+        ]
+        
+        var spotIndex = 0
+        for bearing in streetBearings {
+            let bearingRad = bearing * .pi / 180
+            let spotsOnStreet = Int.random(in: 3...5)
+            
+            for j in 0..<spotsOnStreet {
+                // Place spots at 20-40m intervals along the street
+                let distance = Double(j + 1) * Double.random(in: 20...40)
+                // Main position along street direction
+                let latOffset = distance * cos(bearingRad) / 111_320
+                let lngOffset = distance * sin(bearingRad) / (111_320 * cos(center.latitude * .pi / 180))
+                // Small perpendicular offset (simulates parking bay beside the road, 5-10m)
+                let perpOffset = Double.random(in: 5...10) * (Bool.random() ? 1 : -1)
+                let perpBearing = bearingRad + .pi / 2
+                let perpLat = perpOffset * cos(perpBearing) / 111_320
+                let perpLng = perpOffset * sin(perpBearing) / (111_320 * cos(center.latitude * .pi / 180))
+                
+                let status: SpotStatus
+                let rand = Double.random(in: 0...1)
+                if rand < 0.5 { status = .free }
+                else if rand < 0.85 { status = .occupied }
+                else { status = .reserved }
+                
+                spots.append(Spot(
+                    id: "P-\(String(format: "%02d", spotIndex + 1))",
+                    zoneId: 1,
+                    lat: center.latitude + latOffset + perpLat,
+                    lng: center.longitude + lngOffset + perpLng,
+                    status: status,
+                    lastChangedAt: nil,
+                    sensorId: nil,
+                    occupiedSince: nil
+                ))
+                spotIndex += 1
+            }
         }
         return spots
     }

@@ -121,7 +121,7 @@ class AgentViewModel {
 
     private func mockDriverResponse(text: String, zones: [Zone]) -> AgentResponse {
         let bestZone = zones.max(by: { $0.freeCount < $1.freeCount })
-        let zoneName = bestZone?.name ?? "Dubai Internet City - Block A"
+        let zoneName = bestZone?.name ?? "Nearby Parking Zone"
         let freeCount = bestZone?.freeCount ?? 8
 
         return AgentResponse(

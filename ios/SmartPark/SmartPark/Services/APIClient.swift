@@ -72,7 +72,7 @@ actor APIClient {
     // MARK: - Places CRUD
 
     func fetchPlaces() async throws -> [SavedPlace] {
-        try await get("/api/places")
+        try await get("/api/places", timeout: 10)
     }
 
     func createPlace(_ place: SavedPlaceCreate) async throws -> SavedPlace {

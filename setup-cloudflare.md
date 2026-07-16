@@ -15,9 +15,9 @@ With Cloudflare:
 > **Replace these values with your actual server configuration:**
 
 - **Public IP:** `47.82.153.110` *(your server's public IP)*
-- **Backend Port:** `8001` *(your backend's port)*
-- **API Domain:** `test.smartparkai.com` *(your API subdomain)*
-- **Website Domain:** `smartparkai.com` *(your website domain — Vercel, NOT this server)*
+- **Backend Port:** `8002` *(your backend's port)*
+- **API Domain:** `api.spotsense.app` *(your API subdomain)*
+- **Website Domain:** `spotsense.app` *(your website domain — Vercel, NOT this server)*
 
 ---
 
@@ -32,7 +32,7 @@ With Cloudflare:
 ## Step 2: Add Your Domain to Cloudflare
 
 1. Click **"Add a Site"** in the Cloudflare dashboard
-2. Enter your domain: `smartparkai.com`
+2. Enter your domain: `spotsense.app`
 3. Select the **Free plan** and click Continue
 4. Cloudflare will scan your existing DNS records
 
@@ -42,13 +42,13 @@ With Cloudflare:
 
 In the Cloudflare DNS settings, add these records:
 
-### For API Subdomain (test.smartparkai.com) — points to backend server
+### For API Subdomain (api.spotsense.app) — points to backend server
 
 | Type  | Name | Content       | Proxy Status | TTL  |
 |-------|------|---------------|--------------|------|
-| A     | `test` | `47.82.153.110` | **Proxied** (orange cloud) | Auto |
+| A     | `api` | `47.82.153.110` | **Proxied** (orange cloud) | Auto |
 
-### For Website (smartparkai.com) — points to Vercel (NOT this server)
+### For Website (spotsense.app) — points to Vercel (NOT this server)
 
 | Type  | Name | Content       | Proxy Status | TTL  |
 |-------|------|---------------|--------------|------|
@@ -68,7 +68,7 @@ In the Cloudflare DNS settings, add these records:
    - `adam.ns.cloudflare.com`
    - `bella.ns.cloudflare.com`
 
-2. Log in to your domain registrar (where you bought `smartparkai.com`)
+2. Log in to your domain registrar (where you bought `spotsense.app`)
 
 3. Replace the existing nameservers with Cloudflare's nameservers
 
@@ -97,11 +97,11 @@ Since Cloudflare handles SSL, your server setup is simpler:
 
 ### Option A: Run Backend Directly (No nginx)
 
-Your FastAPI backend on port 8001 can accept connections directly:
+Your FastAPI backend on port 8002 can accept connections directly:
 
 ```bash
-# Backend is already running via PM2 on port 8001
-# Cloudflare will proxy to http://47.82.153.110:8001
+# Backend is already running via PM2 on port 8002
+# Cloudflare will proxy to http://47.82.153.110:8002
 ```
 
 **Firewall Configuration:**
@@ -109,8 +109,8 @@ Your FastAPI backend on port 8001 can accept connections directly:
 # Allow Cloudflare IPs only (more secure)
 # Get Cloudflare IP ranges from: https://www.cloudflare.com/ips/
 
-# Or allow all traffic on port 8001 (simpler)
-ufw allow 8001/tcp
+# Or allow all traffic on port 8002 (simpler)
+ufw allow 8002/tcp
 ```
 
 ### Option B: Use nginx as Reverse Proxy (Recommended)
@@ -122,14 +122,14 @@ Even with Cloudflare, nginx adds a layer of control:
 
 server {
     listen 80;
-    server_name test.smartparkai.com;
+    server_name api.spotsense.app;
 
     # Only allow Cloudflare IPs (optional, more secure)
     # include /etc/nginx/cloudflare-allow.conf;
     # deny all;
 
     location /ws/ {
-        proxy_pass http://127.0.0.1:8001;
+        proxy_pass http://127.0.0.1:8002;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -143,7 +143,7 @@ server {
     }
 
     location / {
-        proxy_pass http://127.0.0.1:8001;
+        proxy_pass http://127.0.0.1:8002;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -185,25 +185,25 @@ sudo chmod 600 /etc/nginx/ssl/cloudflare-origin.key
 
 ### Verify DNS Propagation
 ```bash
-dig +short test.smartparkai.com
+dig +short api.spotsense.app
 # Should show Cloudflare IPs (e.g., 104.21.x.x)
 ```
 
 ### Test HTTPS Access
 ```bash
-curl -I https://test.smartparkai.com
+curl -I https://api.spotsense.app
 # Should return 200 OK with Cloudflare headers
 ```
 
 ### Test WebSocket
 ```bash
 # Use browser DevTools or wscat
-wscat -c wss://test.smartparkai.com/ws/spots
+wscat -c wss://api.spotsense.app/ws/spots
 ```
 
 ### Check SSL Certificate
 ```bash
-curl -vI https://test.smartparkai.com 2>&1 | grep -E "(SSL|issuer|subject)"
+curl -vI https://api.spotsense.app 2>&1 | grep -E "(SSL|issuer|subject)"
 # Should show Cloudflare certificate
 ```
 
@@ -225,11 +225,11 @@ curl -vI https://test.smartparkai.com 2>&1 | grep -E "(SSL|issuer|subject)"
 Add rules for specific paths:
 
 1. **API endpoints** - Disable caching
-   - URL: `test.smartparkai.com/api/*`
+   - URL: `api.spotsense.app/api/*`
    - Setting: Cache Level: Bypass
 
 2. **Static assets** - Aggressive caching
-   - URL: `test.smartparkai.com/static/*`
+   - URL: `api.spotsense.app/static/*`
    - Setting: Cache Level: Cache Everything, Edge TTL: 1 month
 
 ---
@@ -272,15 +272,15 @@ Add rules for specific paths:
 ## Quick Setup Checklist
 
 - [ ] Signed up for Cloudflare free account
-- [ ] Added `smartparkai.com` to Cloudflare
-- [ ] Configured DNS: `test` A record → `47.82.153.110` (proxied)
+- [ ] Added `spotsense.app` to Cloudflare
+- [ ] Configured DNS: `api` A record → `47.82.153.110` (proxied)
 - [ ] Configured DNS: `@` and `www` CNAME → Vercel (proxied)
 - [ ] Updated nameservers at domain registrar
 - [ ] Waited for DNS propagation (5-30 minutes)
 - [ ] Set SSL mode to **Full (Strict)** or **Flexible**
 - [ ] Enabled **Always Use HTTPS**
-- [ ] Verified backend is running on port 8001
-- [ ] Tested `https://test.smartparkai.com` in browser
+- [ ] Verified backend is running on port 8002
+- [ ] Tested `https://api.spotsense.app` in browser
 - [ ] Tested WebSocket connection
 - [ ] Configured firewall to allow traffic
 
