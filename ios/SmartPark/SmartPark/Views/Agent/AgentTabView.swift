@@ -165,12 +165,16 @@ struct ChatBubble: View {
             if message.isUser { Spacer() }
 
             VStack(alignment: message.isUser ? .trailing : .leading, spacing: DesignTokens.spacingSM) {
-                Text(message.text)
-                    .font(.body)
-                    .foregroundColor(DesignTokens.textPrimary)
-                    .padding(DesignTokens.spacingMD)
-                    .background(message.isUser ? Color(.secondarySystemFill) : DesignTokens.surfaceBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: DesignTokens.radiusLarge))
+                // User messages: show text
+                if message.isUser {
+                    Text(message.text)
+                        .font(.body)
+                        .foregroundColor(DesignTokens.textPrimary)
+                        .padding(DesignTokens.spacingMD)
+                        .background(Color(.secondarySystemFill))
+                        .clipShape(RoundedRectangle(cornerRadius: DesignTokens.radiusLarge))
+                }
+                // Agent messages: hide text for now (space reserved for future updates)
 
                 // Agent-only: reasoning steps
                 if let response = message.response, !response.reasoningSteps.isEmpty {

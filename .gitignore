@@ -1,3 +1,55 @@
+# Credentials & secrets
+push-via-api.sh
+Secrets.xcconfig
+
+# Qoder/Claude
+.qoder/
+.claude/
+
+# Dependencies
+node_modules/
+venv/
+.venv/
+
+# Build outputs
+.next/
+build/
+dist/
+out/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE & OS
+.DS_Store
+.vscode/
+.idea/
+*.swp
+xcuserdata/
+*.xcuserstate
+
+# Generated thumbnails & build scripts
+spotsense-thumbnail*.png
+build_thumb.py
+upscale_appstore.py
+upscale_appstore_screenshots.sh
+
+# Caches
+.fontcache/
+.expo/
+
+# Database
+*.db
+*.sqlite
+
+# Archives
+*.zip
+
+# Video output
+remotion-video/out/
+hyperframes/spotsense-demos/output/full-reel.mp4
 push-via-api.sh
 .qoder/
 .claude/

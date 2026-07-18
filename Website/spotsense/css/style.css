@@ -175,7 +175,7 @@ img, svg, canvas, video { display: block; max-width: 100%; }
 .uc1-node rect { fill: var(--bg); stroke: var(--ink-faint); stroke-width: 1; }
 .uc1-node text { fill: var(--ink); font-size: 14px; letter-spacing: 0.12em; }
 .uc1-node .uc1-node__sub { fill: var(--ink-dim); font-size: 11px; }
-#uc1-parkin { opacity: 0; }
+#uc1-payment { opacity: 0; }
 #uc1-handshake {
   fill: none; stroke: var(--cyan); stroke-width: 1.5; stroke-dasharray: 6 5; opacity: 0;
 }
@@ -447,7 +447,7 @@ img, svg, canvas, video { display: block; max-width: 100%; }
 /* ---------- REDUCED MOTION ---------- */
 @media (prefers-reduced-motion: reduce) {
   .hero__sub, .uc1__step, .uc2__line, .uc2-bay, .uc2__chip,
-  .arch-node, .arch-chips, #uc1-parkin, #uc1-glid,
+  .arch-node, .arch-chips, #uc1-payment, #uc1-glid,
   [data-reveal] { opacity: 1 !important; }
   .caret, .uc2__chip-dot, .hero__cue { animation: none; }
 }

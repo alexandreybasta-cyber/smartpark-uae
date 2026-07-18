@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=1920, height=1080">
-<title>SpotSense — AI-Powered Smart Parking</title>
+<title>SpotSense | Agentic AI-Powered Smart Parking</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -22,7 +22,6 @@
   --phone-w: 300px;
   --phone-h: 620px;
   --phone-radius: 40px;
-  --total-duration: 75s;
 }
 
 html, body {
@@ -37,23 +36,12 @@ html, body {
 
 /* ===== BACKGROUND ===== */
 .bg-grid {
-  position: fixed;
-  inset: 0;
-  background-image:
-    radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0);
-  background-size: 40px 40px;
-  z-index: 0;
+  position: fixed; inset: 0;
+  background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0);
+  background-size: 40px 40px; z-index: 0;
 }
-
-.bg-gradient {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  opacity: 0;
-  transition: opacity 1.5s ease;
-}
+.bg-gradient { position: fixed; inset: 0; z-index: 0; opacity: 0; transition: opacity 1.5s ease; }
 .bg-gradient.active { opacity: 1; }
-
 .bg-gradient-1 {
   background: radial-gradient(ellipse 800px 600px at 30% 50%, rgba(37,99,235,0.08), transparent),
               radial-gradient(ellipse 600px 400px at 70% 30%, rgba(6,182,212,0.05), transparent);
@@ -69,225 +57,107 @@ html, body {
 
 /* ===== SCENE CONTAINER ===== */
 .scene {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.8s ease;
+  position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+  z-index: 1; opacity: 0; pointer-events: none; transition: opacity 0.8s ease;
 }
-.scene.active {
-  opacity: 1;
-  pointer-events: auto;
-}
+.scene.active { opacity: 1; pointer-events: auto; }
 
 /* ===== OPENING / CLOSING (CENTERED) ===== */
-.scene-centered {
-  flex-direction: column;
-  text-align: center;
-  gap: 24px;
-}
+.scene-centered { flex-direction: column; text-align: center; gap: 24px; }
 
 .logo-text {
-  font-size: 72px;
-  font-weight: 800;
-  letter-spacing: -2px;
+  font-size: 72px; font-weight: 800; letter-spacing: -2px;
   background: linear-gradient(135deg, #fff 0%, #3b82f6 50%, #06b6d4 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  opacity: 0;
-  transform: translateY(30px);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  opacity: 0; transform: translateY(30px);
 }
-.scene.active .logo-text {
-  animation: fadeUp 1s ease 0.3s forwards;
-}
+.scene.active .logo-text { animation: fadeUp 1s ease 0.3s forwards; }
 
 .tagline {
-  font-size: 28px;
-  font-weight: 300;
-  color: var(--text-dim);
-  letter-spacing: 1px;
-  opacity: 0;
-  transform: translateY(20px);
+  font-size: 28px; font-weight: 300; color: var(--text-dim); letter-spacing: 1px;
+  opacity: 0; transform: translateY(20px);
 }
-.scene.active .tagline {
-  animation: fadeUp 1s ease 0.8s forwards;
-}
+.scene.active .tagline { animation: fadeUp 1s ease 0.8s forwards; }
 
 .subtitle-line {
-  font-size: 20px;
-  font-weight: 400;
-  color: var(--text-muted);
-  opacity: 0;
-  transform: translateY(20px);
+  font-size: 20px; font-weight: 400; color: var(--text-muted);
+  opacity: 0; transform: translateY(20px);
 }
-.scene.active .subtitle-line {
-  animation: fadeUp 0.8s ease 1.3s forwards;
-}
+.scene.active .subtitle-line { animation: fadeUp 0.8s ease 1.3s forwards; }
 
 .cta-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px 40px;
-  border-radius: 60px;
-  background: linear-gradient(135deg, var(--blue), var(--accent));
-  font-size: 22px;
-  font-weight: 600;
-  color: #fff;
-  opacity: 0;
-  transform: translateY(20px) scale(0.95);
+  display: inline-flex; align-items: center; gap: 12px; padding: 16px 40px;
+  border-radius: 60px; background: linear-gradient(135deg, var(--blue), var(--accent));
+  font-size: 22px; font-weight: 600; color: #fff;
+  opacity: 0; transform: translateY(20px) scale(0.95);
 }
-.scene.active .cta-badge {
-  animation: fadeUpScale 1s ease 0.8s forwards;
-}
+.scene.active .cta-badge { animation: fadeUpScale 1s ease 0.8s forwards; }
 
 /* ===== SPLIT LAYOUT (PHONE + TEXT) ===== */
-.scene-split {
-  gap: 100px;
-  padding: 0 120px;
-}
+.scene-split { gap: 100px; padding: 0 120px; }
 .scene-split.layout-left .text-block { order: 1; }
 .scene-split.layout-left .phone-container { order: 2; }
 .scene-split.layout-right .text-block { order: 2; }
 .scene-split.layout-right .phone-container { order: 1; }
 
 /* ===== PHONE FRAME ===== */
-.phone-container {
-  position: relative;
-  flex-shrink: 0;
-}
+.phone-container { position: relative; flex-shrink: 0; }
 
 .phone-frame {
-  width: var(--phone-w);
-  height: var(--phone-h);
-  border-radius: var(--phone-radius);
-  border: 3px solid rgba(255,255,255,0.1);
-  overflow: hidden;
-  position: relative;
-  background: #000;
-  opacity: 0;
-  transform: translateY(40px);
-  box-shadow:
-    0 0 0 1px rgba(255,255,255,0.05),
-    0 20px 60px rgba(0,0,0,0.5),
-    0 0 80px var(--blue-glow);
+  width: var(--phone-w); height: var(--phone-h); border-radius: var(--phone-radius);
+  border: 3px solid rgba(255,255,255,0.1); overflow: hidden; position: relative;
+  background: #000; opacity: 0; transform: translateY(40px);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.05), 0 20px 60px rgba(0,0,0,0.5), 0 0 80px var(--blue-glow);
 }
-.scene.active .phone-frame {
-  animation: phoneIn 1s ease 0.2s forwards;
-}
+.scene.active .phone-frame { animation: phoneIn 1s ease 0.2s forwards; }
 
 .phone-notch {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 120px;
-  height: 28px;
-  background: #000;
-  border-radius: 0 0 16px 16px;
-  z-index: 10;
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 120px; height: 28px; background: #000; border-radius: 0 0 16px 16px; z-index: 10;
 }
 
 .phone-screen {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top center;
-  display: block;
-  transition: transform 8s ease-out;
+  width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block;
 }
 
-/* Ken Burns effects */
-.ken-burns-up .phone-screen {
-  transform: scale(1.08) translateY(0);
-}
-.scene.active .ken-burns-up .phone-screen {
-  transform: scale(1.08) translateY(-40px);
-}
+/* EDIT 1: Ken Burns on the entire phone-container (bezel + screen together) */
+.phone-container.ken-burns-up { transition: transform 8s ease-out; transform: scale(1) translateY(0); }
+.scene.active .phone-container.ken-burns-up { transform: scale(1.08) translateY(-20px); }
 
-.ken-burns-down .phone-screen {
-  transform: scale(1.08) translateY(-30px);
-}
-.scene.active .ken-burns-down .phone-screen {
-  transform: scale(1.08) translateY(0);
-}
+.phone-container.ken-burns-down { transition: transform 8s ease-out; transform: scale(1.08) translateY(-15px); }
+.scene.active .phone-container.ken-burns-down { transform: scale(1.08) translateY(0); }
 
-.ken-burns-zoom .phone-screen {
-  transform: scale(1);
-}
-.scene.active .ken-burns-zoom .phone-screen {
-  transform: scale(1.12);
-}
+.phone-container.ken-burns-zoom { transition: transform 8s ease-out; transform: scale(1); }
+.scene.active .phone-container.ken-burns-zoom { transform: scale(1.12); }
 
 /* Phone glow */
 .phone-glow {
-  position: absolute;
-  inset: -40px;
-  border-radius: 60px;
+  position: absolute; inset: -40px; border-radius: 60px;
   background: radial-gradient(ellipse at center, var(--blue-glow), transparent 70%);
-  z-index: -1;
-  opacity: 0;
+  z-index: -1; opacity: 0;
 }
-.scene.active .phone-glow {
-  animation: glowPulse 4s ease-in-out infinite;
-}
+.scene.active .phone-glow { animation: glowPulse 4s ease-in-out infinite; }
 
 /* ===== TEXT BLOCK ===== */
-.text-block {
-  max-width: 500px;
-  opacity: 0;
-  transform: translateY(30px);
-}
-.scene.active .text-block {
-  animation: fadeUp 0.8s ease 0.5s forwards;
-}
+.text-block { max-width: 500px; opacity: 0; transform: translateY(30px); }
+.scene.active .text-block { animation: fadeUp 0.8s ease 0.5s forwards; }
 
 .scene-label {
-  display: inline-block;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--blue-light);
-  margin-bottom: 16px;
-  padding: 6px 14px;
-  border-radius: 4px;
-  background: rgba(37,99,235,0.1);
-  border: 1px solid rgba(37,99,235,0.2);
+  display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--blue-light); margin-bottom: 16px;
+  padding: 6px 14px; border-radius: 4px;
+  background: rgba(37,99,235,0.1); border: 1px solid rgba(37,99,235,0.2);
 }
-
 .scene-title {
-  font-size: 44px;
-  font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -1px;
-  margin-bottom: 20px;
-  color: #fff;
+  font-size: 44px; font-weight: 700; line-height: 1.15; letter-spacing: -1px;
+  margin-bottom: 20px; color: #fff;
 }
-
 .scene-title .highlight {
   background: linear-gradient(135deg, var(--blue-light), var(--accent));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
-
-.scene-desc {
-  font-size: 18px;
-  font-weight: 400;
-  line-height: 1.7;
-  color: var(--text-dim);
-}
-
-.scene-desc strong {
-  color: var(--text);
-  font-weight: 500;
-}
+.scene-desc { font-size: 18px; font-weight: 400; line-height: 1.7; color: var(--text-dim); }
+.scene-desc strong { color: var(--text); font-weight: 500; }
 
 /* Staggered children */
 .text-block .scene-label { opacity: 0; transform: translateY(15px); }
@@ -297,186 +167,175 @@ html, body {
 .scene.active .text-block .scene-title { animation: fadeUp 0.6s ease 0.8s forwards; }
 .scene.active .text-block .scene-desc { animation: fadeUp 0.6s ease 1s forwards; }
 
-/* ===== FEATURE CARDS (for multi-feature scenes) ===== */
-.feature-pills {
-  display: flex;
-  gap: 12px;
-  margin-top: 24px;
-  flex-wrap: wrap;
-}
+/* ===== FEATURE PILLS ===== */
+.feature-pills { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
 .feature-pill {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 18px;
-  border-radius: 30px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
-  font-size: 14px;
-  color: var(--text-dim);
-  opacity: 0;
-  transform: translateY(10px);
+  display: flex; align-items: center; gap: 8px; padding: 10px 18px;
+  border-radius: 30px; background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08); font-size: 14px; color: var(--text-dim);
+  opacity: 0; transform: translateY(10px);
 }
-.feature-pill .pill-icon {
-  font-size: 16px;
-}
+.feature-pill .pill-icon { font-size: 16px; }
 .scene.active .feature-pill:nth-child(1) { animation: fadeUp 0.5s ease 1.2s forwards; }
 .scene.active .feature-pill:nth-child(2) { animation: fadeUp 0.5s ease 1.4s forwards; }
 .scene.active .feature-pill:nth-child(3) { animation: fadeUp 0.5s ease 1.6s forwards; }
 
 /* ===== PROGRESS BAR ===== */
 .progress-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  height: 3px;
+  position: fixed; bottom: 0; left: 0; height: 3px;
   background: linear-gradient(90deg, var(--blue), var(--accent));
-  z-index: 100;
-  width: 0%;
-  transition: width 0.1s linear;
+  z-index: 100; width: 0%; transition: width 0.1s linear;
 }
 
-/* ===== CONTROLS ===== */
-.controls {
-  position: fixed;
-  bottom: 30px;
-  right: 40px;
-  display: flex;
-  gap: 12px;
-  z-index: 100;
-}
-.controls button {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: rgba(255,255,255,0.05);
-  color: var(--text-dim);
-  font-size: 18px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-}
-.controls button:hover {
-  background: rgba(255,255,255,0.1);
-  color: #fff;
-  border-color: rgba(255,255,255,0.2);
-}
-
-/* ===== SCENE COUNTER ===== */
-.scene-counter {
-  position: fixed;
-  bottom: 38px;
-  left: 40px;
-  font-size: 13px;
-  color: var(--text-muted);
-  font-weight: 500;
-  letter-spacing: 1px;
-  z-index: 100;
-}
-
-/* ===== ANIMATIONS ===== */
-@keyframes fadeUp {
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes fadeUpScale {
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-@keyframes phoneIn {
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes glowPulse {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.7; }
-}
-@keyframes slideInRight {
-  from { opacity: 0; transform: translateX(40px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-@keyframes slideInLeft {
-  from { opacity: 0; transform: translateX(-40px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-@keyframes drawLine {
-  from { width: 0; }
-  to { width: 60px; }
-}
-@keyframes pulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
-}
-
-/* Decorative animated line under label */
-.scene-label::after {
-  content: '';
-  display: block;
-  height: 2px;
-  width: 0;
-  background: linear-gradient(90deg, var(--blue-light), transparent);
-  margin-top: 6px;
-}
-.scene.active .scene-label::after {
-  animation: drawLine 0.8s ease 1s forwards;
-}
-
-/* ===== DUAL PHONE LAYOUT ===== */
-.dual-phone {
-  display: flex;
-  gap: 30px;
-  align-items: center;
-}
-.dual-phone .phone-frame {
-  width: 260px;
-  height: 540px;
-}
-.dual-phone .phone-frame:nth-child(2) {
-  animation-delay: 0.5s !important;
-}
+/* EDIT 9: Hide all controls */
+.controls { display: none; }
+.scene-counter { display: none; }
 
 /* ===== STAT CALLOUTS ===== */
-.stat-row {
-  display: flex;
-  gap: 40px;
-  margin-top: 28px;
-}
-.stat-item {
-  opacity: 0;
-  transform: translateY(15px);
-}
-.stat-value {
-  font-size: 36px;
-  font-weight: 700;
-  color: #fff;
-  line-height: 1;
-}
-.stat-value .unit {
-  font-size: 18px;
-  font-weight: 400;
-  color: var(--text-dim);
-}
-.stat-label {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-top: 4px;
-}
+.stat-row { display: flex; gap: 40px; margin-top: 28px; }
+.stat-item { opacity: 0; transform: translateY(15px); }
+.stat-value { font-size: 36px; font-weight: 700; color: #fff; line-height: 1; }
+.stat-value .unit { font-size: 18px; font-weight: 400; color: var(--text-dim); }
+.stat-label { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
 .scene.active .stat-item:nth-child(1) { animation: fadeUp 0.5s ease 1.2s forwards; }
 .scene.active .stat-item:nth-child(2) { animation: fadeUp 0.5s ease 1.4s forwards; }
 .scene.active .stat-item:nth-child(3) { animation: fadeUp 0.5s ease 1.6s forwards; }
+.scene.active .stat-item:nth-child(4) { animation: fadeUp 0.5s ease 1.8s forwards; }
 
 /* ===== WATERMARK ===== */
 .watermark {
-  position: fixed;
-  top: 30px;
-  right: 40px;
-  font-size: 14px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.15);
-  letter-spacing: 1px;
-  z-index: 100;
+  position: fixed; top: 30px; right: 40px; font-size: 14px; font-weight: 600;
+  color: rgba(255,255,255,0.15); letter-spacing: 1px; z-index: 100;
 }
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeUpScale { to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes phoneIn { to { opacity: 1; transform: translateY(0); } }
+@keyframes glowPulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.7; } }
+@keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes slideInLeft { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes drawLine { from { width: 0; } to { width: 60px; } }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-60px); } to { opacity: 1; transform: translateY(0); } }
+
+.scene-label::after {
+  content: ''; display: block; height: 2px; width: 0;
+  background: linear-gradient(90deg, var(--blue-light), transparent); margin-top: 6px;
+}
+.scene.active .scene-label::after { animation: drawLine 0.8s ease 1s forwards; }
+
+/* ===== AGENT SPLIT LAYOUT (EDIT 4) ===== */
+.scene-agent-split { gap: 60px; padding: 0 80px; }
+.scene-agent-split .agent-phone { flex-shrink: 0; }
+.scene-agent-split .agent-phone .phone-frame { width: 300px; height: 620px; opacity: 0; }
+.scene-agent-split .agent-phone.left .phone-frame {
+  transform: translateX(-80px);
+  animation: agentSlideLeft 1s ease 0.2s forwards !important;
+}
+.scene-agent-split .agent-phone.right .phone-frame {
+  transform: translateX(80px);
+  animation: agentSlideRight 1s ease 0.4s forwards !important;
+}
+@keyframes agentSlideLeft { from { opacity: 0; transform: translateX(-80px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes agentSlideRight { from { opacity: 0; transform: translateX(80px); } to { opacity: 1; transform: translateX(0); } }
+.scene-agent-split .agent-center {
+  max-width: 420px; text-align: center; opacity: 0; transform: translateY(30px);
+}
+.scene.active .scene-agent-split .agent-center { animation: fadeUp 0.8s ease 1s forwards; }
+.agent-center .agent-label {
+  font-size: 12px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--blue-light); margin-bottom: 12px;
+}
+.agent-center .agent-title {
+  font-size: 32px; font-weight: 700; line-height: 1.2; margin-bottom: 12px; color: #fff;
+}
+.agent-center .agent-subtitle {
+  font-size: 16px; color: var(--text-dim); line-height: 1.6; margin-bottom: 24px;
+}
+.agent-center .agent-tags {
+  display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+}
+.agent-center .agent-tag {
+  padding: 8px 16px; border-radius: 20px; background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08); font-size: 13px; color: var(--text-dim);
+  opacity: 0; transform: translateY(10px);
+}
+.scene.active .agent-center .agent-tag:nth-child(1) { animation: fadeUp 0.5s ease 1.6s forwards; }
+.scene.active .agent-center .agent-tag:nth-child(2) { animation: fadeUp 0.5s ease 1.8s forwards; }
+.scene.active .agent-center .agent-tag:nth-child(3) { animation: fadeUp 0.5s ease 2.0s forwards; }
+
+/* ===== NOTIFICATION OVERLAY (EDIT 5) ===== */
+.notification-overlay {
+  position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+  width: 340px; opacity: 0; z-index: 20;
+}
+.scene.active .notification-overlay { animation: slideDown 0.8s ease 1.5s forwards; }
+.notification-card {
+  background: rgba(30,30,40,0.95); backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.12); border-radius: 16px;
+  padding: 16px 20px; display: flex; align-items: center; gap: 14px;
+}
+.notification-card .notif-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--blue), var(--accent));
+  display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+}
+.notification-card .notif-text { text-align: left; }
+.notification-card .notif-title { font-size: 14px; font-weight: 600; color: #fff; }
+.notification-card .notif-sub { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+/* ===== ARCHITECTURE DIAGRAM (EDIT 7) ===== */
+.scene-arch {
+  flex-direction: column; text-align: center; gap: 40px; padding: 0 100px;
+}
+.arch-image-wrap {
+  max-width: 900px; width: 100%; opacity: 0; transform: translateY(30px);
+}
+.scene.active .arch-image-wrap { animation: fadeUp 1s ease 0.3s forwards; }
+.arch-image-wrap img {
+  width: 100%; border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.arch-text-list {
+  display: flex; gap: 40px; justify-content: center; flex-wrap: wrap; max-width: 1100px;
+}
+.arch-text-item {
+  font-size: 16px; color: var(--text-dim); opacity: 0; transform: translateY(15px);
+  padding: 10px 20px; border-radius: 8px; background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.scene.active .arch-text-item:nth-child(1) { animation: fadeUp 0.6s ease 1.2s forwards; }
+.scene.active .arch-text-item:nth-child(2) { animation: fadeUp 0.6s ease 1.6s forwards; }
+.scene.active .arch-text-item:nth-child(3) { animation: fadeUp 0.6s ease 2.0s forwards; }
+.scene.active .arch-text-item:nth-child(4) { animation: fadeUp 0.6s ease 2.4s forwards; }
+.arch-final {
+  font-size: 18px; color: var(--text); max-width: 700px; line-height: 1.7;
+  opacity: 0; transform: translateY(15px);
+}
+.scene.active .arch-final { animation: fadeUp 0.8s ease 3.2s forwards; }
+
+/* ===== SPOTSENSE.APP CLOSING (EDIT 8) ===== */
+.scene-app-closing { flex-direction: column; text-align: center; gap: 30px; }
+.app-url {
+  font-size: 48px; font-weight: 700; letter-spacing: -1px;
+  background: linear-gradient(135deg, var(--blue-light), var(--accent));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  opacity: 0; transform: translateY(20px);
+}
+.scene.active .app-url { animation: fadeUp 0.8s ease 0.6s forwards; }
+.app-stats {
+  display: flex; gap: 50px; justify-content: center;
+}
+.app-stat {
+  text-align: center; opacity: 0; transform: translateY(15px);
+}
+.app-stat-value { font-size: 28px; font-weight: 700; color: #fff; }
+.app-stat-label { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+.scene.active .app-stat:nth-child(1) { animation: fadeUp 0.5s ease 1.2s forwards; }
+.scene.active .app-stat:nth-child(2) { animation: fadeUp 0.5s ease 1.5s forwards; }
+.scene.active .app-stat:nth-child(3) { animation: fadeUp 0.5s ease 1.8s forwards; }
+.scene.active .app-stat:nth-child(4) { animation: fadeUp 0.5s ease 2.1s forwards; }
 
 </style>
 </head>
@@ -491,20 +350,20 @@ html, body {
 <!-- Watermark -->
 <div class="watermark">SPOTSENSE</div>
 
-<!-- ===== SCENE 0: OPENING ===== -->
+<!-- ===== SCENE 0: OPENING (EDIT 2) ===== -->
 <div class="scene scene-centered active" data-duration="6000">
   <div class="logo-text">SpotSense</div>
-  <div class="tagline">AI-Powered Smart Parking</div>
-  <div class="subtitle-line">Real-time availability. Predictive insights. Zero circling.</div>
+  <div class="tagline">Agentic AI-Powered Smart Parking</div>
+  <div class="subtitle-line">City Scale Real-time Parking Spot Availability.</div>
 </div>
 
-<!-- ===== SCENE 1: THE MAP ===== -->
-<div class="scene scene-split layout-left" data-duration="9000">
+<!-- ===== SCENE 1: THE MAP (EDIT 3, page 2) ===== -->
+<div class="scene scene-split layout-left" data-duration="8000">
   <div class="text-block">
     <div class="scene-label">SMART DISCOVERY</div>
-    <div class="scene-title">Find parking <span class="highlight">instantly</span></div>
+    <div class="scene-title">One tap to <span class="highlight">search</span></div>
     <div class="scene-desc">
-      One tap and SpotSense scans the area — surfacing <strong>available spots</strong>,
+      One tap and SpotSense scans the area, surfacing <strong>available spots</strong>,
       pricing, and distance on an interactive map. No more guessing.
     </div>
     <div class="feature-pills">
@@ -513,28 +372,28 @@ html, body {
       <div class="feature-pill"><span class="pill-icon">&#9679;</span> One-tap search</div>
     </div>
   </div>
-  <div class="phone-container">
+  <div class="phone-container ken-burns-up">
     <div class="phone-glow"></div>
-    <div class="phone-frame ken-burns-up">
+    <div class="phone-frame">
       <div class="phone-notch"></div>
       <img class="phone-screen" src="assets/Maps - First screen.JPG" alt="Map view">
     </div>
   </div>
 </div>
 
-<!-- ===== SCENE 2: PARKING FOUND ===== -->
-<div class="scene scene-split layout-right" data-duration="9000">
+<!-- ===== SCENE 2: PARKING FOUND (EDIT 3, page 3, seamless) ===== -->
+<div class="scene scene-split layout-right" data-duration="8000">
   <div class="text-block">
     <div class="scene-label">INSTANT RESULTS</div>
-    <div class="scene-title"><span class="highlight">6 spots</span> found near you</div>
+    <div class="scene-title"><span class="highlight">7 spots</span> found near you</div>
     <div class="scene-desc">
       Green dots show available parking in real time. The AI ranks results by
-      <strong>proximity, price, and predicted availability</strong> — then offers
+      <strong>proximity, price, and predicted availability</strong>, then offers
       one-tap navigation to the best option.
     </div>
     <div class="stat-row">
       <div class="stat-item">
-        <div class="stat-value">6</div>
+        <div class="stat-value">7</div>
         <div class="stat-label">Free spots</div>
       </div>
       <div class="stat-item">
@@ -547,11 +406,11 @@ html, body {
       </div>
     </div>
   </div>
-  <div class="phone-container">
+  <div class="phone-container ken-burns-zoom">
     <div class="phone-glow"></div>
-    <div class="phone-frame ken-burns-zoom">
+    <div class="phone-frame">
       <div class="phone-notch"></div>
-      <img class="phone-screen" src="assets/Maps - 2nd screen after generating.JPG" alt="Parking found">
+      <img class="phone-screen" src="assets/joint_image_2_parking_found.png" alt="Parking found">
     </div>
   </div>
 </div>
@@ -563,7 +422,7 @@ html, body {
     <div class="scene-title">Route to your <span class="highlight">spot</span></div>
     <div class="scene-desc">
       SpotSense generates turn-by-turn directions to the optimal parking zone.
-      It even warns you when the <strong>final leg is on foot</strong> — so you're
+      It even warns you when the <strong>final leg is on foot</strong> so you're
       never surprised.
     </div>
     <div class="feature-pills">
@@ -572,36 +431,43 @@ html, body {
       <div class="feature-pill"><span class="pill-icon">&#9679;</span> Walk-to-destination alerts</div>
     </div>
   </div>
-  <div class="phone-container">
+  <div class="phone-container ken-burns-down">
     <div class="phone-glow"></div>
-    <div class="phone-frame ken-burns-down">
+    <div class="phone-frame">
       <div class="phone-notch"></div>
       <img class="phone-screen" src="assets/Maps itinerary to the parking spot after notification.PNG.JPG" alt="Navigation">
     </div>
   </div>
 </div>
 
-<!-- ===== SCENE 4: AI AGENT ===== -->
-<div class="scene scene-split layout-right" data-duration="10000">
-  <div class="text-block">
-    <div class="scene-label">AI AGENT</div>
-    <div class="scene-title">Your personal <span class="highlight">parking assistant</span></div>
-    <div class="scene-desc">
-      Ask SpotSense AI anything — find parking near Burj Khalifa, compare zones,
-      predict availability, or handle payments. The agent <strong>reasons through
-      multiple steps</strong> to deliver the best answer.
-    </div>
-    <div class="feature-pills">
-      <div class="feature-pill"><span class="pill-icon">&#9679;</span> Natural language</div>
-      <div class="feature-pill"><span class="pill-icon">&#9679;</span> Multi-step reasoning</div>
-      <div class="feature-pill"><span class="pill-icon">&#9679;</span> Action-oriented</div>
+<!-- ===== SCENE 4: AI AGENT, SPLIT LAYOUT (EDIT 4) ===== -->
+<div class="scene scene-agent-split" data-duration="10000">
+  <div class="agent-phone left">
+    <div class="phone-container">
+      <div class="phone-glow"></div>
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <img class="phone-screen" src="assets/agent_1_chat.jpg" alt="Agent chat">
+      </div>
     </div>
   </div>
-  <div class="phone-container">
-    <div class="phone-glow"></div>
-    <div class="phone-frame ken-burns-up">
-      <div class="phone-notch"></div>
-      <img class="phone-screen" src="assets/Agent.JPG" alt="AI Agent">
+  <div class="agent-center">
+    <div class="agent-label">AI AGENT</div>
+    <div class="agent-title">Your personal parking assistant</div>
+    <div class="agent-subtitle">Multi-step reasoning for every parking query</div>
+    <div class="agent-tags">
+      <div class="agent-tag">Natural language</div>
+      <div class="agent-tag">Context-aware</div>
+      <div class="agent-tag">Action-oriented</div>
+    </div>
+  </div>
+  <div class="agent-phone right">
+    <div class="phone-container">
+      <div class="phone-glow"></div>
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <img class="phone-screen" src="assets/agent_2_burj.jpg" alt="Agent Burj Khalifa">
+      </div>
     </div>
   </div>
 </div>
@@ -612,7 +478,7 @@ html, body {
     <div class="scene-label">SMART PLACES</div>
     <div class="scene-title">Save once, <span class="highlight">park every time</span></div>
     <div class="scene-desc">
-      Label your <strong>home, work, gym</strong> — or any custom location.
+      Label your <strong>home, work, gym</strong> or any custom location.
       SpotSense remembers your routines and finds the best parking before you
       even ask.
     </div>
@@ -622,23 +488,57 @@ html, body {
       <div class="feature-pill"><span class="pill-icon">&#9679;</span> One-tap navigate</div>
     </div>
   </div>
-  <div class="phone-container">
+  <div class="phone-container ken-burns-down">
     <div class="phone-glow"></div>
-    <div class="phone-frame ken-burns-down">
+    <div class="phone-frame">
       <div class="phone-notch"></div>
       <img class="phone-screen" src="assets/Saved Places 1.PNG.JPG" alt="Saved Places">
     </div>
   </div>
 </div>
 
-<!-- ===== SCENE 6: INSIGHTS ===== -->
-<div class="scene scene-split layout-right" data-duration="10000">
+<!-- ===== SCENE 6: PROXIMITY NOTIFICATION (EDIT 5) ===== -->
+<div class="scene scene-split layout-right" data-duration="9000">
+  <div class="text-block">
+    <div class="scene-label">PROXIMITY ALERTS</div>
+    <div class="scene-title">Your spot <span class="highlight">finds you</span></div>
+    <div class="scene-desc">
+      Smart proximity alerts within <strong>500m of saved places</strong>.
+      Free Parking Found. Free spot 30m from school. Tap to navigate.
+    </div>
+    <div class="feature-pills">
+      <div class="feature-pill"><span class="pill-icon">&#9679;</span> Auto-detect nearby spots</div>
+      <div class="feature-pill"><span class="pill-icon">&#9679;</span> Push notification alerts</div>
+      <div class="feature-pill"><span class="pill-icon">&#9679;</span> One-tap navigate</div>
+    </div>
+  </div>
+  <div class="phone-container ken-burns-up" style="position:relative;">
+    <div class="phone-glow"></div>
+    <!-- Notification overlay -->
+    <div class="notification-overlay">
+      <div class="notification-card">
+        <div class="notif-icon">P</div>
+        <div class="notif-text">
+          <div class="notif-title">Free Parking Found</div>
+          <div class="notif-sub">Free spot 30m from school. Tap to navigate.</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <img class="phone-screen" src="assets/joint_image_3_notification.png" alt="Notification">
+    </div>
+  </div>
+</div>
+
+<!-- ===== SCENE 7: INSIGHTS ===== -->
+<div class="scene scene-split layout-left" data-duration="10000">
   <div class="text-block">
     <div class="scene-label">PREDICTIVE ANALYTICS</div>
     <div class="scene-title">Know before <span class="highlight">you go</span></div>
     <div class="scene-desc">
       Real-time occupancy, <strong>predicted availability curves</strong>, and
-      per-zone pricing — all in one dashboard. SpotSense learns patterns across
+      per-zone pricing, all in one dashboard. SpotSense learns patterns across
       zones to tell you the best time to park.
     </div>
     <div class="stat-row">
@@ -656,60 +556,102 @@ html, body {
       </div>
     </div>
   </div>
-  <div class="phone-container">
+  <div class="phone-container ken-burns-up">
     <div class="phone-glow"></div>
-    <div class="phone-frame ken-burns-up">
+    <div class="phone-frame">
       <div class="phone-notch"></div>
       <img class="phone-screen" src="assets/Insights 1.PNG.JPG" alt="Insights">
     </div>
   </div>
 </div>
 
-<!-- ===== SCENE 7: ENFORCEMENT ===== -->
-<div class="scene scene-split layout-left" data-duration="10000">
+<!-- ===== SCENE 8: ENFORCEMENT (EDIT 6) ===== -->
+<div class="scene scene-split layout-right" data-duration="10000">
   <div class="text-block">
     <div class="scene-label">ENFORCEMENT MODE</div>
-    <div class="scene-title">Compliance <span class="highlight">automated</span></div>
+    <div class="scene-title">Dedicated dashboard for <span class="highlight">parking enforcement officers</span></div>
     <div class="scene-desc">
-      Switch to Enforcement mode for a completely different workflow — <strong>violation
-      detection, bay-level monitoring, plate tracking</strong>, and one-tap tow
-      requests. Built for operators and RTA compliance.
+      Real-time violation detection. Instant alerts for expired parking.
+      <strong>Patrol route optimization.</strong><br><br>
+      From hours of patrol to seconds of dispatch.
     </div>
     <div class="feature-pills">
-      <div class="feature-pill"><span class="pill-icon">&#9679;</span> Violation clustering</div>
-      <div class="feature-pill"><span class="pill-icon">&#9679;</span> Plate recognition</div>
-      <div class="feature-pill"><span class="pill-icon">&#9679;</span> Grace period tracking</div>
+      <div class="feature-pill"><span class="pill-icon">&#9679;</span> Instant violation detection</div>
+      <div class="feature-pill"><span class="pill-icon">&#9679;</span> Occupancy sensors detect overstay in real-time</div>
+      <div class="feature-pill"><span class="pill-icon">&#9679;</span> Bay C-13 · Parked 1h 45m · Grace expired</div>
     </div>
   </div>
-  <div class="phone-container">
+  <div class="phone-container ken-burns-zoom">
     <div class="phone-glow"></div>
-    <div class="phone-frame ken-burns-zoom">
+    <div class="phone-frame">
       <div class="phone-notch"></div>
-      <img class="phone-screen" src="assets/Agent 2 - Burj kHALIFA.JPG" alt="Enforcement">
+      <img class="phone-screen" src="assets/Enforcement 2 - Violation.JPG" alt="Enforcement">
     </div>
   </div>
 </div>
 
-<!-- ===== SCENE 8: CLOSING ===== -->
+<!-- ===== SCENE 9: HOW SPOTSENSE WORKS (EDIT 7) ===== -->
+<div class="scene scene-arch" data-duration="12000">
+  <div class="text-block" style="max-width:700px;">
+    <div class="scene-label">HOW IT WORKS</div>
+    <div class="scene-title">Six agents. <span class="highlight">One curb.</span></div>
+  </div>
+  <div class="arch-image-wrap">
+    <img src="assets/joint_image_4_architecture.png" alt="Architecture">
+  </div>
+  <div class="arch-text-list">
+    <div class="arch-text-item">mmWave sensors at every bay</div>
+    <div class="arch-text-item">Connected to city parking systems</div>
+    <div class="arch-text-item">AI analyzes, predicts, and acts</div>
+    <div class="arch-text-item">From cameras to payment APIs to patrol dispatch</div>
+  </div>
+  <div class="arch-final">
+    Our AI Agent connects to city infrastructure, analyzes patterns, predicts availability, and delivers it all to your phone.
+  </div>
+</div>
+
+<!-- ===== SCENE 10: SPOTSENSE.APP (EDIT 8) ===== -->
+<div class="scene scene-centered scene-app-closing" data-duration="8000">
+  <div class="logo-text" style="font-size:52px;">Every curb, self-aware.</div>
+  <div class="app-url">spotsense.app</div>
+  <div class="app-stats">
+    <div class="app-stat">
+      <div class="app-stat-value">&lt; $1</div>
+      <div class="app-stat-label">per sensor</div>
+    </div>
+    <div class="app-stat">
+      <div class="app-stat-value">24 GHz</div>
+      <div class="app-stat-label">mmWave</div>
+    </div>
+    <div class="app-stat">
+      <div class="app-stat-value">0.4W</div>
+      <div class="app-stat-label">solar</div>
+    </div>
+    <div class="app-stat">
+      <div class="app-stat-value">Six</div>
+      <div class="app-stat-label">agents</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SCENE 11: CLOSING ===== -->
 <div class="scene scene-centered" data-duration="8000">
   <div class="logo-text">SpotSense</div>
   <div class="tagline" style="animation-delay: 0.6s;">The future of urban parking</div>
-  <div class="cta-badge">spotsense.ai</div>
+  <div class="cta-badge">spotsense.app</div>
 </div>
 
 <!-- Progress bar -->
 <div class="progress-bar" id="progressBar"></div>
 
-<!-- Scene counter -->
-<div class="scene-counter" id="sceneCounter">1 / 9</div>
-
-<!-- Controls -->
+<!-- Hidden controls (EDIT 9) -->
 <div class="controls">
   <button id="prevBtn" title="Previous">&#9664;</button>
   <button id="playPauseBtn" title="Play/Pause">&#9646;&#9646;</button>
   <button id="nextBtn" title="Next">&#9654;</button>
   <button id="restartBtn" title="Restart">&#8634;</button>
 </div>
+<div class="scene-counter" id="sceneCounter">1 / 12</div>
 
 <script>
 (function() {
@@ -727,17 +669,19 @@ html, body {
     document.getElementById('bg3')
   ];
 
-  // Background gradient mapping per scene
   const bgMap = [
-    [1, 0, 0],  // Scene 0: opening - blue
-    [1, 0, 0],  // Scene 1: map - blue
-    [0, 1, 0],  // Scene 2: parking found - green
-    [1, 0, 0],  // Scene 3: navigation - blue
-    [0, 0, 1],  // Scene 4: AI agent - cyan
-    [0, 1, 0],  // Scene 5: saved places - green
-    [0, 0, 1],  // Scene 6: insights - cyan
-    [0, 1, 0],  // Scene 7: enforcement - green/blue
-    [1, 0, 1],  // Scene 8: closing - mixed
+    [1, 0, 0],  // 0: opening
+    [1, 0, 0],  // 1: map
+    [0, 1, 0],  // 2: parking found
+    [1, 0, 0],  // 3: navigation
+    [0, 0, 1],  // 4: AI agent split
+    [0, 1, 0],  // 5: saved places
+    [0, 1, 0],  // 6: notification
+    [0, 0, 1],  // 7: insights
+    [0, 1, 0],  // 8: enforcement
+    [1, 0, 1],  // 9: architecture
+    [1, 0, 0],  // 10: spotsense.app
+    [1, 0, 1],  // 11: closing
   ];
 
   let currentScene = 0;
@@ -759,36 +703,28 @@ html, body {
   function showScene(idx) {
     if (idx < 0 || idx >= scenes.length) return;
 
-    // Deactivate all
     scenes.forEach(s => s.classList.remove('active'));
     bgLayers.forEach(b => b.classList.remove('active'));
 
-    // Reset animations by forcing reflow
     scenes[idx].style.animation = 'none';
-    scenes[idx].offsetHeight; // trigger reflow
+    scenes[idx].offsetHeight;
     scenes[idx].style.animation = '';
 
-    // Reset all child animations
-    scenes[idx].querySelectorAll('.logo-text, .tagline, .subtitle-line, .cta-badge, .phone-frame, .text-block, .scene-label, .scene-title, .scene-desc, .feature-pill, .stat-item').forEach(el => {
+    scenes[idx].querySelectorAll('.logo-text, .tagline, .subtitle-line, .cta-badge, .phone-frame, .text-block, .scene-label, .scene-title, .scene-desc, .feature-pill, .stat-item, .agent-center, .agent-tag, .arch-image-wrap, .arch-text-item, .arch-final, .app-url, .app-stat, .notification-overlay').forEach(el => {
       el.style.animation = 'none';
       el.offsetHeight;
       el.style.animation = '';
     });
 
-    // Activate
     scenes[idx].classList.add('active');
     currentScene = idx;
 
-    // Update backgrounds
     const bg = bgMap[idx] || [1, 0, 0];
     bgLayers.forEach((layer, i) => {
       if (bg[i]) layer.classList.add('active');
     });
 
-    // Update counter
     sceneCounter.textContent = (idx + 1) + ' / ' + scenes.length;
-
-    // Update progress
     updateProgress();
   }
 
@@ -819,8 +755,6 @@ html, body {
     const dur = getDuration(currentScene);
     sceneStartTime = Date.now();
     sceneTimer = setTimeout(nextScene, dur);
-
-    // Animate progress within scene
     animateProgress();
   }
 
@@ -868,7 +802,6 @@ html, body {
     scheduleNext();
   }
 
-  // Event listeners
   playPauseBtn.addEventListener('click', togglePlay);
   prevBtn.addEventListener('click', prevScene);
   nextBtn.addEventListener('click', () => {
@@ -878,7 +811,6 @@ html, body {
   });
   restartBtn.addEventListener('click', restart);
 
-  // Keyboard controls
   document.addEventListener('keydown', (e) => {
     if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
     if (e.code === 'ArrowRight') { clearTimeout(sceneTimer); elapsedInScene = 0; nextScene(); }
@@ -886,7 +818,6 @@ html, body {
     if (e.code === 'KeyR') { restart(); }
   });
 
-  // Start
   showScene(0);
   scheduleNext();
 })();

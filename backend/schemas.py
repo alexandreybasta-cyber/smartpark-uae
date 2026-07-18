@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List, Any
 from datetime import datetime
 
@@ -82,9 +82,9 @@ class PredictionOut(BaseModel):
 
 # Agent schemas
 class AgentTextRequest(BaseModel):
-    text: str
-    lat: Optional[float] = None
-    lng: Optional[float] = None
+    text: str = Field(..., min_length=1, max_length=500)
+    lat: Optional[float] = Field(default=None, ge=-90, le=90)
+    lng: Optional[float] = Field(default=None, ge=-180, le=180)
 
 
 class MapCard(BaseModel):
@@ -106,11 +106,11 @@ class AgentTextResponse(BaseModel):
 
 # Places schemas
 class SavedPlaceCreate(BaseModel):
-    label: str
-    custom_name: Optional[str] = None
-    lat: float
-    lng: float
-    address: Optional[str] = None
+    label: str = Field(..., min_length=1, max_length=500)
+    custom_name: Optional[str] = Field(default=None, max_length=500)
+    lat: float = Field(..., ge=-90, le=90)
+    lng: float = Field(..., ge=-180, le=180)
+    address: Optional[str] = Field(default=None, max_length=500)
 
 
 class SavedPlaceOut(BaseModel):
@@ -128,12 +128,12 @@ class SavedPlaceOut(BaseModel):
 
 # Recommend schemas
 class RecommendRequest(BaseModel):
-    destination_lat: float
-    destination_lng: float
-    saved_place_lat: Optional[float] = None
-    saved_place_lng: Optional[float] = None
-    user_lat: float
-    user_lng: float
+    destination_lat: float = Field(..., ge=-90, le=90)
+    destination_lng: float = Field(..., ge=-180, le=180)
+    saved_place_lat: Optional[float] = Field(default=None, ge=-90, le=90)
+    saved_place_lng: Optional[float] = Field(default=None, ge=-180, le=180)
+    user_lat: float = Field(..., ge=-90, le=90)
+    user_lng: float = Field(..., ge=-180, le=180)
 
 
 class RecommendResponse(BaseModel):

@@ -1,10 +1,13 @@
 import asyncio
+import logging
 import random
 from typing import Tuple
 from datetime import datetime, timezone, timedelta
 from sqlalchemy import select, update
 from database import async_session
 from models import Spot, Zone
+
+logger = logging.getLogger(__name__)
 
 # Dubai is UTC+4
 DUBAI_OFFSET = timedelta(hours=4)
@@ -100,5 +103,5 @@ async def run_simulator(broadcast_fn):
                     "spots": changed_spots
                 })
         except Exception as e:
-            print(f"Simulator error: {e}")
+            logger.error(f"Simulator error: {e}")
         await asyncio.sleep(2)

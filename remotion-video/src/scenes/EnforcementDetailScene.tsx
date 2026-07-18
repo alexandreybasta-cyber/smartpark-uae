@@ -28,6 +28,16 @@ export const EnforcementDetailScene: React.FC = () => {
     [0.6, 1]
   );
 
+  const subtextOpacity = interpolate(frame, [35, 55], [0, 1], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+  });
+
+  const statOpacity = interpolate(frame, [60, 80], [0, 1], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+  });
+
   return (
     <AbsoluteFill
       style={{
@@ -59,17 +69,29 @@ export const EnforcementDetailScene: React.FC = () => {
             textShadow: "0 4px 20px rgba(0,0,0,0.8)",
           }}
         />
+        <div
+          style={{
+            marginTop: 12,
+            opacity: subtextOpacity,
+            fontSize: 26,
+            color: "#8e8e93",
+            fontWeight: 400,
+          }}
+        >
+          Occupancy sensors detect overstay in real-time
+        </div>
       </div>
 
       {/* Phone */}
       <div
         style={{
-          transform: `translateY(${phoneY}px) scale(${zoomScale})`,
+          transform: `translateY(${phoneY}px)`,
         }}
       >
         <PhoneFrame
           imagePath="screenshots/Enforcement 2 - Violation.JPG"
           scale={0.95}
+          zoom={zoomScale}
         />
       </div>
 
@@ -96,11 +118,36 @@ export const EnforcementDetailScene: React.FC = () => {
         </span>
       </div>
 
-      {/* Grace expired highlight */}
+      {/* Key stat card */}
       <div
         style={{
           position: "absolute",
-          bottom: 320,
+          bottom: 300,
+          left: "50%",
+          transform: "translateX(-50%)",
+          backgroundColor: "rgba(28,28,30,0.95)",
+          borderRadius: 20,
+          padding: "16px 36px",
+          opacity: statOpacity,
+          zIndex: 20,
+          border: "1px solid rgba(255,59,48,0.4)",
+          boxShadow: "0 12px 40px rgba(0,0,0,0.5)",
+          textAlign: "center",
+        }}
+      >
+        <div style={{ fontSize: 22, color: "#8e8e93", marginBottom: 6 }}>
+          Grace period expired → Automatic dispatch
+        </div>
+        <div style={{ fontSize: 30, fontWeight: 700, color: "#FF3B30" }}>
+          Bay C-13 · Parked 1h 45m · Grace expired
+        </div>
+      </div>
+
+      {/* Grace expired flashing highlight */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 230,
           left: "50%",
           transform: "translateX(-50%)",
           backgroundColor: "rgba(255,59,48,0.15)",

@@ -1,9 +1,9 @@
 import React from "react";
-import { AbsoluteFill, useCurrentFrame, interpolate, spring, useVideoConfig } from "remotion";
+import { AbsoluteFill, useCurrentFrame, interpolate, spring, useVideoConfig, Sequence } from "remotion";
 import { PhoneFrame } from "../components/PhoneFrame";
 import { AnimatedText } from "../components/AnimatedText";
 
-export const SavedPlacesScene: React.FC = () => {
+const SavedPlacesList: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -14,10 +14,7 @@ export const SavedPlacesScene: React.FC = () => {
   });
 
   const phoneY = interpolate(phoneSlide, [0, 1], [500, 0]);
-
-  const btnPulse = interpolate(Math.sin(frame * 0.2), [-1, 1], [0.95, 1.05]);
-
-  const itemDelays = [30, 45, 60, 75];
+  const itemDelays = [20, 35, 50];
 
   return (
     <AbsoluteFill
@@ -28,7 +25,6 @@ export const SavedPlacesScene: React.FC = () => {
         fontFamily: "system-ui, -apple-system, sans-serif",
       }}
     >
-      {/* Text overlay */}
       <div
         style={{
           position: "absolute",
@@ -42,7 +38,7 @@ export const SavedPlacesScene: React.FC = () => {
         <AnimatedText
           text="Your places, always ready"
           type="fade"
-          delay={20}
+          delay={15}
           style={{
             fontSize: 48,
             fontWeight: 700,
@@ -52,7 +48,6 @@ export const SavedPlacesScene: React.FC = () => {
         />
       </div>
 
-      {/* Phone */}
       <div style={{ transform: `translateY(${phoneY}px)` }}>
         <PhoneFrame
           imagePath="screenshots/Saved Places 1.PNG.JPG"
@@ -60,7 +55,6 @@ export const SavedPlacesScene: React.FC = () => {
         />
       </div>
 
-      {/* Staggered list item highlight overlays */}
       {itemDelays.map((delay, i) => {
         const itemOpacity = interpolate(frame - delay, [0, 15], [0, 0.3], {
           extrapolateRight: "clamp",
@@ -70,7 +64,6 @@ export const SavedPlacesScene: React.FC = () => {
           extrapolateRight: "clamp",
           extrapolateLeft: "clamp",
         });
-
         return (
           <div
             key={i}
@@ -89,31 +82,153 @@ export const SavedPlacesScene: React.FC = () => {
           />
         );
       })}
+    </AbsoluteFill>
+  );
+};
 
-      {/* Pulsing Find Parking buttons */}
-      {[0, 1, 2].map((i) => (
-        <div
-          key={i}
+const NotificationScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  const phoneSlide = spring({
+    frame,
+    fps,
+    config: { damping: 14, stiffness: 85 },
+  });
+
+  const phoneY = interpolate(phoneSlide, [0, 1], [500, 0]);
+
+  const notificationSlideY = interpolate(frame, [10, 35], [-200, 0], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+  });
+
+  const notificationOpacity = interpolate(frame, [10, 30], [0, 1], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+  });
+
+  const textOpacity = interpolate(frame, [30, 50], [0, 1], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+  });
+
+  return (
+    <AbsoluteFill
+      style={{
+        backgroundColor: "#0a0a0a",
+        justifyContent: "center",
+        alignItems: "center",
+        fontFamily: "system-ui, -apple-system, sans-serif",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          top: 80,
+          left: 0,
+          right: 0,
+          textAlign: "center",
+          zIndex: 20,
+          opacity: textOpacity,
+        }}
+      >
+        <AnimatedText
+          text="Your spot finds you"
+          type="fade"
+          delay={30}
           style={{
-            position: "absolute",
-            top: 410 + i * 120,
-            right: 160,
-            backgroundColor: "rgba(0,122,255,0.8)",
-            borderRadius: 12,
-            padding: "8px 16px",
-            transform: `scale(${btnPulse})`,
-            opacity: interpolate(frame, [60 + i * 15, 75 + i * 15], [0, 1], {
+            fontSize: 48,
+            fontWeight: 700,
+            color: "#fff",
+            textShadow: "0 4px 20px rgba(0,0,0,0.8)",
+          }}
+        />
+        <div
+          style={{
+            marginTop: 12,
+            opacity: interpolate(frame, [50, 70], [0, 1], {
               extrapolateRight: "clamp",
               extrapolateLeft: "clamp",
             }),
-            zIndex: 20,
+            fontSize: 24,
+            color: "#8e8e93",
+            fontWeight: 400,
           }}
         >
-          <span style={{ fontSize: 20, fontWeight: 700, color: "#fff" }}>
-            Find Parking
-          </span>
+          Smart proximity alerts within 500m of saved places
         </div>
-      ))}
+      </div>
+
+      <div style={{ transform: `translateY(${phoneY}px)` }}>
+        <PhoneFrame
+          imagePath="screenshots/joint_image_3_notification.png"
+          scale={0.95}
+        />
+      </div>
+
+      {/* Notification banner overlay sliding from top */}
+      <div
+        style={{
+          position: "absolute",
+          top: 160,
+          left: 100,
+          right: 100,
+          transform: `translateY(${notificationSlideY}px)`,
+          opacity: notificationOpacity,
+          zIndex: 25,
+        }}
+      >
+        <div
+          style={{
+            backgroundColor: "rgba(28,28,30,0.95)",
+            borderRadius: 20,
+            padding: "20px 28px",
+            border: "1px solid rgba(52,199,89,0.4)",
+            boxShadow: "0 12px 40px rgba(0,0,0,0.6)",
+            display: "flex",
+            alignItems: "center",
+            gap: 16,
+          }}
+        >
+          <div
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: 12,
+              backgroundColor: "#34C759",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 24,
+              flexShrink: 0,
+            }}
+          >
+            P
+          </div>
+          <div>
+            <div style={{ fontSize: 24, fontWeight: 700, color: "#fff" }}>
+              Free Parking Found
+            </div>
+            <div style={{ fontSize: 20, color: "#8e8e93", marginTop: 4 }}>
+              Free spot 30m from school. Tap to navigate.
+            </div>
+          </div>
+        </div>
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+export const SavedPlacesScene: React.FC = () => {
+  return (
+    <AbsoluteFill style={{ backgroundColor: "#0a0a0a" }}>
+      <Sequence from={0} durationInFrames={90}>
+        <SavedPlacesList />
+      </Sequence>
+      <Sequence from={75} durationInFrames={120}>
+        <NotificationScene />
+      </Sequence>
     </AbsoluteFill>
   );
 };

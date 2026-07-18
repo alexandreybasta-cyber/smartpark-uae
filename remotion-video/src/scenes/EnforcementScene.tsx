@@ -23,12 +23,15 @@ export const EnforcementScene: React.FC = () => {
 
   const bannerPulse = interpolate(Math.sin(frame * 0.25), [-1, 1], [0.85, 1]);
 
-  const violationCount = Math.floor(
-    interpolate(frame, [50, 90], [0, 15], {
-      extrapolateRight: "clamp",
-      extrapolateLeft: "clamp",
-    })
-  );
+  const subtextOpacity = interpolate(frame, [40, 60], [0, 1], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+  });
+
+  const messageOpacity = interpolate(frame, [70, 90], [0, 1], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+  });
 
   return (
     <AbsoluteFill
@@ -51,7 +54,7 @@ export const EnforcementScene: React.FC = () => {
         }}
       >
         <AnimatedText
-          text="Real-time enforcement"
+          text="Enforcement Mode"
           type="fade"
           delay={20}
           style={{
@@ -61,17 +64,29 @@ export const EnforcementScene: React.FC = () => {
             textShadow: "0 4px 20px rgba(0,0,0,0.8)",
           }}
         />
+        <div
+          style={{
+            marginTop: 12,
+            opacity: subtextOpacity,
+            fontSize: 28,
+            color: "#8e8e93",
+            fontWeight: 400,
+          }}
+        >
+          Dedicated dashboard for parking enforcement officers
+        </div>
       </div>
 
       {/* Phone */}
       <div
         style={{
-          transform: `translateY(${phoneY}px) scale(${zoomScale})`,
+          transform: `translateY(${phoneY}px)`,
         }}
       >
         <PhoneFrame
           imagePath="screenshots/Enforcement 1 - Map.JPG"
           scale={0.95}
+          zoom={zoomScale}
         />
       </div>
 
@@ -82,7 +97,7 @@ export const EnforcementScene: React.FC = () => {
       <PulsingDot x={600} y={750} color="#FF3B30" size={28} delay={55} />
       <PulsingDot x={420} y={820} color="#FF3B30" size={28} delay={60} />
 
-      {/* Violations banner */}
+      {/* Key message banner */}
       <div
         style={{
           position: "absolute",
@@ -92,16 +107,14 @@ export const EnforcementScene: React.FC = () => {
           backgroundColor: "rgba(255,59,48,0.9)",
           borderRadius: 20,
           padding: "16px 40px",
-          opacity: interpolate(frame, [50, 65], [0, 1], {
-            extrapolateRight: "clamp",
-            extrapolateLeft: "clamp",
-          }),
+          opacity: messageOpacity,
           zIndex: 20,
           boxShadow: "0 8px 32px rgba(255,59,48,0.5)",
+          textAlign: "center",
         }}
       >
-        <span style={{ fontSize: 44, fontWeight: 800, color: "#fff" }}>
-          {violationCount} VIOLATIONS
+        <span style={{ fontSize: 36, fontWeight: 800, color: "#fff" }}>
+          From hours of patrol to seconds of dispatch
         </span>
       </div>
     </AbsoluteFill>

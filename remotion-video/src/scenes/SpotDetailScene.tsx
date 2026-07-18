@@ -22,13 +22,6 @@ export const SpotDetailScene: React.FC = () => {
 
   const freePulse = interpolate(Math.sin(frame * 0.2), [-1, 1], [1, 1.15]);
 
-  const tapOpacity = interpolate(frame, [80, 95], [0, 1], {
-    extrapolateRight: "clamp",
-    extrapolateLeft: "clamp",
-  });
-
-  const tapScale = interpolate(Math.sin(frame * 0.25), [-1, 1], [0.9, 1.1]);
-
   return (
     <AbsoluteFill
       style={{
@@ -65,12 +58,13 @@ export const SpotDetailScene: React.FC = () => {
       {/* Phone */}
       <div
         style={{
-          transform: `translateY(${phoneY}px) scale(${zoomScale})`,
+          transform: `translateY(${phoneY}px)`,
         }}
       >
         <PhoneFrame
           imagePath="screenshots/Map - 3 after clicking on a parking lot.JPG"
           scale={0.95}
+          zoom={zoomScale}
         />
       </div>
 
@@ -97,22 +91,6 @@ export const SpotDetailScene: React.FC = () => {
         </span>
       </div>
 
-      {/* Navigate tap indicator */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 280,
-          left: "50%",
-          transform: `translateX(-50%) scale(${tapScale})`,
-          width: 240,
-          height: 60,
-          borderRadius: 16,
-          border: "3px solid rgba(0,122,255,0.8)",
-          backgroundColor: "rgba(0,122,255,0.15)",
-          zIndex: 15,
-          opacity: tapOpacity,
-        }}
-      />
     </AbsoluteFill>
   );
 };

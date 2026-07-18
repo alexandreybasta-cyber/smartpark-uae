@@ -45,7 +45,10 @@ class AgentViewModel {
 
             // Enrich response with synthetic mapCard if none was provided
             if response.mapCard == nil {
-                let syntheticMapCard = createMapCardFromContext(zones: zones, spots: spots, userLocation: location)
+                // Try to geocode the destination from the user's query
+                let destinationCoord = await geocodeFromQuery(text)
+                let cardLocation = destinationCoord ?? location
+                let syntheticMapCard = createMapCardFromContext(zones: zones, spots: spots, userLocation: cardLocation)
                 response = AgentResponse(
                     text: response.text,
                     reasoningSteps: response.reasoningSteps,
@@ -81,6 +84,19 @@ class AgentViewModel {
                 group.cancelAll()
                 return result
             }
+
+            // If backend returned a generic help/fallback response, try Qwen instead
+            if isGenericFallbackResponse(response) {
+                if !Configuration.qwenAPIKey.isEmpty {
+                    return try await qwenService.sendDriverQuery(
+                        text: text,
+                        lat: location.latitude,
+                        lng: location.longitude,
+                        zones: zones
+                    )
+                }
+            }
+
             return response
         } catch {
             // Backend unreachable — fallback to Qwen cloud API
@@ -96,6 +112,21 @@ class AgentViewModel {
                 return mockDriverResponse(text: text, zones: zones)
             }
         }
+    }
+
+    /// Detects if a backend response is a generic fallback (no real AI processing happened)
+    private func isGenericFallbackResponse(_ response: AgentResponse) -> Bool {
+        // Check for the known generic help text
+        if response.text.contains("I can help you find parking") &&
+           response.text.contains("What would you like to do") {
+            return true
+        }
+        // Check reasoning steps for generic fallback markers
+        if response.reasoningSteps.contains("No specific intent detected") ||
+           response.reasoningSteps.contains("Returning general help message") {
+            return true
+        }
+        return false
     }
 
     // MARK: - Enforcement via Qwen
@@ -125,8 +156,8 @@ class AgentViewModel {
         let freeCount = bestZone?.freeCount ?? 8
 
         return AgentResponse(
-            text: "Based on current availability, I recommend \(zoneName) with \(freeCount) free spots. This is the closest zone with the most availability right now.",
-            reasoningSteps: ["Checked nearby zones", "Compared availability", "Selected best option"],
+            text: "\(freeCount) free spots at \(zoneName). AED \(bestZone?.pricePerHour ?? 5.0)/hr.",
+            reasoningSteps: ["Found available spots"],
             mapCard: nil
         )
     }
@@ -159,6 +190,24 @@ class AgentViewModel {
         if let response = try? await search.start(),
            let item = response.mapItems.first {
             appState.showOnMapAndSearch(coordinate: item.placemark.coordinate)
+        }
+    }
+
+    /// Geocodes a destination from the user's query text to get accurate coordinates
+    private func geocodeFromQuery(_ query: String) async -> CLLocationCoordinate2D? {
+        let searchRequest = MKLocalSearch.Request()
+        searchRequest.naturalLanguageQuery = query
+        searchRequest.region = MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: 25.2, longitude: 55.27), // Dubai center
+            span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)
+        )
+
+        do {
+            let search = MKLocalSearch(request: searchRequest)
+            let response = try await search.start()
+            return response.mapItems.first?.placemark.coordinate
+        } catch {
+            return nil
         }
     }
 
@@ -203,15 +252,15 @@ class AgentViewModel {
             return dist <= 2000
         }
 
-        // If no zones nearby, generate a synthetic local zone near the user
+        // If no zones nearby, generate a synthetic local zone near the destination/user
         if nearbyZones.isEmpty {
             let totalSpots = Int.random(in: 20...40)
             let freeSpots = Int.random(in: 8...(totalSpots - 4))
-            let latJitter = Double.random(in: -0.001...0.001)
-            let lngJitter = Double.random(in: -0.001...0.001)
+            let latJitter = Double.random(in: -0.0005...0.0005)
+            let lngJitter = Double.random(in: -0.0005...0.0005)
             return MapCard(
                 zoneId: 999,
-                zoneName: "Parking Zone",
+                zoneName: "Parking near destination",
                 lat: userLocation.latitude + latJitter,
                 lng: userLocation.longitude + lngJitter,
                 freeSpots: freeSpots,

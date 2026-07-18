@@ -8,9 +8,13 @@ export const ParkingResultsScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const fadeIn = interpolate(frame, [0, 25], [0, 1], {
+  const slideProgress = interpolate(frame, [0, 20], [0, 1], {
     extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
   });
+
+  const imageSlideX = interpolate(slideProgress, [0, 1], [860, 0]);
+  const oldImageSlideX = interpolate(slideProgress, [0, 1], [0, -860]);
 
   const phoneSlide = spring({
     frame,
@@ -21,13 +25,18 @@ export const ParkingResultsScene: React.FC = () => {
   const phoneY = interpolate(phoneSlide, [0, 1], [600, 0]);
 
   const counterValue = Math.floor(
-    interpolate(frame, [50, 90], [0, 7], {
+    interpolate(frame, [30, 60], [0, 7], {
       extrapolateRight: "clamp",
       extrapolateLeft: "clamp",
     })
   );
 
-  const counterOpacity = interpolate(frame, [45, 60], [0, 1], {
+  const counterOpacity = interpolate(frame, [25, 40], [0, 1], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+  });
+
+  const textOpacity = interpolate(frame, [15, 35], [0, 1], {
     extrapolateRight: "clamp",
     extrapolateLeft: "clamp",
   });
@@ -50,12 +59,13 @@ export const ParkingResultsScene: React.FC = () => {
           right: 0,
           textAlign: "center",
           zIndex: 20,
+          opacity: textOpacity,
         }}
       >
         <AnimatedText
-          text="Real-time availability"
+          text="Instant results"
           type="fade"
-          delay={30}
+          delay={15}
           style={{
             fontSize: 48,
             fontWeight: 700,
@@ -65,11 +75,58 @@ export const ParkingResultsScene: React.FC = () => {
         />
       </div>
 
-      {/* Phone */}
-      <div style={{ opacity: fadeIn, transform: `translateY(${phoneY}px)` }}>
-        <PhoneFrame
-          imagePath="screenshots/Map - 2 After pressing Generate.JPG"
-          scale={0.95}
+      {/* Phone with seamless slide transition */}
+      <div
+        style={{
+          transform: `translateY(${phoneY}px)`,
+          position: "relative",
+          width: 860 * 0.95,
+          height: 1760 * 0.95,
+          borderRadius: 60 * 0.95,
+          overflow: "hidden",
+        }}
+      >
+        {/* Old image sliding out to left */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            transform: `translateX(${oldImageSlideX}px)`,
+          }}
+        >
+          <PhoneFrame
+            imagePath="screenshots/Map - 1 Main Screen.JPG"
+            scale={0.95}
+            style={{ borderRadius: 0, border: "none", boxShadow: "none" }}
+          />
+        </div>
+        {/* New image sliding in from right */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            transform: `translateX(${imageSlideX}px)`,
+          }}
+        >
+          <PhoneFrame
+            imagePath="screenshots/joint_image_2_parking_found.png"
+            scale={0.95}
+            style={{ borderRadius: 0, border: "none", boxShadow: "none" }}
+          />
+        </div>
+        {/* Phone bezel overlay (notch) */}
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: 300 * 0.95,
+            height: 50 * 0.95,
+            backgroundColor: "#000",
+            borderRadius: `0 0 ${25 * 0.95}px ${25 * 0.95}px`,
+            zIndex: 10,
+          }}
         />
       </div>
 
@@ -77,7 +134,6 @@ export const ParkingResultsScene: React.FC = () => {
       <PulsingDot x={320} y={650} color="#34C759" size={20} delay={40} />
       <PulsingDot x={480} y={580} color="#34C759" size={20} delay={45} />
       <PulsingDot x={600} y={720} color="#34C759" size={20} delay={50} />
-      <PulsingDot x={250} y={800} color="#34C759" size={20} delay={55} />
 
       {/* Counter overlay */}
       <div

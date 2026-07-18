@@ -263,9 +263,9 @@
     else if (p < 0.5)  { bay.style.fill = 'rgba(217,161,59,0.22)'; bay.style.stroke = '#d9a13b'; }
     else               { bay.style.fill = 'rgba(232,74,63,0.3)';   bay.style.stroke = '#e84a3f'; }
 
-    // phase 2 — Parkin handshake draw
+    // phase 2 — Payment handshake draw
     var hs = seg(p, 0.5, 0.62);
-    document.getElementById('uc1-parkin').style.opacity = String(hs);
+    document.getElementById('uc1-payment').style.opacity = String(hs);
     handshake.style.strokeDasharray = hsLen;
     handshake.style.strokeDashoffset = String(hsLen * (1 - hs));
     handshake.style.opacity = hs > 0 ? '1' : '0';

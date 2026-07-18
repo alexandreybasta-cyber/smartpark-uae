@@ -2,7 +2,6 @@ import React from "react";
 import { AbsoluteFill, useCurrentFrame, interpolate, spring, useVideoConfig } from "remotion";
 import { PhoneFrame } from "../components/PhoneFrame";
 import { AnimatedText } from "../components/AnimatedText";
-import { PulsingDot } from "../components/PulsingDot";
 
 export const MapScene: React.FC = () => {
   const frame = useCurrentFrame();
@@ -20,8 +19,6 @@ export const MapScene: React.FC = () => {
     extrapolateRight: "clamp",
     extrapolateLeft: "clamp",
   });
-
-  const tapPulse = interpolate(Math.sin(frame * 0.2), [-1, 1], [0.8, 1.2]);
 
   const textOpacity = interpolate(frame, [40, 60], [0, 1], {
     extrapolateRight: "clamp",
@@ -50,7 +47,7 @@ export const MapScene: React.FC = () => {
         }}
       >
         <AnimatedText
-          text="Find parking in seconds"
+          text="One tap to search"
           type="fade"
           delay={40}
           style={{
@@ -62,37 +59,18 @@ export const MapScene: React.FC = () => {
         />
       </div>
 
-      {/* Phone with screenshot */}
+      {/* Phone with screenshot - zoom applied via prop */}
       <div
         style={{
-          transform: `translateY(${phoneY}px) scale(${zoomScale})`,
+          transform: `translateY(${phoneY}px)`,
         }}
       >
         <PhoneFrame
           imagePath="screenshots/Map - 1 Main Screen.JPG"
           scale={0.95}
+          zoom={zoomScale}
         />
       </div>
-
-      {/* Tap indicator on search button area */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 380,
-          left: "50%",
-          transform: `translateX(-50%) scale(${tapPulse})`,
-          width: 80,
-          height: 80,
-          borderRadius: "50%",
-          border: "4px solid rgba(0,122,255,0.8)",
-          backgroundColor: "rgba(0,122,255,0.2)",
-          zIndex: 15,
-          opacity: interpolate(frame, [80, 90], [0, 1], {
-            extrapolateRight: "clamp",
-            extrapolateLeft: "clamp",
-          }),
-        }}
-      />
     </AbsoluteFill>
   );
 };

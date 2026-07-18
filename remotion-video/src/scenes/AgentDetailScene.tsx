@@ -75,12 +75,13 @@ export const AgentDetailScene: React.FC = () => {
       {/* Phone */}
       <div
         style={{
-          transform: `translateY(${phoneY}px) scale(${zoomScale})`,
+          transform: `translateY(${phoneY}px)`,
         }}
       >
         <PhoneFrame
           imagePath="screenshots/Agent 2 - Burj kHALIFA.JPG"
           scale={0.95}
+          zoom={zoomScale}
         />
       </div>
 

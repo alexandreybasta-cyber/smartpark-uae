@@ -6,11 +6,12 @@ import { ParkingResultsScene } from "./scenes/ParkingResultsScene";
 import { SpotDetailScene } from "./scenes/SpotDetailScene";
 import { NavigationScene } from "./scenes/NavigationScene";
 import { AgentScene } from "./scenes/AgentScene";
-import { AgentDetailScene } from "./scenes/AgentDetailScene";
 import { SavedPlacesScene } from "./scenes/SavedPlacesScene";
 import { InsightsScene } from "./scenes/InsightsScene";
 import { EnforcementScene } from "./scenes/EnforcementScene";
 import { EnforcementDetailScene } from "./scenes/EnforcementDetailScene";
+import { HowItWorksScene } from "./scenes/HowItWorksScene";
+import { LandingPageScene } from "./scenes/LandingPageScene";
 import { OutroScene } from "./scenes/OutroScene";
 
 const CROSSFADE = 15;
@@ -23,17 +24,18 @@ interface SceneConfig {
 
 const scenes: SceneConfig[] = [
   { component: TitleScene, start: 0, duration: 105 },
-  { component: MapScene, start: 90, duration: 195 },
-  { component: ParkingResultsScene, start: 270, duration: 195 },
-  { component: SpotDetailScene, start: 450, duration: 165 },
-  { component: NavigationScene, start: 600, duration: 165 },
-  { component: AgentScene, start: 750, duration: 225 },
-  { component: AgentDetailScene, start: 960, duration: 165 },
-  { component: SavedPlacesScene, start: 1110, duration: 165 },
-  { component: InsightsScene, start: 1260, duration: 195 },
-  { component: EnforcementScene, start: 1440, duration: 195 },
-  { component: EnforcementDetailScene, start: 1620, duration: 165 },
-  { component: OutroScene, start: 1770, duration: 195 },
+  { component: MapScene, start: 90, duration: 180 },
+  { component: ParkingResultsScene, start: 255, duration: 165 },
+  { component: SpotDetailScene, start: 405, duration: 150 },
+  { component: NavigationScene, start: 540, duration: 150 },
+  { component: AgentScene, start: 675, duration: 180 },
+  { component: SavedPlacesScene, start: 840, duration: 195 },
+  { component: InsightsScene, start: 1020, duration: 165 },
+  { component: EnforcementScene, start: 1170, duration: 180 },
+  { component: EnforcementDetailScene, start: 1335, duration: 150 },
+  { component: HowItWorksScene, start: 1470, duration: 180 },
+  { component: LandingPageScene, start: 1635, duration: 165 },
+  { component: OutroScene, start: 1785, duration: 165 },
 ];
 
 const CrossfadeScene: React.FC<{

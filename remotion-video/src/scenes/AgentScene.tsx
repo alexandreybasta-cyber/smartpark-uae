@@ -7,23 +7,33 @@ export const AgentScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const slideFromLeft = spring({
+  const leftPhoneSlide = spring({
     frame,
     fps,
     config: { damping: 14, stiffness: 80 },
   });
 
-  const phoneX = interpolate(slideFromLeft, [0, 1], [-600, 0]);
+  const leftPhoneX = interpolate(leftPhoneSlide, [0, 1], [-400, 0]);
 
-  const cardSlideUp = spring({
-    frame: frame - 120,
+  const rightPhoneSlide = spring({
+    frame: frame - 15,
     fps,
-    config: { damping: 12, stiffness: 100 },
+    config: { damping: 14, stiffness: 80 },
   });
 
-  const cardY = interpolate(cardSlideUp, [0, 1], [200, 0]);
+  const rightPhoneX = interpolate(rightPhoneSlide, [0, 1], [400, 0]);
 
-  const cardOpacity = interpolate(frame, [120, 140], [0, 1], {
+  const textOpacity = interpolate(frame, [30, 50], [0, 1], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+  });
+
+  const subtextOpacity = interpolate(frame, [55, 75], [0, 1], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+  });
+
+  const detailOpacity = interpolate(frame, [80, 100], [0, 1], {
     extrapolateRight: "clamp",
     extrapolateLeft: "clamp",
   });
@@ -37,11 +47,11 @@ export const AgentScene: React.FC = () => {
         fontFamily: "system-ui, -apple-system, sans-serif",
       }}
     >
-      {/* Text overlay */}
+      {/* Top title */}
       <div
         style={{
           position: "absolute",
-          top: 80,
+          top: 60,
           left: 0,
           right: 0,
           textAlign: "center",
@@ -49,7 +59,7 @@ export const AgentScene: React.FC = () => {
         }}
       >
         <AnimatedText
-          text="AI Parking Assistant"
+          text="AI Agent"
           type="fade"
           delay={20}
           style={{
@@ -59,116 +69,117 @@ export const AgentScene: React.FC = () => {
             textShadow: "0 4px 20px rgba(0,0,0,0.8)",
           }}
         />
+        <div
+          style={{
+            marginTop: 10,
+            opacity: subtextOpacity,
+            fontSize: 26,
+            color: "#8e8e93",
+            fontWeight: 400,
+          }}
+        >
+          Your personal parking assistant
+        </div>
       </div>
 
-      {/* Phone sliding from left */}
-      <div style={{ transform: `translateX(${phoneX}px)` }}>
-        <PhoneFrame imagePath="screenshots/Agent.JPG" scale={0.95} />
-      </div>
-
-      {/* Typewriter overlay for user message */}
+      {/* Left phone - chat query */}
       <div
         style={{
           position: "absolute",
-          top: 250,
-          left: 120,
-          right: 120,
-          zIndex: 20,
-          opacity: interpolate(frame, [30, 40], [0, 1], {
-            extrapolateRight: "clamp",
-            extrapolateLeft: "clamp",
-          }),
+          left: 20,
+          top: 280,
+          transform: `translateX(${leftPhoneX}px)`,
+          zIndex: 10,
         }}
       >
-        <AnimatedText
-          text="Parking burj khalifa"
-          type="typewriter"
-          delay={30}
-          duration={50}
-          style={{
-            fontSize: 28,
-            color: "#fff",
-            backgroundColor: "rgba(0,122,255,0.8)",
-            padding: "12px 20px",
-            borderRadius: 20,
-            display: "inline-block",
-          }}
+        <PhoneFrame
+          imagePath="screenshots/agent_1_chat.jpg"
+          scale={0.42}
         />
       </div>
 
-      {/* AI response fade in */}
+      {/* Center text block */}
       <div
         style={{
           position: "absolute",
-          top: 360,
-          left: 120,
-          right: 200,
+          top: 500,
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: 280,
+          textAlign: "center",
           zIndex: 20,
-          opacity: interpolate(frame, [80, 100], [0, 1], {
-            extrapolateRight: "clamp",
-            extrapolateLeft: "clamp",
-          }),
-          transform: `translateY(${interpolate(frame, [80, 100], [20, 0], {
-            extrapolateRight: "clamp",
-            extrapolateLeft: "clamp",
-          })}px)`,
+          opacity: textOpacity,
         }}
       >
         <div
           style={{
-            backgroundColor: "rgba(44,44,46,0.85)",
-            borderRadius: 20,
-            padding: "16px 20px",
             fontSize: 22,
+            color: "#007AFF",
+            fontWeight: 700,
+            letterSpacing: 2,
+            textTransform: "uppercase",
+            marginBottom: 16,
+          }}
+        >
+          Multi-step reasoning
+        </div>
+        <div
+          style={{
+            fontSize: 18,
             color: "#e5e5ea",
+            lineHeight: 1.6,
+          }}
+        >
+          Understands natural language queries and searches across all connected
+          parking zones in real-time.
+        </div>
+        <div
+          style={{
+            marginTop: 20,
+            opacity: detailOpacity,
+            fontSize: 16,
+            color: "#8e8e93",
             lineHeight: 1.5,
           }}
         >
-          Finding parking zones near Burj Khalifa...
+          Analyzes availability, pricing, and walking distance to deliver the
+          optimal parking recommendation.
         </div>
       </div>
 
-      {/* Parking zone card slide up */}
+      {/* Right phone - Burj Khalifa results */}
       <div
         style={{
           position: "absolute",
-          bottom: 250,
-          left: 100,
-          right: 100,
-          zIndex: 20,
-          transform: `translateY(${cardY}px)`,
-          opacity: cardOpacity,
+          right: 20,
+          top: 280,
+          transform: `translateX(${rightPhoneX}px)`,
+          zIndex: 10,
         }}
       >
-        <div
-          style={{
-            backgroundColor: "rgba(28,28,30,0.95)",
-            borderRadius: 24,
-            padding: "24px 32px",
-            border: "1px solid rgba(255,255,255,0.1)",
-            boxShadow: "0 12px 40px rgba(0,0,0,0.5)",
-          }}
-        >
-          <div style={{ fontSize: 26, color: "#8e8e93", marginBottom: 8 }}>
-            Zone A - Downtown
-          </div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div>
-              <span style={{ fontSize: 48, fontWeight: 800, color: "#34C759" }}>10</span>
-              <span style={{ fontSize: 28, color: "#8e8e93" }}> / 30 free</span>
-            </div>
-            <div
-              style={{
-                fontSize: 32,
-                fontWeight: 700,
-                color: "#007AFF",
-              }}
-            >
-              AED 5/hr
-            </div>
-          </div>
-        </div>
+        <PhoneFrame
+          imagePath="screenshots/agent_2_burj.jpg"
+          scale={0.42}
+        />
       </div>
+
+      {/* Bottom accent */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 120,
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: interpolate(frame, [100, 130], [0, 200], {
+            extrapolateRight: "clamp",
+            extrapolateLeft: "clamp",
+          }),
+          height: 3,
+          backgroundColor: "#007AFF",
+          borderRadius: 2,
+          opacity: detailOpacity,
+        }}
+      />
     </AbsoluteFill>
   );
 };

@@ -2,9 +2,9 @@
 
 import { Suspense } from 'react';
 import { useRouter } from 'next/navigation';
-import ParkinMock from '@/components/driver/ParkinMock';
+import PaymentDemo from '@/components/driver/PaymentDemo';
 
-function ParkinContent() {
+function PaymentDemoContent() {
   const router = useRouter();
 
   return (
@@ -35,16 +35,16 @@ function ParkinContent() {
         </button>
       </div>
 
-      {/* Parkin Mock */}
-      <ParkinMock />
+      {/* Payment Demo */}
+      <PaymentDemo />
     </div>
   );
 }
 
-export default function ParkinMockPage() {
+export default function PaymentDemoPage() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-sp-bg-0 flex items-center justify-center"><p className="text-sp-text-3">Loading...</p></div>}>
-      <ParkinContent />
+      <PaymentDemoContent />
     </Suspense>
   );
 }

@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 
 type ViewState = 'select' | 'active' | 'complete';
 
-export default function ParkinMock() {
+export default function PaymentDemo() {
   const searchParams = useSearchParams();
   const spot = searchParams.get('spot') || '314-08';
 

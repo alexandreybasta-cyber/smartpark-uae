@@ -9,6 +9,7 @@ from datetime import datetime, timezone, timedelta
 
 
 DUBAI_OFFSET = timedelta(hours=4)
+DUBAI_TZ = timezone(timedelta(hours=4))
 
 
 def haversine(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
@@ -26,7 +27,12 @@ def detect_intent(text: str) -> str:
     text_lower = text.lower()
 
     if ("park" in text_lower or "spot" in text_lower or "space" in text_lower) and \
-       any(w in text_lower for w in ["near", "find", "where", "available", "closest", "work", "home", "gym"]):
+       any(w in text_lower for w in ["near", "find", "where", "available", "closest", "work", "home", "gym",
+                                      "search", "in ", "at ", "around", "close", "look", "get", "show"]):
+        return "find_parking"
+    # Also catch "search for parking" or "look for parking" without location keywords
+    if any(w in text_lower for w in ["search", "find", "look for"]) and \
+       ("park" in text_lower or "spot" in text_lower):
         return "find_parking"
     if any(w in text_lower for w in ["predict", "will there be", "forecast", "expect", "busy", "later"]):
         return "predict"
@@ -99,7 +105,7 @@ async def handle_find_parking(request: AgentTextRequest, session: AsyncSession) 
             # Predicted future (check predictions)
             predicted_future = 0.5  # default
             if zone.predictions:
-                now_naive = datetime.utcnow()
+                now_naive = datetime.now(DUBAI_TZ).replace(tzinfo=None)
                 future_preds = [p for p in zone.predictions if p.timestamp and p.timestamp.replace(tzinfo=None) > now_naive]
                 if future_preds:
                     next_pred = min(future_preds, key=lambda p: p.timestamp)
@@ -169,7 +175,7 @@ async def handle_predict(request: AgentTextRequest, session: AsyncSession) -> Ag
     reasoning.append(f"Selected zone: {zone.name}")
 
     # Get predictions
-    now_naive = datetime.utcnow()
+    now_naive = datetime.now(DUBAI_TZ).replace(tzinfo=None)
     predictions = [p for p in zone.predictions if p.timestamp and p.timestamp.replace(tzinfo=None) > now_naive]
     predictions.sort(key=lambda p: p.timestamp)
 

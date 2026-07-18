@@ -1,10 +1,13 @@
 """Database seeding script for SpotSense UAE demo data."""
 import json
+import logging
 import random
 from datetime import datetime, timezone, timedelta
 from sqlalchemy import select
 from database import async_session
 from models import Zone, Spot, Sensor, SavedPlace, Prediction
+
+logger = logging.getLogger(__name__)
 
 
 # DIC (Dubai Internet City) area zones with GeoJSON polygons
@@ -169,10 +172,10 @@ async def seed_database():
         # Check if already seeded
         result = await session.execute(select(Zone))
         if result.scalars().first():
-            print("Database already seeded, skipping.")
+            logger.info("Database already seeded, skipping.")
             return
 
-        print("Seeding database...")
+        logger.info("Seeding database...")
         now = datetime.now(timezone.utc)
 
         # Create zones
@@ -233,4 +236,4 @@ async def seed_database():
                 session.add(pred)
 
         await session.commit()
-        print(f"Seeded: {len(zones)} zones, {spot_index} spots/sensors, {len(SAVED_PLACES)} places, {len(zones)*48} predictions")
+        logger.info(f"Seeded: {len(zones)} zones, {spot_index} spots/sensors, {len(SAVED_PLACES)} places, {len(zones)*48} predictions")

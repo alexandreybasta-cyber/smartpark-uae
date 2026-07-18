@@ -4,8 +4,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-orange.svg)](LICENSE)
 
-- **Demo video:** `<add URL>`
-- **Live demo:** `<add URL>`
+- **Demo video:** [Coming soon — will be added before submission]
+- **Live demo:** [Coming soon — will be added before submission]
 
 ## Problem & Solution
 
@@ -101,8 +101,8 @@ Built for the **Global AI Hackathon with Qwen Cloud — Track 5: EdgeAgent**.
 Required submission artifacts:
 
 - Public GitHub repository (this repo).
-- Demo video — `<add URL>`.
-- Live demo — `<add URL>`.
+- Demo video — [Coming soon — will be added before submission].
+- Live demo — [Coming soon — will be added before submission].
 - Proof of Qwen Cloud usage:
   [`ios/SmartPark/SmartPark/Services/QwenAgentService.swift`](ios/SmartPark/SmartPark/Services/QwenAgentService.swift).
 

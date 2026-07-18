@@ -5,12 +5,14 @@ interface PhoneFrameProps {
   imagePath: string;
   style?: React.CSSProperties;
   scale?: number;
+  zoom?: number;
 }
 
 export const PhoneFrame: React.FC<PhoneFrameProps> = ({
   imagePath,
   style = {},
   scale = 1,
+  zoom = 1,
 }) => {
   return (
     <div
@@ -23,6 +25,7 @@ export const PhoneFrame: React.FC<PhoneFrameProps> = ({
         backgroundColor: "#000",
         boxShadow: `0 ${40 * scale}px ${80 * scale}px rgba(0,0,0,0.6)`,
         border: `${8 * scale}px solid #1a1a1a`,
+        transform: `scale(${zoom})`,
         ...style,
       }}
     >

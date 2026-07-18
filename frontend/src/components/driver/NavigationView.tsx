@@ -58,7 +58,7 @@ export default function NavigationView() {
   }, [showNotification, notificationDismissed]);
 
   const handleNotificationTap = useCallback(() => {
-    router.push('/parkin-mock?spot=314-08');
+    router.push('/payment-demo?spot=314-08');
   }, [router]);
 
   const formatEta = (seconds: number) => {

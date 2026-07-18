@@ -21,6 +21,11 @@ export const TitleScene: React.FC = () => {
     extrapolateLeft: "clamp",
   });
 
+  const subtitle2Opacity = interpolate(frame, [70, 90], [0, 1], {
+    extrapolateRight: "clamp",
+    extrapolateLeft: "clamp",
+  });
+
   const glowPulse = interpolate(Math.sin(frame * 0.1), [-1, 1], [0.3, 0.8]);
 
   return (
@@ -62,7 +67,7 @@ export const TitleScene: React.FC = () => {
       {/* Subtitle with typewriter */}
       <div style={{ marginTop: 30, opacity: subtitleOpacity }}>
         <AnimatedText
-          text="AI-Powered Smart Parking"
+          text="Agentic AI-Powered Smart Parking"
           type="typewriter"
           delay={30}
           duration={40}
@@ -71,6 +76,22 @@ export const TitleScene: React.FC = () => {
             color: "#8e8e93",
             fontWeight: 400,
             letterSpacing: 2,
+          }}
+        />
+      </div>
+
+      {/* Second subtitle line */}
+      <div style={{ marginTop: 16, opacity: subtitle2Opacity }}>
+        <AnimatedText
+          text="City Scale Real-time Parking Spot Availability."
+          type="typewriter"
+          delay={70}
+          duration={30}
+          style={{
+            fontSize: 28,
+            color: "#636366",
+            fontWeight: 400,
+            letterSpacing: 1,
           }}
         />
       </div>

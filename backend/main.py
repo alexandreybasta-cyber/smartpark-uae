@@ -37,7 +37,8 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS: allow all origins for demo
+# HACKATHON DEMO: CORS is intentionally permissive for open accessibility.
+# Production deployments should restrict allow_origins to known frontend domains.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

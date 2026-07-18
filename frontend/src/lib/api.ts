@@ -2,11 +2,13 @@ export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://api.spotsens
 
 export async function fetchZones() {
   const res = await fetch(`${API_BASE}/api/zones`);
+  if (!res.ok) throw new Error(`Failed to fetch zones: ${res.status}`);
   return res.json();
 }
 
 export async function fetchPredictions(zoneId: number) {
   const res = await fetch(`${API_BASE}/api/predict/${zoneId}`);
+  if (!res.ok) throw new Error(`Failed to fetch predictions: ${res.status}`);
   return res.json();
 }
 
@@ -16,6 +18,7 @@ export async function sendAgentQuery(text: string, lat: number, lng: number) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text, lat, lng }),
   });
+  if (!res.ok) throw new Error(`Failed to send agent query: ${res.status}`);
   return res.json();
 }
 
