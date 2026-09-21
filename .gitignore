@@ -62,3 +62,6 @@ hyperframes/spotsense-demos/output/full-reel.mp4
 SpotSense_Business_Plan_2026.docx
 UAE-Launch-Kit/
 vibe_images/
+
+# Runtime media uploads (vision pipeline) — never commit operator uploads
+backend/uploads/

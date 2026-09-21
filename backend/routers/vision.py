@@ -7,10 +7,13 @@ per-space readings through exactly the same path as the built-in analyzer.
 import asyncio
 import json
 import logging
+import os
+import tempfile
+import uuid
 from datetime import datetime, timezone
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from fastapi.responses import Response, StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -27,6 +30,56 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/vision", tags=["vision"])
 
 MJPEG_BOUNDARY = b"--spotsensevision"
+
+# --- browser media upload -------------------------------------------------
+# vision.py lives at backend/routers/vision.py, so this resolves to backend/.
+_BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
+VIDEO_EXTS = {".mp4", ".mov", ".avi", ".mkv", ".webm", ".m4v"}
+MAX_UPLOAD_BYTES = 200 * 1024 * 1024  # 200 MB
+
+
+def _upload_dir() -> str:
+    """A writable directory for uploaded media, with a temp-dir fallback."""
+    candidate = os.environ.get("VISION_UPLOAD_DIR") or os.path.join(
+        _BACKEND_DIR, "uploads", "vision")
+    try:
+        os.makedirs(candidate, exist_ok=True)
+        if os.access(candidate, os.W_OK):
+            return candidate
+    except OSError:
+        pass
+    fallback = os.path.join(tempfile.gettempdir(), "spotsense-vision-uploads")
+    os.makedirs(fallback, exist_ok=True)
+    return fallback
+
+
+def _grid_polygons(cols: int, rows: int):
+    """Uniform cols x rows grid of normalised polygons -> (label, polygon)."""
+    cols = max(1, min(int(cols), 12))
+    rows = max(1, min(int(rows), 12))
+    out = []
+    for r in range(rows):
+        for c in range(cols):
+            x0, x1 = c / cols, (c + 1) / cols
+            y0, y1 = r / rows, (r + 1) / rows
+            out.append((f"cell-{r * cols + c + 1}",
+                        [[x0, y0], [x1, y0], [x1, y1], [x0, y1]]))
+    return out
+
+
+async def _create_grid_regions(db: AsyncSession, camera_id: int,
+                               cols: int, rows: int) -> List[CameraRegion]:
+    made = []
+    for label, poly in _grid_polygons(cols, rows):
+        reg = CameraRegion(camera_id=camera_id, spot_id=None, label=label,
+                           polygon=json.dumps(poly), status="unknown")
+        db.add(reg)
+        made.append(reg)
+    await db.commit()
+    for reg in made:
+        await db.refresh(reg)
+    return made
 
 
 # ---------------------------------------------------------------------------
@@ -187,6 +240,98 @@ async def recalibrate_camera(camera_id: int, db: AsyncSession = Depends(get_db))
         raise HTTPException(status_code=409, detail="Camera is not running")
     registry.get(camera_id).request_recalibrate()
     return _camera_out(cam)
+
+
+# ---------------------------------------------------------------------------
+# upload from the operator's computer + zero-effort auto-regions
+# ---------------------------------------------------------------------------
+@router.post("/upload", response_model=CameraOut, status_code=201)
+async def upload_media(file: UploadFile = File(...),
+                       name: str = Form(None),
+                       auto_regions: bool = Form(True),
+                       autostart: bool = Form(True),
+                       cols: int = Form(4),
+                       rows: int = Form(3),
+                       db: AsyncSession = Depends(get_db)):
+    """Store an uploaded image/video and wire it into the vision pipeline.
+
+    Images become a `snapshot` source (re-read on an interval); videos become a
+    looped `file` source. With auto_regions on, a uniform detection grid is
+    created so occupancy is produced immediately without any manual drawing.
+    """
+    filename = os.path.basename(file.filename or "upload")
+    ext = os.path.splitext(filename)[1].lower()
+    if ext not in IMAGE_EXTS and ext not in VIDEO_EXTS:
+        raise HTTPException(
+            status_code=400,
+            detail=(f"Unsupported file type '{ext or 'unknown'}'. Upload an image "
+                    f"({', '.join(sorted(IMAGE_EXTS))}) or a video "
+                    f"({', '.join(sorted(VIDEO_EXTS))})."))
+
+    dest = os.path.join(_upload_dir(), f"{uuid.uuid4().hex}{ext}")
+    size = 0
+    try:
+        with open(dest, "wb") as out:
+            while True:
+                chunk = await file.read(1024 * 1024)
+                if not chunk:
+                    break
+                size += len(chunk)
+                if size > MAX_UPLOAD_BYTES:
+                    raise HTTPException(
+                        status_code=413,
+                        detail=f"File too large (max {MAX_UPLOAD_BYTES // (1024 * 1024)} MB)")
+                out.write(chunk)
+    except HTTPException:
+        if os.path.exists(dest):
+            os.remove(dest)
+        raise
+    except OSError as e:
+        if os.path.exists(dest):
+            os.remove(dest)
+        raise HTTPException(status_code=500, detail=f"Could not store upload: {e}")
+
+    if size == 0:
+        if os.path.exists(dest):
+            os.remove(dest)
+        raise HTTPException(status_code=400, detail="Uploaded file is empty")
+
+    is_image = ext in IMAGE_EXTS
+    cam = Camera(
+        name=(name or filename)[:200],
+        source_type="snapshot" if is_image else "file",
+        source_url=dest,
+        status="offline",
+        fps_target=2.0 if is_image else 5.0,
+    )
+    db.add(cam)
+    await db.commit()
+    await db.refresh(cam)
+
+    if auto_regions:
+        await _create_grid_regions(db, cam.id, cols, rows)
+        await db.refresh(cam)
+    if autostart and registry.ready:
+        registry.start(cam.id)
+    logger.info("vision upload: camera %s (%s) <- %s [%d bytes]",
+                cam.id, cam.source_type, filename, size)
+    return _camera_out(cam)
+
+
+@router.post("/cameras/{camera_id}/auto-regions", response_model=List[RegionOut])
+async def auto_regions(camera_id: int, cols: int = 4, rows: int = 3,
+                       replace: bool = True, db: AsyncSession = Depends(get_db)):
+    """Lay a uniform detection grid over the frame so the analyzer can run
+    without any manually drawn polygons (the 'let the AI do the work' path)."""
+    cam = await db.get(Camera, camera_id)
+    if cam is None:
+        raise HTTPException(status_code=404, detail="Camera not found")
+    if replace:
+        for r in list(cam.regions):
+            await db.delete(r)
+        await db.commit()
+    regions = await _create_grid_regions(db, camera_id, cols, rows)
+    return [_region_out(r) for r in regions]
 
 
 # ---------------------------------------------------------------------------

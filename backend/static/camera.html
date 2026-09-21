@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SpotSense Vision &mdash; Camera Occupancy</title>
+<style>
+  :root{
+    --bg:#ffffff; --surface:#f8fafc; --inset:#f1f5f9;
+    --text:#1e293b; --muted:#64748b; --faint:#94a3b8; --border:#e2e8f0;
+    --orange:#f97316; --orange-d:#ea580c; --green:#22c55e; --red:#ef4444; --amber:#f59e0b;
+    --shadow:0 1px 2px rgba(15,23,42,.04),0 8px 24px rgba(15,23,42,.06);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:var(--surface);color:var(--text);
+    font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+  a{color:var(--orange-d)}
+  header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);
+    backdrop-filter:saturate(180%) blur(12px);border-bottom:1px solid var(--border);
+    height:60px;display:flex;align-items:center;gap:12px;padding:0 20px}
+  .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:17px;letter-spacing:-.01em}
+  .logo svg{width:26px;height:26px}
+  .pill{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;
+    color:var(--muted);background:var(--inset);border:1px solid var(--border);
+    padding:6px 12px;border-radius:999px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--faint);flex:none}
+  .dot.online{background:var(--green);box-shadow:0 0 0 3px rgba(34,197,94,.18)}
+  .dot.connecting{background:var(--amber);box-shadow:0 0 0 3px rgba(245,158,11,.18)}
+  .dot.error{background:var(--red);box-shadow:0 0 0 3px rgba(239,68,68,.18)}
+  main{display:grid;grid-template-columns:300px minmax(0,1fr) 320px;gap:16px;
+    padding:16px 20px 40px;max-width:1500px;margin:0 auto;align-items:start}
+  @media(max-width:1100px){main{grid-template-columns:1fr}}
+  .card{background:var(--bg);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow)}
+  .card h2{margin:0;padding:14px 16px;font-size:12px;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border)}
+  .card .body{padding:14px 16px}
+  .stack{display:flex;flex-direction:column;gap:14px}
+  label.fld{display:block;font-size:12px;font-weight:600;color:var(--muted);margin:0 0 6px}
+  input[type=text],input[type=url],input[type=number],select{width:100%;padding:9px 11px;
+    border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--text);
+    font:inherit;outline:none}
+  input:focus,select:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(249,115,22,.15)}
+  .btn{appearance:none;border:1px solid var(--border);background:var(--bg);color:var(--text);
+    padding:9px 14px;border-radius:9px;font:inherit;font-weight:600;cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:.15s}
+  .btn:hover{border-color:var(--faint)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn.primary{background:linear-gradient(135deg,var(--orange),var(--orange-d));color:#fff;border-color:transparent}
+  .btn.primary:hover{filter:brightness(1.05)}
+  .btn.danger{color:var(--red);border-color:rgba(239,68,68,.35)}
+  .btn.danger:hover{background:rgba(239,68,68,.06)}
+  .btn.sm{padding:6px 10px;font-size:12.5px;border-radius:8px}
+  .btn.block{width:100%}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  .row>*{flex:1 1 auto}
+  .drop{border:2px dashed var(--border);border-radius:12px;padding:18px;text-align:center;
+    color:var(--muted);cursor:pointer;transition:.15s;background:var(--surface)}
+  .drop:hover,.drop.over{border-color:var(--orange);background:rgba(249,115,22,.05);color:var(--orange-d)}
+  .drop strong{color:var(--text);display:block;margin-bottom:3px;font-size:13.5px}
+  .drop small{font-size:11.5px;color:var(--faint)}
+  .cams{display:flex;flex-direction:column;gap:8px;max-height:280px;overflow:auto}
+  .cam{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--border);
+    border-radius:10px;cursor:pointer;background:var(--bg);transition:.12s}
+  .cam:hover{border-color:var(--faint)}
+  .cam.sel{border-color:var(--orange);background:rgba(249,115,22,.06);box-shadow:0 0 0 2px rgba(249,115,22,.12)}
+  .cam .meta{min-width:0;flex:1}
+  .cam .nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cam .sub{font-size:11.5px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tag{font-size:10.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;
+    padding:2px 7px;border-radius:6px;background:var(--inset);color:var(--muted);border:1px solid var(--border)}
+  .viewer{position:relative;background:#0b1220;border-radius:14px;overflow:hidden;
+    aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;min-height:280px}
+  .viewer img{width:100%;height:100%;object-fit:contain;display:block}
+  .viewer .ph{color:#94a3b8;text-align:center;padding:24px;font-size:13px}
+  .viewer .ph b{display:block;color:#e2e8f0;font-size:15px;margin-bottom:6px}
+  .viewer svg.overlay{position:absolute;inset:0;width:100%;height:100%;cursor:crosshair}
+  .badge{position:absolute;top:10px;left:10px;display:flex;gap:6px;align-items:center;
+    background:rgba(2,6,23,.6);color:#fff;padding:5px 10px;border-radius:8px;font-size:11.5px;font-weight:600;
+    backdrop-filter:blur(4px)}
+  .badge .dot{width:7px;height:7px}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .stat{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:11px 12px;text-align:center}
+  .stat .n{font-size:24px;font-weight:800;line-height:1}
+  .stat .l{font-size:11px;color:var(--muted);font-weight:600;margin-top:4px;text-transform:uppercase;letter-spacing:.04em}
+  .stat.occ .n{color:var(--red)} .stat.free .n{color:var(--green)} .stat.tot .n{color:var(--text)}
+  .regions{display:flex;flex-direction:column;gap:7px;max-height:240px;overflow:auto}
+  .reg{display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid var(--border);
+    border-radius:9px;border-left-width:4px;background:var(--bg)}
+  .reg.occupied{border-left-color:var(--red)} .reg.free{border-left-color:var(--green)} .reg.unknown{border-left-color:var(--faint)}
+  .reg .rl{font-weight:600;font-size:12.5px;flex:none;max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .reg .bar{flex:1;height:6px;background:var(--inset);border-radius:99px;overflow:hidden;min-width:40px}
+  .reg .bar i{display:block;height:100%;background:var(--orange);border-radius:99px;transition:width .3s}
+  .reg .st{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;flex:none;width:66px;text-align:right}
+  .reg .st.occupied{color:var(--red)} .reg .st.free{color:var(--green)} .reg .st.unknown{color:var(--faint)}
+  .reg .x{flex:none;border:none;background:none;color:var(--faint);cursor:pointer;font-size:15px;line-height:1;padding:2px 4px}
+  .reg .x:hover{color:var(--red)}
+  .events{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow:auto}
+  .ev{display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid var(--border);
+    border-left-width:4px;border-radius:9px;font-size:12.5px;background:var(--bg)}
+  .ev.occupied{border-left-color:var(--red)} .ev.free{border-left-color:var(--green)}
+  .ev .t{color:var(--faint);font-size:11px;margin-left:auto;flex:none;font-variant-numeric:tabular-nums}
+  .ev .src{font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted);
+    background:var(--inset);border:1px solid var(--border);padding:1px 6px;border-radius:5px;flex:none}
+  .empty{color:var(--faint);font-size:12.5px;text-align:center;padding:14px 6px}
+  .hint{font-size:11.5px;color:var(--faint);margin:6px 0 0}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);
+    background:#0f172a;color:#fff;padding:11px 18px;border-radius:11px;font-size:13px;font-weight:500;
+    box-shadow:0 12px 32px rgba(2,6,23,.3);opacity:0;pointer-events:none;transition:.25s;z-index:50;max-width:80vw}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  #toast.err{background:#7f1d1d}
+  .spin{width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;
+    border-radius:50%;animation:sp .7s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .sechead{display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding:14px 16px;border-bottom:1px solid var(--border)}
+  .sechead h2{margin:0;padding:0;border:none}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 32 32" fill="none"><rect x="2" y="6" width="28" height="20" rx="4" stroke="#1e293b" stroke-width="2"/><path d="M16 10v12M10 16h12" stroke="#f97316" stroke-width="2.5" stroke-linecap="round"/><circle cx="16" cy="16" r="3" fill="#f97316" opacity=".35"/></svg>
+    SpotSense&nbsp;Vision
+  </div>
+  <span class="pill"><span id="apiDot" class="dot"></span><span id="apiTxt">connecting&hellip;</span></span>
+</header>
+
+<main>
+  <!-- LEFT: sources -->
+  <div class="stack">
+    <div class="card">
+      <h2>Upload from your computer</h2>
+      <div class="body">
+        <div class="drop" id="drop">
+          <strong>Drop an image or video</strong>
+          <small>or click to browse &middot; JPG/PNG/WEBP &middot; MP4/MOV/WEBM</small>
+          <input type="file" id="file" accept="image/*,video/*" hidden />
+        </div>
+        <div class="grid2" style="margin-top:10px">
+          <div><label class="fld" for="ucols">Grid cols</label><input type="number" id="ucols" value="4" min="1" max="12"/></div>
+          <div><label class="fld" for="urows">Grid rows</label><input type="number" id="urows" value="3" min="1" max="12"/></div>
+        </div>
+        <p class="hint">The AI auto-lays a detection grid and starts analysing immediately.</p>
+        <div id="upStat" class="hint" style="display:none"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Live RTSP / stream</h2>
+      <div class="body">
+        <label class="fld" for="rtspName">Name</label>
+        <input type="text" id="rtspName" placeholder="Lot A &mdash; entry cam" />
+        <div style="height:8px"></div>
+        <label class="fld" for="rtspUrl">Stream URL</label>
+        <input type="url" id="rtspUrl" placeholder="rtsp://user:pass@ip:554/stream1" />
+        <div style="height:10px"></div>
+        <button class="btn primary block" id="addRtsp">Connect stream</button>
+        <p class="hint">RTSP, HTTP snapshot, or any OpenCV-readable URL.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sechead"><h2>Cameras</h2><button class="btn sm" id="refreshCams">Refresh</button></div>
+      <div class="body"><div class="cams" id="cams"></div></div>
+    </div>
+  </div>
+
+  <!-- CENTER: viewer -->
+  <div class="stack">
+    <div class="card">
+      <div class="sechead">
+        <h2 id="viewTitle">Live view</h2>
+        <div class="row" style="flex:0 0 auto;gap:6px">
+          <button class="btn sm" id="drawBtn">Draw regions</button>
+        </div>
+      </div>
+      <div class="body">
+        <div class="viewer" id="viewer">
+          <div class="ph" id="ph"><b>No camera selected</b>Upload a file or connect a stream to begin.</div>
+          <img id="stream" alt="" style="display:none" />
+          <svg class="overlay" id="overlay" style="display:none" preserveAspectRatio="none"></svg>
+          <div class="badge" id="badge" style="display:none"><span class="dot" id="camDot"></span><span id="camState">offline</span></div>
+        </div>
+        <div class="controls">
+          <button class="btn primary" id="startBtn" disabled>Start</button>
+          <button class="btn" id="stopBtn" disabled>Stop</button>
+          <button class="btn" id="autoBtn" disabled>Auto-detect grid</button>
+          <button class="btn" id="recalBtn" disabled>Recalibrate empty</button>
+          <button class="btn danger" id="delBtn" disabled>Delete</button>
+        </div>
+        <div id="drawBar" class="controls" style="display:none">
+          <span class="hint" style="margin:0;flex:1">Click the frame to add polygon points.</span>
+          <input type="text" id="regLabel" placeholder="Region label" style="max-width:150px"/>
+          <button class="btn sm" id="undoPt">Undo point</button>
+          <button class="btn sm" id="clearPt">Clear</button>
+          <button class="btn sm primary" id="saveReg">Save region</button>
+          <button class="btn sm" id="cancelDraw">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: results -->
+  <div class="stack">
+    <div class="card">
+      <h2>Occupancy</h2>
+      <div class="body">
+        <div class="summary">
+          <div class="stat occ"><div class="n" id="nOcc">0</div><div class="l">Occupied</div></div>
+          <div class="stat free"><div class="n" id="nFree">0</div><div class="l">Free</div></div>
+          <div class="stat tot"><div class="n" id="nTot">0</div><div class="l">Regions</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Detected regions</h2>
+      <div class="body"><div class="regions" id="regions"><div class="empty">No regions yet</div></div></div>
+    </div>
+    <div class="card">
+      <h2>Detection events</h2>
+      <div class="body"><div class="events" id="events"><div class="empty">No events yet</div></div></div>
+    </div>
+  </div>
+</main>
+
+<div id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+  var API = ""; // same origin
+  var state = { cams:[], id:null, draw:false, pts:[], poll:null, evPoll:null, snap:null };
+
+  function $(s){ return document.querySelector(s); }
+  function el(tag, cls, html){ var e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e; }
+  function toast(msg, isErr){ var t=$("#toast"); t.textContent=msg; t.className="show"+(isErr?" err":""); clearTimeout(t._x); t._x=setTimeout(function(){t.className="";},3200); }
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c];}); }
+
+  function req(method, path, body){
+    var opt={method:method, headers:{}};
+    if(body!==undefined){ opt.headers["Content-Type"]="application/json"; opt.body=JSON.stringify(body); }
+    return fetch(API+path, opt).then(function(r){
+      if(r.status===204) return null;
+      return r.text().then(function(txt){
+        var data=null; try{ data=txt?JSON.parse(txt):null; }catch(e){ data=txt; }
+        if(!r.ok){ var d=(data&&data.detail)?data.detail:("HTTP "+r.status); throw new Error(d); }
+        return data;
+      });
+    });
+  }
+
+  // ---- connectivity ----
+  function pingApi(){
+    return fetch(API+"/api/vision/cameras").then(function(r){
+      $("#apiDot").className="dot "+(r.ok?"online":"error");
+      $("#apiTxt").textContent=r.ok?"API online":"API error";
+      return r.ok;
+    }).catch(function(){
+      $("#apiDot").className="dot error"; $("#apiTxt").textContent="API unreachable"; return false;
+    });
+  }
+
+  // ---- cameras ----
+  function loadCams(){
+    return req("GET","/api/vision/cameras").then(function(list){
+      state.cams=list||[]; renderCams();
+    }).catch(function(e){ toast("Could not load cameras: "+e.message,true); });
+  }
+  function renderCams(){
+    var box=$("#cams"); box.innerHTML="";
+    if(!state.cams.length){ box.appendChild(el("div","empty","No cameras yet")); return; }
+    state.cams.forEach(function(c){
+      var d=el("div","cam"+(c.id===state.id?" sel":""));
+      var occ=(c.regions||[]).filter(function(r){return r.status==="occupied";}).length;
+      d.appendChild(el("span","dot "+(c.status||"")));
+      var m=el("div","meta");
+      m.appendChild(el("div","nm",esc(c.name)));
+      m.appendChild(el("div","sub",esc(c.source_type)+" &middot; "+(c.regions?c.regions.length:0)+" regions &middot; "+occ+" occupied"));
+      d.appendChild(m);
+      d.appendChild(el("span","tag",esc(c.source_type)));
+      d.onclick=function(){ select(c.id); };
+      box.appendChild(d);
+    });
+  }
+
+  function select(id){
+    state.id=id; state.draw=false; exitDraw();
+    renderCams();
+    var c=cur();
+    $("#startBtn").disabled=false; $("#stopBtn").disabled=false; $("#autoBtn").disabled=false;
+    $("#recalBtn").disabled=false; $("#delBtn").disabled=false;
+    $("#viewTitle").textContent=c?(c.name+" — live view"):"Live view";
+    showFrame();
+    refreshCurrent();
+    clearInterval(state.poll); clearInterval(state.evPoll);
+    state.poll=setInterval(refreshCurrent, 2500);
+    state.evPoll=setInterval(loadEvents, 5000);
+    loadEvents();
+  }
+  function cur(){ for(var i=0;i<state.cams.length;i++){ if(state.cams[i].id===state.id) return state.cams[i]; } return null; }
+
+  function showFrame(){
+    var c=cur(), img=$("#stream"), ph=$("#ph"), badge=$("#badge");
+    img.dataset.mode=""; // force re-evaluation on (re)select
+    if(!c){ img.style.display="none"; ph.style.display="block"; badge.style.display="none"; return; }
+    ph.style.display="none"; badge.style.display="flex";
+    syncViewer(c);
+  }
+
+  function syncViewer(c){
+    var img=$("#stream"), ph=$("#ph");
+    $("#camDot").className="dot "+(c.status||"");
+    $("#camState").textContent=c.status+(c.error_message?(" — "+c.error_message):"");
+    if(state.draw){
+      img.dataset.mode="snap";
+      img.src=API+"/api/vision/cameras/"+c.id+"/snapshot.jpg?cb="+Date.now();
+      img.style.display="block"; ph.style.display="none";
+      return;
+    }
+    if(c.status==="online"){
+      if(img.dataset.mode!=="stream"){
+        img.dataset.mode="stream";
+        img.onerror=function(){ img.dataset.mode=""; };
+        img.src=API+"/api/vision/cameras/"+c.id+"/stream.mjpg";
+        img.style.display="block"; ph.style.display="none";
+      }
+    } else {
+      if(img.dataset.mode!=="snap"){
+        img.dataset.mode="snap";
+        img.src=API+"/api/vision/cameras/"+c.id+"/snapshot.jpg?cb="+Date.now();
+        img.style.display="block";
+        img.onerror=function(){ img.style.display="none"; ph.style.display="block";
+          ph.innerHTML="<b>Waiting for frames</b>"+esc(c.status||"offline")+" — press Start."; };
+      }
+    }
+  }
+
+  function refreshCurrent(){
+    if(state.id==null) return;
+    req("GET","/api/vision/cameras/"+state.id).then(function(c){
+      if(!c) return;
+      for(var i=0;i<state.cams.length;i++){ if(state.cams[i].id===c.id){ state.cams[i]=c; break; } }
+      renderCams(); renderRegions(c); syncViewer(c);
+      $("#viewTitle").textContent=c.name+" — live view";
+    }).catch(function(){});
+  }
+
+  function renderRegions(c){
+    var box=$("#regions"); var regs=c.regions||[];
+    var occ=regs.filter(function(r){return r.status==="occupied";}).length;
+    var free=regs.filter(function(r){return r.status==="free";}).length;
+    $("#nOcc").textContent=occ; $("#nFree").textContent=free; $("#nTot").textContent=regs.length;
+    box.innerHTML="";
+    if(!regs.length){ box.appendChild(el("div","empty","No regions yet — Auto-detect grid or Draw regions.")); return; }
+    regs.forEach(function(r){
+      var st=r.status||"unknown";
+      var d=el("div","reg "+st);
+      d.appendChild(el("span","rl",esc(r.label||("region "+r.id))));
+      var bar=el("div","bar"); var i=el("i"); i.style.width=Math.round((r.confidence||0)*100)+"%"; bar.appendChild(i);
+      d.appendChild(bar);
+      d.appendChild(el("span","st "+st, st==="occupied"?"OCC":(st==="free"?"FREE":"—")));
+      var x=el("button","x","&times;"); x.title="Delete region";
+      x.onclick=function(){ delRegion(r.id); };
+      d.appendChild(x);
+      box.appendChild(d);
+    });
+  }
+
+  function loadEvents(){
+    if(state.id==null) return;
+    req("GET","/api/vision/cameras/"+state.id+"/events?limit=30").then(function(list){
+      var box=$("#events"); box.innerHTML="";
+      if(!list||!list.length){ box.appendChild(el("div","empty","No events yet")); return; }
+      list.forEach(function(e){
+        var d=el("div","ev "+(e.new_status||""));
+        d.appendChild(el("span","src",esc(e.source||"vision")));
+        var lbl=(e.previous_status||"?")+" → "+(e.new_status||"?");
+        d.appendChild(el("span","",esc(lbl)));
+        var t=e.created_at?new Date(e.created_at):null;
+        d.appendChild(el("span","t", t?t.toLocaleTimeString():""));
+        box.appendChild(d);
+      });
+    }).catch(function(){});
+  }
+
+  // ---- actions ----
+  function busy(btn,on,label){ if(!btn)return; btn.disabled=on; if(on&&label){btn._t=btn.innerHTML; btn.innerHTML='<span class="spin"></span> '+(label||"");} else if(btn._t){btn.innerHTML=btn._t;} }
+
+  function doStart(){ var b=$("#startBtn"); busy(b,true); req("POST","/api/vision/cameras/"+state.id+"/start")
+    .then(function(){ toast("Camera started"); return loadCams(); }).then(function(){ refreshCurrent(); setTimeout(showFrame,800); })
+    .catch(function(e){ toast(e.message,true); }).then(function(){ busy(b,false); }); }
+  function doStop(){ var b=$("#stopBtn"); busy(b,true); req("POST","/api/vision/cameras/"+state.id+"/stop")
+    .then(function(){ toast("Camera stopped"); return loadCams(); }).then(function(){ showFrame(); })
+    .catch(function(e){ toast(e.message,true); }).then(function(){ busy(b,false); }); }
+  function doRecal(){ req("POST","/api/vision/cameras/"+state.id+"/recalibrate")
+    .then(function(){ toast("Empty-lot reference pinned"); }).catch(function(e){ toast(e.message,true); }); }
+  function doDelete(){ if(!confirm("Delete this camera and its regions?"))return;
+    req("DELETE","/api/vision/cameras/"+state.id).then(function(){
+      toast("Camera deleted"); state.id=null; $("#stream").style.display="none"; $("#ph").style.display="block"; $("#badge").style.display="none";
+      ["startBtn","stopBtn","autoBtn","recalBtn","delBtn"].forEach(function(i){$("#"+i).disabled=true;});
+      $("#regions").innerHTML='<div class="empty">No regions yet</div>'; $("#events").innerHTML='<div class="empty">No events yet</div>';
+      $("#nOcc").textContent=0;$("#nFree").textContent=0;$("#nTot").textContent=0;
+      clearInterval(state.poll); clearInterval(state.evPoll); return loadCams();
+    }).catch(function(e){ toast(e.message,true); }); }
+  function doAuto(){ var cols=parseInt($("#ucols").value||"4",10), rows=parseInt($("#urows").value||"3",10);
+    var b=$("#autoBtn"); busy(b,true);
+    req("POST","/api/vision/cameras/"+state.id+"/auto-regions?cols="+cols+"&rows="+rows+"&replace=true")
+    .then(function(){ toast("Grid laid — "+(cols*rows)+" regions"); return loadCams(); })
+    .then(function(){ refreshCurrent(); }).catch(function(e){ toast(e.message,true); }).then(function(){ busy(b,false); }); }
+  function delRegion(id){ req("DELETE","/api/vision/regions/"+id).then(function(){ return loadCams(); }).then(refreshCurrent).catch(function(e){toast(e.message,true);}); }
+
+  function addRtsp(){
+    var url=$("#rtspUrl").value.trim(), name=$("#rtspName").value.trim()||"RTSP camera";
+    if(!url){ toast("Enter a stream URL",true); return; }
+    var b=$("#addRtsp"); busy(b,true,"Connecting");
+    req("POST","/api/vision/cameras",{name:name,source_type:"rtsp",source_url:url,fps_target:5})
+      .then(function(c){ return req("POST","/api/vision/cameras/"+c.id+"/auto-regions?cols=4&rows=3&replace=true").then(function(){return c;}); })
+      .then(function(c){ return req("POST","/api/vision/cameras/"+c.id+"/start").then(function(){return c;}); })
+      .then(function(c){ toast("Stream connected"); $("#rtspUrl").value=""; return loadCams().then(function(){ select(c.id); }); })
+      .catch(function(e){ toast(e.message,true); }).then(function(){ busy(b,false); });
+  }
+
+  // ---- upload ----
+  function upload(file){
+    if(!file) return;
+    var stat=$("#upStat"); stat.style.display="block"; stat.textContent="Uploading "+file.name+" ("+(file.size/1048576).toFixed(1)+" MB)…";
+    var fd=new FormData();
+    fd.append("file", file);
+    fd.append("auto_regions","true"); fd.append("autostart","true");
+    fd.append("cols", $("#ucols").value||"4"); fd.append("rows", $("#urows").value||"3");
+    fetch(API+"/api/vision/upload",{method:"POST",body:fd}).then(function(r){
+      return r.text().then(function(t){ var d=null; try{d=JSON.parse(t);}catch(e){} if(!r.ok) throw new Error((d&&d.detail)||("HTTP "+r.status)); return d; });
+    }).then(function(c){
+      stat.textContent="Analysing "+file.name+"…";
+      toast("Uploaded — AI is analysing");
+      return loadCams().then(function(){ select(c.id); stat.style.display="none"; });
+    }).catch(function(e){ stat.style.display="none"; toast("Upload failed: "+e.message,true); });
+  }
+
+  // ---- drawing ----
+  function enterDraw(){
+    var c=cur(); if(!c){ toast("Select a camera first",true); return; }
+    state.draw=true; state.pts=[]; $("#drawBar").style.display="flex"; $("#drawBtn").textContent="Exit draw";
+    $("#overlay").style.display="block"; showFrame(); drawOverlay();
+  }
+  function exitDraw(){ state.draw=false; state.pts=[]; $("#drawBar").style.display="none"; $("#drawBtn").textContent="Draw regions"; $("#overlay").style.display="none"; $("#overlay").innerHTML=""; }
+  function drawOverlay(){
+    var svg=$("#overlay"); var W=svg.clientWidth||640,H=svg.clientHeight||360;
+    svg.setAttribute("viewBox","0 0 "+W+" "+H);
+    svg.innerHTML="";
+    if(state.pts.length){
+      var pts=state.pts.map(function(p){return (p[0]*W)+","+(p[1]*H);}).join(" ");
+      var pl=document.createElementNS("http://www.w3.org/2000/svg","polyline");
+      pl.setAttribute("points",pts); pl.setAttribute("fill","rgba(249,115,22,.18)");
+      pl.setAttribute("stroke","#f97316"); pl.setAttribute("stroke-width","2"); svg.appendChild(pl);
+      state.pts.forEach(function(p){
+        var ci=document.createElementNS("http://www.w3.org/2000/svg","circle");
+        ci.setAttribute("cx",p[0]*W); ci.setAttribute("cy",p[1]*H); ci.setAttribute("r","3.5");
+        ci.setAttribute("fill","#ea580c"); svg.appendChild(ci);
+      });
+    }
+  }
+  function overlayClick(ev){
+    if(!state.draw) return;
+    var svg=$("#overlay"), r=svg.getBoundingClientRect();
+    var x=(ev.clientX-r.left)/r.width, y=(ev.clientY-r.top)/r.height;
+    state.pts.push([Math.max(0,Math.min(1,x)),Math.max(0,Math.min(1,y))]);
+    drawOverlay();
+  }
+  function saveRegion(){
+    if(state.pts.length<3){ toast("Need at least 3 points",true); return; }
+    var label=$("#regLabel").value.trim()||("region "+(Date.now()%1000));
+    req("POST","/api/vision/cameras/"+state.id+"/regions",{label:label,polygon:state.pts})
+      .then(function(){ toast("Region saved"); state.pts=[]; $("#regLabel").value=""; drawOverlay(); return loadCams(); })
+      .then(refreshCurrent).catch(function(e){ toast(e.message,true); });
+  }
+
+  // ---- wire up ----
+  $("#drop").addEventListener("click",function(){ $("#file").click(); });
+  $("#file").addEventListener("change",function(e){ upload(e.target.files[0]); e.target.value=""; });
+  ["dragenter","dragover"].forEach(function(ev){ $("#drop").addEventListener(ev,function(e){e.preventDefault();$("#drop").classList.add("over");}); });
+  ["dragleave","drop"].forEach(function(ev){ $("#drop").addEventListener(ev,function(e){e.preventDefault();$("#drop").classList.remove("over");}); });
+  $("#drop").addEventListener("drop",function(e){ if(e.dataTransfer&&e.dataTransfer.files[0]) upload(e.dataTransfer.files[0]); });
+  $("#addRtsp").addEventListener("click",addRtsp);
+  $("#refreshCams").addEventListener("click",loadCams);
+  $("#startBtn").addEventListener("click",doStart);
+  $("#stopBtn").addEventListener("click",doStop);
+  $("#recalBtn").addEventListener("click",doRecal);
+  $("#delBtn").addEventListener("click",doDelete);
+  $("#autoBtn").addEventListener("click",doAuto);
+  $("#drawBtn").addEventListener("click",function(){ state.draw?exitDraw():enterDraw(); showFrame(); });
+  $("#overlay").addEventListener("click",overlayClick);
+  window.addEventListener("resize",drawOverlay);
+  $("#undoPt").addEventListener("click",function(){ state.pts.pop(); drawOverlay(); });
+  $("#clearPt").addEventListener("click",function(){ state.pts=[]; drawOverlay(); });
+  $("#saveReg").addEventListener("click",saveRegion);
+  $("#cancelDraw").addEventListener("click",function(){ exitDraw(); showFrame(); });
+
+  pingApi(); loadCams(); setInterval(pingApi,15000);
+})();
+</script>
+</body>
+</html>
