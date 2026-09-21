@@ -62,6 +62,11 @@ async def simulate_tick(changed_spots: list):
                 if spot.status in ("reserved", "sensor_offline"):
                     continue
 
+                # Spots owned by the camera-vision pipeline or an external
+                # detector are ground truth; the simulator must not touch them.
+                if spot.detection_source in ("camera", "ingest"):
+                    continue
+
                 # Probability of flip proportional to distance from target
                 flip_prob = min(abs(diff) * 0.3, 0.15)
 

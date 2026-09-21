@@ -56,3 +56,9 @@ push-via-api.sh
 
 Website/spotsense-deploy.zip
 hyperframes/spotsense-demos/output/full-reel.mp4
+
+# Local-only business/launch artifacts (NOT part of the SpotSense code repo)
+.business-plan-build/
+SpotSense_Business_Plan_2026.docx
+UAE-Launch-Kit/
+vibe_images/

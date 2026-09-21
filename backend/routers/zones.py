@@ -130,6 +130,7 @@ async def get_zone(zone_id: int, db: AsyncSession = Depends(get_db)):
                 last_changed_at=s.last_changed_at,
                 sensor_id=s.sensor_id,
                 occupied_since=s.occupied_since,
+                detection_source=s.detection_source or "simulated",
             ) for s in spots]
         )
     except HTTPException:

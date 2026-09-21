@@ -13,6 +13,7 @@ class SpotOut(BaseModel):
     last_changed_at: Optional[datetime] = None
     sensor_id: Optional[str] = None
     occupied_since: Optional[datetime] = None
+    detection_source: str = "simulated"
 
     class Config:
         from_attributes = True
@@ -145,3 +146,105 @@ class RecommendResponse(BaseModel):
     walking_distance_meters: int
     score: float
     time_free_seconds: int
+
+
+# ---------------------------------------------------------------------------
+# Vision (camera-based occupancy detection) schemas
+# ---------------------------------------------------------------------------
+class CameraCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=200)
+    source_type: str = Field(default="rtsp")  # rtsp | file | webcam | snapshot
+    source_url: Optional[str] = Field(default=None, max_length=500)
+    webcam_index: Optional[int] = None
+    fps_target: float = Field(default=2.0, ge=0.1, le=30.0)
+
+
+class CameraUpdate(BaseModel):
+    name: Optional[str] = Field(default=None, min_length=1, max_length=200)
+    source_type: Optional[str] = None
+    source_url: Optional[str] = Field(default=None, max_length=500)
+    webcam_index: Optional[int] = None
+    fps_target: Optional[float] = Field(default=None, ge=0.1, le=30.0)
+
+
+class RegionOut(BaseModel):
+    id: int
+    camera_id: int
+    spot_id: Optional[str] = None
+    label: Optional[str] = None
+    polygon: List[List[float]]
+    status: str
+    confidence: float
+    occupy_threshold: float
+    free_threshold: float
+    last_updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class CameraOut(BaseModel):
+    id: int
+    name: str
+    source_type: str
+    source_url: Optional[str] = None
+    webcam_index: Optional[int] = None
+    status: str
+    error_message: Optional[str] = None
+    fps_target: float
+    width: Optional[int] = None
+    height: Optional[int] = None
+    last_frame_at: Optional[datetime] = None
+    frames_analysed: int = 0
+    created_at: Optional[datetime] = None
+    regions: List[RegionOut] = []
+
+    class Config:
+        from_attributes = True
+
+
+class RegionCreate(BaseModel):
+    label: Optional[str] = Field(default=None, max_length=100)
+    # Normalised 0..1 frame coordinates, at least 3 points.
+    polygon: List[List[float]] = Field(..., min_length=3)
+    spot_id: Optional[str] = None
+    occupy_threshold: float = Field(default=0.90, ge=0.0, le=1.0)
+    free_threshold: float = Field(default=0.15, ge=0.0, le=1.0)
+
+
+class RegionUpdate(BaseModel):
+    label: Optional[str] = Field(default=None, max_length=100)
+    polygon: Optional[List[List[float]]] = Field(default=None, min_length=3)
+    spot_id: Optional[str] = None
+    occupy_threshold: Optional[float] = Field(default=None, ge=0.0, le=1.0)
+    free_threshold: Optional[float] = Field(default=None, ge=0.0, le=1.0)
+
+
+class DetectionEventOut(BaseModel):
+    id: int
+    camera_id: int
+    region_id: int
+    spot_id: Optional[str] = None
+    previous_status: Optional[str] = None
+    new_status: str
+    confidence: float
+    source: str
+    created_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class IngestRegionReading(BaseModel):
+    """One space reading pushed by an external detector."""
+    region_id: Optional[int] = None
+    label: Optional[str] = None
+    occupied: bool
+    confidence: float = Field(default=1.0, ge=0.0, le=1.0)
+
+
+class IngestRequest(BaseModel):
+    """Payload accepted from external detectors (LotVulture webhook/MQTT bridge)."""
+    camera_name: Optional[str] = None
+    camera_id: Optional[int] = None
+    readings: List[IngestRegionReading] = Field(..., min_length=1)

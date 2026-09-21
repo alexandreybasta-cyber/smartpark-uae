@@ -117,6 +117,31 @@ Required submission artifacts:
 
 No physical sensors are required — data is simulated via `backend/simulator.py`.
 
+## Testing
+
+### Web App (easiest)
+Open https://spotsense.app/ in any browser. The full demo runs on simulated sensor data with no setup required.
+
+### Backend API
+```bash
+./start.sh
+```
+The API runs at http://localhost:8000. WebSocket updates stream at ws://localhost:8000/ws/spots.
+
+### iOS App (requires Xcode + macOS)
+1. Clone the repo
+2. Open `ios/SmartPark/SmartPark.xcodeproj` in Xcode
+3. Create `ios/SmartPark/Secrets.xcconfig` (see `Secrets.xcconfig.example` for the format):
+   ```
+   QWEN_API_KEY = your_dashscope_api_key
+   QODER_AGENT_API_KEY = your_qoder_agent_key
+   SMARTPARK_API_BASE_URL = http://localhost:8000
+   ```
+4. Start the backend: `./start.sh`
+5. Build and run in Xcode Simulator or on a connected device
+
+The web demo uses a deterministic agent fallback. The iOS app connects to Qwen Cloud (DashScope qwen-plus) for natural language queries.
+
 ## License
 
 Released under the [MIT License](LICENSE).

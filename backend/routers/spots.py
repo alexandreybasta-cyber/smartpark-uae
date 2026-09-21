@@ -38,6 +38,7 @@ async def get_spot(spot_id: str, db: AsyncSession = Depends(get_db)):
             last_changed_at=spot.last_changed_at,
             sensor_id=spot.sensor_id,
             occupied_since=spot.occupied_since,
+            detection_source=spot.detection_source or "simulated",
             sensor=sensor_out,
         )
     except HTTPException:
