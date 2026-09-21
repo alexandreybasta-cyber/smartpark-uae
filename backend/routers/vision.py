@@ -9,10 +9,12 @@ import json
 import logging
 import os
 import tempfile
+import time
 import uuid
 from datetime import datetime, timezone
 from typing import List
 
+import cv2
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from fastapi.responses import Response, StreamingResponse
 from sqlalchemy import select
@@ -23,6 +25,8 @@ from models import Camera, CameraRegion, DetectionEvent, Spot
 from schemas import (CameraCreate, CameraOut, CameraUpdate, DetectionEventOut,
                      IngestRequest, RegionCreate, RegionOut, RegionUpdate)
 from vision.analyzer import parse_polygon
+from vision.bays import detect_bays
+from vision.sources import open_source
 from vision.worker import registry
 
 logger = logging.getLogger(__name__)
@@ -37,6 +41,13 @@ _BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
 VIDEO_EXTS = {".mp4", ".mov", ".avi", ".mkv", ".webm", ".m4v"}
 MAX_UPLOAD_BYTES = 200 * 1024 * 1024  # 200 MB
+
+# Hysteresis thresholds for AUTO-created regions (detected bays / fallback grid).
+# The schema default (0.90) suits texture-rich footage but strands moderate-
+# confidence car bays in 'unknown'; empty bays read ~0-0.05 and soft shadows
+# <=~0.15, so 0.5 / 0.2 separates occupied from free cleanly on real imagery.
+AUTO_OCCUPY_THRESHOLD = 0.5
+AUTO_FREE_THRESHOLD = 0.2
 
 
 def _upload_dir() -> str:
@@ -73,13 +84,65 @@ async def _create_grid_regions(db: AsyncSession, camera_id: int,
     made = []
     for label, poly in _grid_polygons(cols, rows):
         reg = CameraRegion(camera_id=camera_id, spot_id=None, label=label,
-                           polygon=json.dumps(poly), status="unknown")
+                           polygon=json.dumps(poly), status="unknown",
+                           occupy_threshold=AUTO_OCCUPY_THRESHOLD,
+                           free_threshold=AUTO_FREE_THRESHOLD)
         db.add(reg)
         made.append(reg)
     await db.commit()
     for reg in made:
         await db.refresh(reg)
     return made
+
+
+def _first_frame(cam: Camera, tries: int = 8):
+    """One representative frame for bay detection (image read or source grab)."""
+    if cam.source_type == "snapshot" and cam.source_url:
+        frame = cv2.imread(cam.source_url)
+        if frame is not None:
+            return frame
+    src = open_source(cam.source_type, cam.source_url, cam.webcam_index)
+    if src is None:
+        return None
+    try:
+        for _ in range(tries):
+            frame = src.read()
+            if frame is not None:
+                return frame
+            time.sleep(0.2)
+        return None
+    finally:
+        src.release()
+
+
+async def _auto_bay_regions(db: AsyncSession, cam: Camera,
+                            cols: int, rows: int):
+    """Detect REAL parking bays from painted markings; fall back to a grid.
+
+    Returns (regions, mode) with mode 'bays' (per-bay polygons, LotVulture-style)
+    or 'grid' (coarse approximate cells when no overhead markings are found).
+    """
+    frame = await asyncio.to_thread(_first_frame, cam)
+    polys = detect_bays(frame) if frame is not None else []
+    if polys:
+        made = []
+        for i, poly in enumerate(polys, 1):
+            reg = CameraRegion(camera_id=cam.id, spot_id=None,
+                               label=f"bay-{i}", polygon=json.dumps(poly),
+                               status="unknown",
+                               occupy_threshold=AUTO_OCCUPY_THRESHOLD,
+                               free_threshold=AUTO_FREE_THRESHOLD)
+            db.add(reg)
+            made.append(reg)
+        await db.commit()
+        for reg in made:
+            await db.refresh(reg)
+        logger.info("camera %s: auto-detected %d parking bays", cam.id, len(made))
+        return made, "bays"
+    logger.info("camera %s: no overhead bay markings found; using coarse grid",
+                cam.id)
+    made = await _create_grid_regions(db, cam.id, cols, rows)
+    return made, "grid"
 
 
 # ---------------------------------------------------------------------------
@@ -256,8 +319,9 @@ async def upload_media(file: UploadFile = File(...),
     """Store an uploaded image/video and wire it into the vision pipeline.
 
     Images become a `snapshot` source (re-read on an interval); videos become a
-    looped `file` source. With auto_regions on, a uniform detection grid is
-    created so occupancy is produced immediately without any manual drawing.
+    looped `file` source. With auto_regions on, the REAL painted parking bays are
+    detected and turned into per-bay regions (coarse grid only as a fallback) so
+    occupancy is produced immediately without any manual drawing.
     """
     filename = os.path.basename(file.filename or "upload")
     ext = os.path.splitext(filename)[1].lower()
@@ -309,7 +373,7 @@ async def upload_media(file: UploadFile = File(...),
     await db.refresh(cam)
 
     if auto_regions:
-        await _create_grid_regions(db, cam.id, cols, rows)
+        await _auto_bay_regions(db, cam, cols, rows)
         await db.refresh(cam)
     if autostart and registry.ready:
         registry.start(cam.id)
@@ -320,9 +384,16 @@ async def upload_media(file: UploadFile = File(...),
 
 @router.post("/cameras/{camera_id}/auto-regions", response_model=List[RegionOut])
 async def auto_regions(camera_id: int, cols: int = 4, rows: int = 3,
-                       replace: bool = True, db: AsyncSession = Depends(get_db)):
-    """Lay a uniform detection grid over the frame so the analyzer can run
-    without any manually drawn polygons (the 'let the AI do the work' path)."""
+                       replace: bool = True, mode: str = "bays",
+                       db: AsyncSession = Depends(get_db)):
+    """Auto-create detection regions with no manual drawing.
+
+    mode='bays' (default): detect the REAL painted parking bays from a frame and
+    create one region per bay (LotVulture-style per-space detection). Falls back
+    to a coarse grid when no overhead markings are found.
+    mode='grid': force the coarse uniform grid (approximate; only useful for
+    views without clean overhead bay markings).
+    """
     cam = await db.get(Camera, camera_id)
     if cam is None:
         raise HTTPException(status_code=404, detail="Camera not found")
@@ -330,7 +401,10 @@ async def auto_regions(camera_id: int, cols: int = 4, rows: int = 3,
         for r in list(cam.regions):
             await db.delete(r)
         await db.commit()
-    regions = await _create_grid_regions(db, camera_id, cols, rows)
+    if mode == "grid":
+        regions = await _create_grid_regions(db, camera_id, cols, rows)
+    else:
+        regions, _ = await _auto_bay_regions(db, cam, cols, rows)
     return [_region_out(r) for r in regions]
 
 

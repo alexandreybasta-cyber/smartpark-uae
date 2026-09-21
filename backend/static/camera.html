@@ -144,7 +144,7 @@
           <div><label class="fld" for="ucols">Grid cols</label><input type="number" id="ucols" value="4" min="1" max="12"/></div>
           <div><label class="fld" for="urows">Grid rows</label><input type="number" id="urows" value="3" min="1" max="12"/></div>
         </div>
-        <p class="hint">The AI auto-lays a detection grid and starts analysing immediately.</p>
+        <p class="hint">The AI detects the painted parking bays and analyses each one immediately. Overhead / aerial views auto-detect best; angled or indoor views may need <b>Draw regions</b>.</p>
         <div id="upStat" class="hint" style="display:none"></div>
       </div>
     </div>
@@ -188,7 +188,8 @@
         <div class="controls">
           <button class="btn primary" id="startBtn" disabled>Start</button>
           <button class="btn" id="stopBtn" disabled>Stop</button>
-          <button class="btn" id="autoBtn" disabled>Auto-detect grid</button>
+          <button class="btn" id="autoBtn" disabled>Auto-detect bays</button>
+          <button class="btn" id="gridBtn" disabled>Grid (approx)</button>
           <button class="btn" id="recalBtn" disabled>Recalibrate empty</button>
           <button class="btn danger" id="delBtn" disabled>Delete</button>
         </div>
@@ -292,7 +293,7 @@
     renderCams();
     var c=cur();
     $("#startBtn").disabled=false; $("#stopBtn").disabled=false; $("#autoBtn").disabled=false;
-    $("#recalBtn").disabled=false; $("#delBtn").disabled=false;
+    $("#gridBtn").disabled=false; $("#recalBtn").disabled=false; $("#delBtn").disabled=false;
     $("#viewTitle").textContent=c?(c.name+" — live view"):"Live view";
     showFrame();
     refreshCurrent();
@@ -401,16 +402,27 @@
   function doDelete(){ if(!confirm("Delete this camera and its regions?"))return;
     req("DELETE","/api/vision/cameras/"+state.id).then(function(){
       toast("Camera deleted"); state.id=null; $("#stream").style.display="none"; $("#ph").style.display="block"; $("#badge").style.display="none";
-      ["startBtn","stopBtn","autoBtn","recalBtn","delBtn"].forEach(function(i){$("#"+i).disabled=true;});
+      ["startBtn","stopBtn","autoBtn","gridBtn","recalBtn","delBtn"].forEach(function(i){$("#"+i).disabled=true;});
       $("#regions").innerHTML='<div class="empty">No regions yet</div>'; $("#events").innerHTML='<div class="empty">No events yet</div>';
       $("#nOcc").textContent=0;$("#nFree").textContent=0;$("#nTot").textContent=0;
       clearInterval(state.poll); clearInterval(state.evPoll); return loadCams();
     }).catch(function(e){ toast(e.message,true); }); }
-  function doAuto(){ var cols=parseInt($("#ucols").value||"4",10), rows=parseInt($("#urows").value||"3",10);
-    var b=$("#autoBtn"); busy(b,true);
-    req("POST","/api/vision/cameras/"+state.id+"/auto-regions?cols="+cols+"&rows="+rows+"&replace=true")
-    .then(function(){ toast("Grid laid — "+(cols*rows)+" regions"); return loadCams(); })
-    .then(function(){ refreshCurrent(); }).catch(function(e){ toast(e.message,true); }).then(function(){ busy(b,false); }); }
+  function autoRegions(mode){
+    var cols=parseInt($("#ucols").value||"4",10), rows=parseInt($("#urows").value||"3",10);
+    var b=$("#"+(mode==="grid"?"gridBtn":"autoBtn")); busy(b,true);
+    req("POST","/api/vision/cameras/"+state.id+"/auto-regions?cols="+cols+"&rows="+rows+"&replace=true&mode="+mode)
+    .then(function(regs){
+      var n=(regs||[]).length;
+      var bayish=(regs||[]).some(function(r){ return (r.label||"").indexOf("bay-")===0; });
+      if(mode==="grid"){ toast("Coarse grid laid — "+n+" cells (approximate)"); }
+      else if(bayish){ toast("Detected "+n+" parking bays"); }
+      else { toast("No painted bays found — coarse grid laid ("+n+" cells). Try Draw regions."); }
+      return loadCams();
+    })
+    .then(function(){ refreshCurrent(); }).catch(function(e){ toast(e.message,true); }).then(function(){ busy(b,false); });
+  }
+  function doAuto(){ autoRegions("bays"); }
+  function doGrid(){ autoRegions("grid"); }
   function delRegion(id){ req("DELETE","/api/vision/regions/"+id).then(function(){ return loadCams(); }).then(refreshCurrent).catch(function(e){toast(e.message,true);}); }
 
   function addRtsp(){
@@ -492,6 +504,7 @@
   $("#recalBtn").addEventListener("click",doRecal);
   $("#delBtn").addEventListener("click",doDelete);
   $("#autoBtn").addEventListener("click",doAuto);
+  $("#gridBtn").addEventListener("click",doGrid);
   $("#drawBtn").addEventListener("click",function(){ state.draw?exitDraw():enterDraw(); showFrame(); });
   $("#overlay").addEventListener("click",overlayClick);
   window.addEventListener("resize",drawOverlay);
