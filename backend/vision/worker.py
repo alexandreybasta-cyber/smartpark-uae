@@ -27,7 +27,9 @@ from sqlalchemy import select
 
 from database import async_session
 from models import Camera, CameraRegion, DetectionEvent, Spot
-from vision.analyzer import CameraAnalyzer, parse_polygon
+from vision.analyzer import CameraAnalyzer, otsu_threshold, parse_polygon
+from vision.detector import (available as yolo_available, detect_vehicles,
+                             draw_vehicles, vehicle_in_region)
 from vision.sources import open_source
 
 logger = logging.getLogger(__name__)
@@ -52,6 +54,7 @@ class CameraRunner:
         self.latest_jpeg: Optional[bytes] = None
         self.latest_at: float = 0.0
         self.latest_statuses: Dict[int, dict] = {}
+        self.latest_detections: list = []
 
     # -- lifecycle ---------------------------------------------------------
     def start(self):
@@ -124,6 +127,31 @@ class CameraRunner:
 
                 results = await asyncio.to_thread(self.analyzer.process,
                                                   frame, region_dicts)
+
+                # YOLO vehicle detection.  When the trained detector sees
+                # vehicles (ground/indoor views) it drives occupancy by
+                # car-in-bay, which is far more robust than appearance cues.
+                # When it sees none (overhead/aerial, where COCO-YOLO is blind)
+                # we keep the classical appearance confidence.
+                detections = await asyncio.to_thread(detect_vehicles, frame)
+                self.latest_detections = detections or []
+                if detections:
+                    fh, fw = frame.shape[:2]
+                    by_id = {r["id"]: r for r in region_dicts}
+                    for res in results:
+                        rd = by_id.get(res["id"])
+                        if rd is None:
+                            continue
+                        occupied = any(vehicle_in_region(d, rd["polygon"], fw, fh)
+                                       for d in detections)
+                        res["confidence"] = 0.95 if occupied else 0.05
+                else:
+                    confs = [r["confidence"] for r in results]
+                    if len(confs) >= 4:
+                        thr = otsu_threshold(confs)
+                        for res in results:
+                            res["confidence"] = 0.9 if res["confidence"] > thr else 0.1
+
                 await self._apply_results(regions, results)
 
                 statuses = {r.id: {"status": r.status, "confidence": r.confidence}
@@ -148,6 +176,7 @@ class CameraRunner:
 
     def _encode_annotated(self, frame, region_dicts, statuses) -> Optional[bytes]:
         ann = self.analyzer.annotate(frame, region_dicts, statuses)
+        ann = draw_vehicles(ann, self.latest_detections)
         ok, buf = cv2.imencode(".jpg", ann, [cv2.IMWRITE_JPEG_QUALITY, 80])
         return buf.tobytes() if ok else None
 

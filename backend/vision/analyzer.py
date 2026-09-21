@@ -330,6 +330,40 @@ class CameraAnalyzer:
         return out
 
 
+def otsu_threshold(values, nbins: int = 24) -> float:
+    """1-D Otsu threshold over confidences in [0,1].
+
+    Occupied and empty bays form two confidence clusters whose separation varies
+    per lot and lighting; Otsu finds the between-class split adaptively instead
+    of relying on one global threshold.
+    """
+    v = np.clip(np.asarray(values, dtype=np.float32), 0.0, 1.0)
+    if v.size == 0:
+        return 0.5
+    hist, _ = np.histogram(v, bins=nbins, range=(0.0, 1.0))
+    total = v.size
+    sum_all = float(np.sum(np.arange(nbins) * hist))
+    sum_b = 0.0
+    w_b = 0.0
+    best = -1.0
+    thr = 0.5
+    for i in range(nbins):
+        w_b += hist[i]
+        if w_b == 0:
+            continue
+        w_f = total - w_b
+        if w_f == 0:
+            break
+        sum_b += i * hist[i]
+        m_b = sum_b / w_b
+        m_f = (sum_all - sum_b) / w_f
+        between = w_b * w_f * (m_b - m_f) ** 2
+        if between > best:
+            best = between
+            thr = (i + 0.5) / nbins
+    return float(thr)
+
+
 def parse_polygon(raw) -> List[List[float]]:
     """Accept either a JSON string (DB column) or an already-parsed list."""
     if isinstance(raw, str):

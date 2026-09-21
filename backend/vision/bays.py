@@ -104,6 +104,22 @@ def _densify(centers, min_gap):
     return [c for c in out if c >= 0]
 
 
+def _row_centers(ticks, keyfn, min_bay):
+    """Densified divider centres for a plausible periodic row, else [].
+
+    Real dividers are evenly pitched; car roof-strips appear only on occupied
+    bays (irregular gaps) so they fail the uniformity test and are rejected.
+    """
+    centers = sorted(keyfn(t) for t in ticks)
+    if len(centers) < 4:
+        return []
+    gaps = [b - a for a, b in zip(centers, centers[1:])]
+    mean = float(np.mean(gaps))
+    if mean <= 0 or (float(np.std(gaps)) / mean) > 0.6:
+        return []
+    return _densify(centers, min_bay)
+
+
 def detect_bays(frame, min_bay_px=16, max_bays=80):
     """Detect individual parking bays; returns list of normalised quad polygons."""
     if frame is None:
@@ -126,32 +142,37 @@ def detect_bays(frame, min_bay_px=16, max_bays=80):
 
     hcomps = _comps(horiz)
     vcomps = _comps(vert)
-    # Painted dividers are long relative to the frame (~0.25 of the dimension);
-    # car roof-strips / glare are short (~0.07), so a length floor separates them.
-    ticks_h = _thin_strokes(hcomps, "h", w,
-                            min_len=max(16, int(0.15 * w)), max_len=0.55 * w)
-    ticks_v = _thin_strokes(vcomps, "v", h,
-                            min_len=max(16, int(0.15 * h)), max_len=0.55 * h)
 
-    bays = []
-    if len(ticks_v) >= len(ticks_h) and ticks_v:
-        for g in _group_by_span(ticks_v, lambda c: (c["y"], c["y"] + c["h"]),
-                                lambda c: c["cx"]):
-            y0, y1 = g["span"]
-            centers = _densify([t["cx"] for t in
-                                sorted(g["ticks"], key=lambda c: c["cx"])], min_bay_px)
-            for a, b in zip(centers, centers[1:]):
-                if b - a < min_bay_px:
-                    continue
-                bays.append(_norm([[a, y0], [b, y0], [b, y1], [a, y1]], w, h))
-    elif ticks_h:
-        for g in _group_by_span(ticks_h, lambda c: (c["x"], c["x"] + c["w"]),
-                                lambda c: c["cy"]):
-            x0, x1 = g["span"]
-            centers = _densify([t["cy"] for t in
-                                sorted(g["ticks"], key=lambda c: c["cy"])], min_bay_px)
-            for a, b in zip(centers, centers[1:]):
-                if b - a < min_bay_px:
-                    continue
-                bays.append(_norm([[x0, a], [x1, a], [x1, b], [x0, b]], w, h))
-    return bays[:max_bays]
+    def bays_at_floor(frac):
+        ticks_h = _thin_strokes(hcomps, "h", w,
+                                min_len=max(10, int(frac * w)), max_len=0.55 * w)
+        ticks_v = _thin_strokes(vcomps, "v", h,
+                                min_len=max(10, int(frac * h)), max_len=0.55 * h)
+        out = []
+        if len(ticks_v) >= len(ticks_h) and ticks_v:
+            for g in _group_by_span(ticks_v, lambda c: (c["y"], c["y"] + c["h"]),
+                                    lambda c: c["cx"]):
+                y0, y1 = g["span"]
+                centers = _row_centers(g["ticks"], lambda c: c["cx"], min_bay_px)
+                for a, b in zip(centers, centers[1:]):
+                    if b - a < min_bay_px:
+                        continue
+                    out.append(_norm([[a, y0], [b, y0], [b, y1], [a, y1]], w, h))
+        elif ticks_h:
+            for g in _group_by_span(ticks_h, lambda c: (c["x"], c["x"] + c["w"]),
+                                    lambda c: c["cy"]):
+                x0, x1 = g["span"]
+                centers = _row_centers(g["ticks"], lambda c: c["cy"], min_bay_px)
+                for a, b in zip(centers, centers[1:]):
+                    if b - a < min_bay_px:
+                        continue
+                    out.append(_norm([[x0, a], [x1, a], [x1, b], [x0, b]], w, h))
+        return out
+
+    # Strict floors keep clean lots free of car roof-strip pollution; loose
+    # floors recover dense lots whose painted dividers are small in-frame.
+    for frac in (0.15, 0.06, 0.035):
+        bays = bays_at_floor(frac)
+        if len(bays) >= 3:
+            return bays[:max_bays]
+    return []
