@@ -16,7 +16,7 @@ from typing import List
 
 import cv2
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
-from fastapi.responses import Response, StreamingResponse
+from fastapi.responses import FileResponse, Response, StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -444,6 +444,32 @@ async def camera_stream(camera_id: int):
             await asyncio.sleep(0.1)
 
     return StreamingResponse(gen(), media_type="multipart/x-mixed-replace; boundary=spotsensevision")
+
+
+@router.get("/cameras/{camera_id}/source")
+async def camera_source(camera_id: int, db: AsyncSession = Depends(get_db)):
+    """Serve the ORIGINAL uploaded media (un-annotated) for snapshot/file sources.
+
+    The snapshot/stream endpoints return the ANALYSED frame with overlays; this
+    returns the clean source so the console can preview it and tooling can
+    inspect exactly what was uploaded.  Live sources (rtsp/webcam) have no
+    stored original and return 404.
+    """
+    cam = await db.get(Camera, camera_id)
+    if cam is None:
+        raise HTTPException(status_code=404, detail="Camera not found")
+    if cam.source_type not in ("snapshot", "file") or not cam.source_url:
+        raise HTTPException(status_code=404, detail="No stored source for this camera")
+    if not os.path.exists(cam.source_url):
+        raise HTTPException(status_code=404, detail="Source file no longer on server")
+    ext = os.path.splitext(cam.source_url)[1].lower()
+    media = {
+        ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+        ".webp": "image/webp", ".bmp": "image/bmp",
+        ".mp4": "video/mp4", ".mov": "video/quicktime", ".webm": "video/webm",
+        ".avi": "video/x-msvideo", ".mkv": "video/x-matroska", ".m4v": "video/mp4",
+    }.get(ext, "application/octet-stream")
+    return FileResponse(cam.source_url, media_type=media)
 
 
 # ---------------------------------------------------------------------------
