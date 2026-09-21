@@ -28,6 +28,10 @@ operator should draw bays (the LotVulture model) or use the coarse grid.
 import cv2
 import numpy as np
 
+# Detection runs at a fixed analysis width so the morphological kernels (which
+# are absolute pixels) behave identically on a phone snapshot or a 4K frame.
+ANALYSIS_WIDTH = 1000
+
 
 def paint_mask(gray, thresh=30, ksize=11):
     """Thin bright paint only (white top-hat), shadow- and blob-invariant."""
@@ -52,6 +56,11 @@ def detect_bays(frame, min_bay_px=22, touch_tol=6, max_bays=80):
     """Detect individual parking bays; returns list of normalised quad polygons."""
     if frame is None:
         return []
+    h0, w0 = frame.shape[:2]
+    if w0 > ANALYSIS_WIDTH:
+        scale = ANALYSIS_WIDTH / float(w0)
+        frame = cv2.resize(frame, (ANALYSIS_WIDTH, max(1, int(h0 * scale))),
+                           interpolation=cv2.INTER_AREA)
     h, w = frame.shape[:2]
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     mask = paint_mask(gray)
