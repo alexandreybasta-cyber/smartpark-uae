@@ -144,7 +144,7 @@
           <div><label class="fld" for="ucols">Grid cols</label><input type="number" id="ucols" value="4" min="1" max="12"/></div>
           <div><label class="fld" for="urows">Grid rows</label><input type="number" id="urows" value="3" min="1" max="12"/></div>
         </div>
-        <p class="hint">The AI detects the painted parking bays and analyses each one immediately. Overhead / aerial views auto-detect best; angled or indoor views may need <b>Draw regions</b>.</p>
+        <p class="hint">Overhead views: the AI auto-detects the painted bays. Wall / pole camera angles: press <b>Draw regions</b> once per bay &mdash; YOLO then tracks occupancy per bay automatically.</p>
         <div id="upStat" class="hint" style="display:none"></div>
       </div>
     </div>
@@ -414,9 +414,9 @@
     .then(function(regs){
       var n=(regs||[]).length;
       var bayish=(regs||[]).some(function(r){ return (r.label||"").indexOf("bay-")===0; });
-      if(mode==="grid"){ toast("Coarse grid laid — "+n+" cells (approximate)"); }
+      if(mode==="grid"){ toast("Coarse grid laid — "+n+" cells (approximate, not real bays)"); }
       else if(bayish){ toast("Detected "+n+" parking bays"); }
-      else { toast("No painted bays found — coarse grid laid ("+n+" cells). Try Draw regions."); }
+      else { toast("No painted bays auto-detected on this view. Use Draw regions (or Grid approx)."); }
       return loadCams();
     })
     .then(function(){ refreshCurrent(); }).catch(function(e){ toast(e.message,true); }).then(function(){ busy(b,false); });
@@ -460,26 +460,41 @@
     $("#overlay").style.display="block"; showFrame(); drawOverlay();
   }
   function exitDraw(){ state.draw=false; state.pts=[]; $("#drawBar").style.display="none"; $("#drawBtn").textContent="Draw regions"; $("#overlay").style.display="none"; $("#overlay").innerHTML=""; }
+  function imgBox(){
+    // The <img> uses object-fit:contain inside the 16:9 viewer, so it is
+    // letterboxed.  Clicks must be normalised against the IMAGE content rect,
+    // not the container, or saved regions land offset from what was drawn.
+    var svg=$("#overlay"), img=$("#stream");
+    var cw=svg.clientWidth||640, ch=svg.clientHeight||360;
+    var nw=img&&img.naturalWidth?img.naturalWidth:0, nh=img&&img.naturalHeight?img.naturalHeight:0;
+    if(!nw||!nh) return {dx:0,dy:0,dw:cw,dh:ch};
+    var s=Math.min(cw/nw, ch/nh), dw=nw*s, dh=nh*s;
+    return {dx:(cw-dw)/2, dy:(ch-dh)/2, dw:dw, dh:dh};
+  }
+
   function drawOverlay(){
     var svg=$("#overlay"); var W=svg.clientWidth||640,H=svg.clientHeight||360;
     svg.setAttribute("viewBox","0 0 "+W+" "+H);
     svg.innerHTML="";
+    var b=imgBox();
+    function px(p){ return [b.dx+p[0]*b.dw, b.dy+p[1]*b.dh]; }
     if(state.pts.length){
-      var pts=state.pts.map(function(p){return (p[0]*W)+","+(p[1]*H);}).join(" ");
+      var pts=state.pts.map(function(p){ var q=px(p); return q[0]+","+q[1]; }).join(" ");
       var pl=document.createElementNS("http://www.w3.org/2000/svg","polyline");
       pl.setAttribute("points",pts); pl.setAttribute("fill","rgba(249,115,22,.18)");
       pl.setAttribute("stroke","#f97316"); pl.setAttribute("stroke-width","2"); svg.appendChild(pl);
       state.pts.forEach(function(p){
+        var q=px(p);
         var ci=document.createElementNS("http://www.w3.org/2000/svg","circle");
-        ci.setAttribute("cx",p[0]*W); ci.setAttribute("cy",p[1]*H); ci.setAttribute("r","3.5");
+        ci.setAttribute("cx",q[0]); ci.setAttribute("cy",q[1]); ci.setAttribute("r","3.5");
         ci.setAttribute("fill","#ea580c"); svg.appendChild(ci);
       });
     }
   }
   function overlayClick(ev){
     if(!state.draw) return;
-    var svg=$("#overlay"), r=svg.getBoundingClientRect();
-    var x=(ev.clientX-r.left)/r.width, y=(ev.clientY-r.top)/r.height;
+    var svg=$("#overlay"), r=svg.getBoundingClientRect(), b=imgBox();
+    var x=((ev.clientX-r.left)-b.dx)/b.dw, y=((ev.clientY-r.top)-b.dy)/b.dh;
     state.pts.push([Math.max(0,Math.min(1,x)),Math.max(0,Math.min(1,y))]);
     drawOverlay();
   }

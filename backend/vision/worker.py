@@ -111,7 +111,17 @@ class CameraRunner:
                 empty_reads = 0
 
                 regions = await self._load_regions()
+
+                # YOLO vehicle detection runs on every frame, including when no
+                # regions exist yet, so the operator still sees the live frame
+                # with car boxes and can draw bays over it.
+                detections = await asyncio.to_thread(detect_vehicles, frame)
+                self.latest_detections = detections or []
+
                 if not regions:
+                    self.latest_jpeg = await asyncio.to_thread(
+                        self._encode_annotated, frame, [], {})
+                    self.latest_at = time.time()
                     await self._touch_camera(frame)
                     await asyncio.sleep(1.0 / max(0.1, cam.fps_target))
                     continue
@@ -128,13 +138,10 @@ class CameraRunner:
                 results = await asyncio.to_thread(self.analyzer.process,
                                                   frame, region_dicts)
 
-                # YOLO vehicle detection.  When the trained detector sees
-                # vehicles (ground/indoor views) it drives occupancy by
-                # car-in-bay, which is far more robust than appearance cues.
-                # When it sees none (overhead/aerial, where COCO-YOLO is blind)
-                # we keep the classical appearance confidence.
-                detections = await asyncio.to_thread(detect_vehicles, frame)
-                self.latest_detections = detections or []
+                # When the trained detector sees vehicles (ground/indoor views)
+                # it drives occupancy by car-in-bay, far more robust than
+                # appearance cues.  When it sees none (overhead/aerial, where
+                # COCO-YOLO is blind) we keep the classical appearance confidence.
                 if detections:
                     fh, fw = frame.shape[:2]
                     by_id = {r["id"]: r for r in region_dicts}

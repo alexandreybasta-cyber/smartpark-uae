@@ -1,4 +1,4 @@
-"""YOLO vehicle detection for occupancy (Ultralytics YOLOv8n, run via OpenCV DNN).
+"""YOLO vehicle detection for occupancy (Ultralytics YOLO11n, run via OpenCV DNN).
 
 The classical appearance analyzer (vision/analyzer.py) is hand-tuned CV and does
 not generalise across lots/lighting.  A trained detector is the robust signal:
@@ -7,9 +7,10 @@ angle (overhead, angled, indoor).
 
 We run the model through cv2.dnn (OpenCV is already a dependency) against a
 committed ONNX export, so the production server needs NO extra packages and no
-runtime model download.  Export once with Ultralytics:
+runtime model download.  YOLO11n was benchmarked against v8n and 26n on real
+footage and gave the best recall + confidence floor at nano size.  Export with:
 
-    yolo export model=yolov8n.pt format=onnx imgsz=640
+    yolo export model=yolo11n.pt format=onnx imgsz=640
 
 COCO vehicle classes: 2=car, 3=motorcycle, 5=bus, 7=truck.
 """
@@ -23,7 +24,7 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 MODEL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                          "models", "yolov8n.onnx")
+                          "models", "yolo11n.onnx")
 INPUT_SIZE = 640
 CONF_THRESHOLD = 0.30
 NMS_THRESHOLD = 0.45

@@ -139,10 +139,11 @@ async def _auto_bay_regions(db: AsyncSession, cam: Camera,
             await db.refresh(reg)
         logger.info("camera %s: auto-detected %d parking bays", cam.id, len(made))
         return made, "bays"
-    logger.info("camera %s: no overhead bay markings found; using coarse grid",
-                cam.id)
-    made = await _create_grid_regions(db, cam.id, cols, rows)
-    return made, "grid"
+    # No reliable overhead markings (e.g. classical/indoor angle): do NOT fake
+    # bays with a uniform grid (it would cover ceilings/walls).  Leave regions
+    # empty; the operator draws real bays or explicitly picks Grid (approx).
+    logger.info("camera %s: no overhead bay markings; regions left empty", cam.id)
+    return [], "none"
 
 
 # ---------------------------------------------------------------------------
