@@ -1,29 +1,29 @@
-"""Parking-bay auto-detection from painted line markings (top-down / aerial).
+"""Parking-bay auto-detection from painted line markings (overhead / aerial).
 
 This replaces the old uniform grid, which was NOT parking-spot detection: it
 chopped the frame into arbitrary rectangles (over ceilings, trees, walls) so an
 empty bay straddling a cell read "occupied" and a car inside a mostly-empty cell
 read "free".  Real products (LotVulture, YOLO parking models) work per BAY.
 
-How it works for an overhead view:
+How it works:
   1. A white top-hat isolates THIN bright paint.  Large bright blobs (white car
-     roofs, sunlit pavement) and soft shadows are removed because top-hat only
+     bodies/roofs, sunlit pavement) and soft shadows vanish because top-hat only
      keeps structures smaller than the kernel; a shaded tick is still brighter
      than its shaded surround, so bays under tree shadow survive.
-  2. A horizontal morphological open keeps only the long bay BACK-LINES (car
-     top/bottom edges are too short to survive the long kernel).
-  3. A vertical open keeps vertical strokes: the bay divider TICKS, plus
-     distractors (car side edges, walls).
-  4. For each back-line, keep only vertical strokes that TOUCH it (a divider
-     tick starts at the back line; a car's side edge and a wall do not).
-  5. Consecutive ticks along a back-line bound one bay; the bay quad spans from
-     the back-line out to the ticks' far ends (the painted bay depth).
+  2. Morphological opens split the paint into horizontal and vertical strokes.
+     Divider TICKS are short thin strokes; kerbs/walls/back-lines are long and
+     are filtered out by length.
+  3. Ticks of the dominant orientation are grouped into rows/columns by
+     overlapping span (all dividers of one parking row share a span band).
+  4. Within a row, consecutive ticks bound one bay; the bay quad spans the
+     row's tick band between the two tick centre-lines.  No uniform grid and no
+     assumption about where the lot sits in the frame.
 
-Returns normalised (0..1) quad polygons, ready to store as CameraRegion rows so
-the existing appearance analyzer classifies each real bay occupied/free.
+Returns normalised (0..1) quad polygons, stored as CameraRegion rows so the
+existing appearance analyzer classifies each REAL bay occupied/free.
 
-Perspective / indoor views do not have clean overhead markings; for those the
-operator should draw bays (the LotVulture model) or use the coarse grid.
+Perspective / indoor views lack clean overhead markings; for those the operator
+draws bays (the LotVulture model) or uses the coarse grid fallback.
 """
 import cv2
 import numpy as np
@@ -52,7 +52,59 @@ def _norm(quad, w, h):
     return [[max(0.0, min(1.0, x / w)), max(0.0, min(1.0, y / h))] for x, y in quad]
 
 
-def detect_bays(frame, min_bay_px=22, touch_tol=6, max_bays=80):
+def _group_by_span(ticks, span_of, center_of, overlap=0.45):
+    """Cluster ticks whose [span] intervals overlap -> one row/column group."""
+    groups = []
+    for t in sorted(ticks, key=center_of):
+        s0, s1 = span_of(t)
+        placed = False
+        for g in groups:
+            g0, g1 = g["span"]
+            inter = min(s1, g1) - max(s0, g0)
+            if inter > overlap * min(s1 - s0, g1 - g0):
+                g["ticks"].append(t)
+                g["span"] = (min(g0, s0), max(g1, s1))
+                placed = True
+                break
+        if not placed:
+            groups.append({"span": (s0, s1), "ticks": [t]})
+    return [g for g in groups if len(g["ticks"]) >= 2]
+
+
+def _thin_strokes(comps, orient, img_dim, min_len, max_len, max_thick=14):
+    out = []
+    for c in comps:
+        length = c["w"] if orient == "h" else c["h"]
+        thick = c["h"] if orient == "h" else c["w"]
+        if thick > max_thick:
+            continue
+        if length < min_len or length > max_len:
+            continue
+        out.append(c)
+    return out
+
+
+def _densify(centers, min_gap):
+    """Recover dividers occluded by cars using the row's periodicity: any gap
+    much larger than the median spacing is subdivided at the expected pitch."""
+    if len(centers) < 2:
+        return list(centers)
+    gaps = [b - a for a, b in zip(centers, centers[1:])]
+    med = sorted(gaps)[len(gaps) // 2]
+    if med <= 0:
+        return list(centers)
+    out = [centers[0]]
+    for a, b in zip(centers, centers[1:]):
+        g = b - a
+        n = int(round(g / med))
+        if n > 1 and g > 1.6 * med:
+            for k in range(1, n):
+                out.append(a + g * k / n)
+        out.append(b)
+    return [c for c in out if c >= 0]
+
+
+def detect_bays(frame, min_bay_px=16, max_bays=80):
     """Detect individual parking bays; returns list of normalised quad polygons."""
     if frame is None:
         return []
@@ -67,44 +119,39 @@ def detect_bays(frame, min_bay_px=22, touch_tol=6, max_bays=80):
 
     horiz = cv2.morphologyEx(
         mask, cv2.MORPH_OPEN,
-        cv2.getStructuringElement(cv2.MORPH_RECT, (max(40, w // 12), 1)))
+        cv2.getStructuringElement(cv2.MORPH_RECT, (max(24, w // 20), 1)))
     vert = cv2.morphologyEx(
         mask, cv2.MORPH_OPEN,
-        cv2.getStructuringElement(cv2.MORPH_RECT, (1, max(20, h // 18))))
+        cv2.getStructuringElement(cv2.MORPH_RECT, (1, max(20, h // 20))))
 
-    back_lines = [c for c in _comps(horiz) if c["w"] > 0.25 * w]
-    strokes = [c for c in _comps(vert)
-               if c["h"] >= max(20, h // 18) and c["h"] <= 0.45 * h and c["w"] <= 10]
+    hcomps = _comps(horiz)
+    vcomps = _comps(vert)
+    # Painted dividers are long relative to the frame (~0.25 of the dimension);
+    # car roof-strips / glare are short (~0.07), so a length floor separates them.
+    ticks_h = _thin_strokes(hcomps, "h", w,
+                            min_len=max(16, int(0.15 * w)), max_len=0.55 * w)
+    ticks_v = _thin_strokes(vcomps, "v", h,
+                            min_len=max(16, int(0.15 * h)), max_len=0.55 * h)
 
     bays = []
-    for bl in back_lines:
-        back_y = bl["cy"]
-        x_lo, x_hi = bl["x"] - 4, bl["x"] + bl["w"] + 4
-        ticks = []
-        for s in strokes:
-            if not (x_lo <= s["cx"] <= x_hi):
-                continue
-            near_end = min(abs(s["y"] - back_y), abs(s["y"] + s["h"] - back_y))
-            if near_end > touch_tol:
-                continue  # car side edge / wall: does not touch the back-line
-            ticks.append(s)
-        if len(ticks) < 2:
-            continue
-        ticks.sort(key=lambda s: s["cx"])
-        offs = []
-        for s in ticks:
-            e0, e1 = s["y"], s["y"] + s["h"]
-            far = e0 if abs(e0 - back_y) > abs(e1 - back_y) else e1
-            offs.append(far - back_y)
-        dirsign = 1 if sum(offs) >= 0 else -1
-        depth = int(np.median([abs(o) for o in offs])) or (h // 4)
-        for a, b in zip(ticks, ticks[1:]):
-            xa, xb = a["cx"], b["cx"]
-            if xb - xa < min_bay_px:
-                continue
-            y_far = back_y + dirsign * depth
-            bays.append(_norm([[xa, back_y], [xb, back_y], [xb, y_far], [xa, y_far]],
-                              w, h))
-            if len(bays) >= max_bays:
-                return bays
-    return bays
+    if len(ticks_v) >= len(ticks_h) and ticks_v:
+        for g in _group_by_span(ticks_v, lambda c: (c["y"], c["y"] + c["h"]),
+                                lambda c: c["cx"]):
+            y0, y1 = g["span"]
+            centers = _densify([t["cx"] for t in
+                                sorted(g["ticks"], key=lambda c: c["cx"])], min_bay_px)
+            for a, b in zip(centers, centers[1:]):
+                if b - a < min_bay_px:
+                    continue
+                bays.append(_norm([[a, y0], [b, y0], [b, y1], [a, y1]], w, h))
+    elif ticks_h:
+        for g in _group_by_span(ticks_h, lambda c: (c["x"], c["x"] + c["w"]),
+                                lambda c: c["cy"]):
+            x0, x1 = g["span"]
+            centers = _densify([t["cy"] for t in
+                                sorted(g["ticks"], key=lambda c: c["cy"])], min_bay_px)
+            for a, b in zip(centers, centers[1:]):
+                if b - a < min_bay_px:
+                    continue
+                bays.append(_norm([[x0, a], [x1, a], [x1, b], [x0, b]], w, h))
+    return bays[:max_bays]

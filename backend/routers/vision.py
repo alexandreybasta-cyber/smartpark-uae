@@ -124,7 +124,7 @@ async def _auto_bay_regions(db: AsyncSession, cam: Camera,
     """
     frame = await asyncio.to_thread(_first_frame, cam)
     polys = detect_bays(frame) if frame is not None else []
-    if polys:
+    if len(polys) >= 3:
         made = []
         for i, poly in enumerate(polys, 1):
             reg = CameraRegion(camera_id=cam.id, spot_id=None,

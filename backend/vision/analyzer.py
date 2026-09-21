@@ -211,6 +211,7 @@ class CameraAnalyzer:
             ref[r["id"]] = {
                 "edge": cv2.countNonZero(e_in) / float(area) if area else 0.0,
                 "chroma": np.median(pts, axis=0)[1:] if len(pts) else np.zeros(2, np.float32),
+                "L": float(np.median(pts[:, 0])) if len(pts) else 0.0,
             }
         self.reference = ref
         for t in self.trackers.values():
@@ -241,7 +242,9 @@ class CameraAnalyzer:
             edge_density = cv2.countNonZero(e_in) / float(area) if area else 0.0
             pts = lab[region > 0]
             chroma = np.median(pts, axis=0)[1:] if len(pts) else np.zeros(2, np.float32)
-            measured.append({"r": r, "edge": edge_density, "chroma": chroma})
+            light = float(np.median(pts[:, 0])) if len(pts) else 0.0
+            measured.append({"r": r, "edge": edge_density, "chroma": chroma,
+                             "L": light})
 
         # Empty-asphalt reference: pinned, or self-calibrating empty exemplar.
         # The exemplar is the bay with the least vehicle-scale structure, i.e.
@@ -258,8 +261,9 @@ class CameraAnalyzer:
             exemplar = min(measured, key=lambda m: m["edge"])
             edge_ref = exemplar["edge"]
             chroma_ref = exemplar["chroma"]
+            light_ref = exemplar["L"]
             def ref_for(rid):
-                return {"edge": edge_ref, "chroma": chroma_ref}
+                return {"edge": edge_ref, "chroma": chroma_ref, "L": light_ref}
         else:
             def ref_for(rid):
                 return {"edge": 0.0, "chroma": np.zeros(2, np.float32)}
@@ -276,6 +280,13 @@ class CameraAnalyzer:
 
             # Colour cue: illumination-invariant chroma distance.
             dist = float(np.linalg.norm(m["chroma"] - ref["chroma"]))
+            # Shadow guard: a cast shadow is markedly DARKER than the empty
+            # reference yet chroma-similar (chroma is illumination-invariant),
+            # whereas a vehicle changes chroma and/or is not darker.  Suppress
+            # the structure cue so shadow outlines don't read as occupied.
+            refL = ref.get("L")
+            if refL is not None and (refL - m["L"]) > 25 and dist < CHROMA_D0:
+                structure *= 0.25
             colour = float(min(1.0, max(0.0, (dist - CHROMA_D0) / (CHROMA_D1 - CHROMA_D0))))
 
             raw = float(max(structure, colour))
