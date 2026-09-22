@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 from typing import List
 
 import cv2
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, Response, StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -380,6 +380,84 @@ async def upload_media(file: UploadFile = File(...),
         registry.start(cam.id)
     logger.info("vision upload: camera %s (%s) <- %s [%d bytes]",
                 cam.id, cam.source_type, filename, size)
+    return _camera_out(cam)
+
+
+# --- chunked upload (bypasses origin-proxy 1MB single-request body limits) ---
+MAX_CHUNK_BYTES = 950 * 1024
+
+
+def _parts_dir() -> str:
+    d = os.path.join(_upload_dir(), "parts")
+    os.makedirs(d, exist_ok=True)
+    return d
+
+
+@router.post("/upload-part")
+async def upload_part(file: UploadFile = File(...),
+                      upload_id: str = Form(...),
+                      part: int = Form(0)):
+    """Append one chunk (<=950KB) of a larger upload to its staging file."""
+    if not upload_id.isalnum() or not (8 <= len(upload_id) <= 64):
+        raise HTTPException(status_code=400, detail="invalid upload_id")
+    chunk = await file.read()
+    if len(chunk) > MAX_CHUNK_BYTES:
+        raise HTTPException(status_code=413,
+                            detail=f"chunk too large (max {MAX_CHUNK_BYTES // 1024}KB)")
+    path = os.path.join(_parts_dir(), upload_id + ".bin")
+    total = os.path.getsize(path) if os.path.exists(path) else 0
+    if total + len(chunk) > MAX_UPLOAD_BYTES:
+        raise HTTPException(status_code=413,
+                            detail=f"file too large (max {MAX_UPLOAD_BYTES // (1024 * 1024)}MB)")
+    with open(path, "ab") as fh:
+        fh.write(chunk)
+    return {"upload_id": upload_id, "part": part,
+            "bytes": len(chunk), "total": total + len(chunk)}
+
+
+@router.post("/upload-complete", response_model=CameraOut, status_code=201)
+async def upload_complete(upload_id: str = Body(...),
+                          filename: str = Body(...),
+                          auto_regions: bool = Body(True),
+                          autostart: bool = Body(True),
+                          cols: int = Body(4),
+                          rows: int = Body(3),
+                          db: AsyncSession = Depends(get_db)):
+    """Finalise a chunked upload: validate, store, create the camera."""
+    if not upload_id.isalnum() or not (8 <= len(upload_id) <= 64):
+        raise HTTPException(status_code=400, detail="invalid upload_id")
+    src = os.path.join(_parts_dir(), upload_id + ".bin")
+    if not os.path.exists(src):
+        raise HTTPException(status_code=404, detail="upload not found (parts missing)")
+    filename = os.path.basename(filename or "upload")
+    ext = os.path.splitext(filename)[1].lower()
+    if ext not in IMAGE_EXTS and ext not in VIDEO_EXTS:
+        os.remove(src)
+        raise HTTPException(status_code=400,
+                            detail=f"Unsupported file type '{ext or 'unknown'}'.")
+    dest = os.path.join(_upload_dir(), f"{uuid.uuid4().hex}{ext}")
+    try:
+        os.replace(src, dest)
+    except OSError as e:
+        if os.path.exists(src):
+            os.remove(src)
+        raise HTTPException(status_code=500, detail=f"Could finalise upload: {e}")
+
+    is_image = ext in IMAGE_EXTS
+    cam = Camera(name=filename[:200],
+                 source_type="snapshot" if is_image else "file",
+                 source_url=dest, status="offline",
+                 fps_target=2.0 if is_image else 5.0)
+    db.add(cam)
+    await db.commit()
+    await db.refresh(cam)
+    if auto_regions:
+        await _auto_bay_regions(db, cam, cols, rows)
+        await db.refresh(cam)
+    if autostart and registry.ready:
+        registry.start(cam.id)
+    logger.info("vision chunked upload: camera %s (%s) <- %s",
+                cam.id, cam.source_type, filename)
     return _camera_out(cam)
 
 

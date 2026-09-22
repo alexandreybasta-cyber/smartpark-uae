@@ -120,6 +120,8 @@ def _row_centers(ticks, keyfn, min_bay):
     return _densify(centers, min_bay)
 
 
+
+
 def detect_bays(frame, min_bay_px=16, max_bays=80):
     """Detect individual parking bays; returns list of normalised quad polygons."""
     if frame is None:
@@ -175,4 +177,8 @@ def detect_bays(frame, min_bay_px=16, max_bays=80):
         bays = bays_at_floor(frac)
         if len(bays) >= 3:
             return bays[:max_bays]
+    # Angled / perspective views: reliable automatic bay segmentation is not
+    # achievable with classical CV here (Hough dividers oscillate between
+    # garbage quads and nothing).  Those views use YOLO car boxes plus
+    # operator-drawn bays (or the row tool), which is accurate.
     return []

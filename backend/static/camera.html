@@ -194,8 +194,10 @@
           <button class="btn danger" id="delBtn" disabled>Delete</button>
         </div>
         <div id="drawBar" class="controls" style="display:none">
-          <span class="hint" style="margin:0;flex:1">Click the frame to add polygon points.</span>
-          <input type="text" id="regLabel" placeholder="Region label" style="max-width:150px"/>
+          <span class="hint" style="margin:0;flex:1">Freehand: click polygon points. Or <b>Row of bays</b>: click A (first bay top-left), B (its top-right), C (its bottom-left).</span>
+          <button class="btn sm" id="rowBtn">Row of bays</button>
+          <input type="number" id="rowCount" value="6" min="1" max="40" style="max-width:70px"/>
+          <input type="text" id="regLabel" placeholder="Region label" style="max-width:130px"/>
           <button class="btn sm" id="undoPt">Undo point</button>
           <button class="btn sm" id="clearPt">Clear</button>
           <button class="btn sm primary" id="saveReg">Save region</button>
@@ -234,7 +236,7 @@
 (function(){
   "use strict";
   var API = ""; // same origin
-  var state = { cams:[], id:null, draw:false, pts:[], poll:null, evPoll:null, snap:null };
+  var state = { cams:[], id:null, draw:false, pts:[], polys:[], rowMode:false, rowPts:[], poll:null, evPoll:null, snap:null };
 
   function $(s){ return document.querySelector(s); }
   function el(tag, cls, html){ var e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e; }
@@ -437,16 +439,55 @@
   }
 
   // ---- upload ----
-  function upload(file){
-    if(!file) return;
-    var stat=$("#upStat"); stat.style.display="block"; stat.textContent="Uploading "+file.name+" ("+(file.size/1048576).toFixed(1)+" MB)…";
+  function singleUpload(file){
+    var stat=$("#upStat");
     var fd=new FormData();
     fd.append("file", file);
     fd.append("auto_regions","true"); fd.append("autostart","true");
     fd.append("cols", $("#ucols").value||"4"); fd.append("rows", $("#urows").value||"3");
-    fetch(API+"/api/vision/upload",{method:"POST",body:fd}).then(function(r){
+    return fetch(API+"/api/vision/upload",{method:"POST",body:fd}).then(function(r){
       return r.text().then(function(t){ var d=null; try{d=JSON.parse(t);}catch(e){} if(!r.ok) throw new Error((d&&d.detail)||("HTTP "+r.status)); return d; });
-    }).then(function(c){
+    });
+  }
+
+  function chunkedUpload(file){
+    // Origin proxies cap a single request body (~1MB); send the file in
+    // <=800KB chunks then finalise server-side.
+    var stat=$("#upStat");
+    var CHUNK=800*1024;
+    var uid=(Math.random().toString(36).slice(2,10)+Date.now().toString(36)).replace(/[^a-zA-Z0-9]/g,"");
+    var off=0, part=0;
+    function next(){
+      if(off>=file.size) return complete();
+      var slice=file.slice(off, off+CHUNK); off+=CHUNK;
+      var fd=new FormData();
+      fd.append("file", slice, file.name+".part");
+      fd.append("upload_id", uid); fd.append("part", String(part++));
+      stat.textContent="Uploading "+file.name+" … "+Math.min(100,Math.round(off/file.size*100))+"%";
+      return fetch(API+"/api/vision/upload-part",{method:"POST",body:fd}).then(function(r){
+        if(!r.ok) return r.text().then(function(t){ var d=null; try{d=JSON.parse(t);}catch(e){} throw new Error((d&&d.detail)||("HTTP "+r.status)); });
+        return next();
+      });
+    }
+    function complete(){
+      stat.textContent="Finalising "+file.name+"…";
+      return fetch(API+"/api/vision/upload-complete",{method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({upload_id:uid, filename:file.name, auto_regions:true, autostart:true,
+          cols:parseInt($("#ucols").value||"4",10), rows:parseInt($("#urows").value||"3",10)})
+      }).then(function(r){
+        return r.text().then(function(t){ var d=null; try{d=JSON.parse(t);}catch(e){} if(!r.ok) throw new Error((d&&d.detail)||("HTTP "+r.status)); return d; });
+      });
+    }
+    return next();
+  }
+
+  function upload(file){
+    if(!file) return;
+    var stat=$("#upStat"); stat.style.display="block";
+    stat.textContent="Uploading "+file.name+" ("+(file.size/1048576).toFixed(1)+" MB)…";
+    var p = (file.size<=900*1024) ? singleUpload(file) : chunkedUpload(file);
+    p.then(function(c){
       stat.textContent="Analysing "+file.name+"…";
       toast("Uploaded — AI is analysing");
       return loadCams().then(function(){ select(c.id); stat.style.display="none"; });
@@ -456,10 +497,11 @@
   // ---- drawing ----
   function enterDraw(){
     var c=cur(); if(!c){ toast("Select a camera first",true); return; }
-    state.draw=true; state.pts=[]; $("#drawBar").style.display="flex"; $("#drawBtn").textContent="Exit draw";
+    state.draw=true; state.pts=[]; state.polys=[]; state.rowMode=false; state.rowPts=[];
+    $("#drawBar").style.display="flex"; $("#drawBtn").textContent="Exit draw";
     $("#overlay").style.display="block"; showFrame(); drawOverlay();
   }
-  function exitDraw(){ state.draw=false; state.pts=[]; $("#drawBar").style.display="none"; $("#drawBtn").textContent="Draw regions"; $("#overlay").style.display="none"; $("#overlay").innerHTML=""; }
+  function exitDraw(){ state.draw=false; state.pts=[]; state.polys=[]; state.rowMode=false; state.rowPts=[]; $("#drawBar").style.display="none"; $("#drawBtn").textContent="Draw regions"; $("#overlay").style.display="none"; $("#overlay").innerHTML=""; }
   function imgBox(){
     // The <img> uses object-fit:contain inside the 16:9 viewer, so it is
     // letterboxed.  Clicks must be normalised against the IMAGE content rect,
@@ -490,20 +532,63 @@
         ci.setAttribute("fill","#ea580c"); svg.appendChild(ci);
       });
     }
+    // completed row-layout polygons (green) awaiting save
+    (state.polys||[]).forEach(function(poly){
+      var pts=poly.map(function(p){ var q=px(p); return q[0]+","+q[1]; }).join(" ");
+      var pl=document.createElementNS("http://www.w3.org/2000/svg","polygon");
+      pl.setAttribute("points",pts); pl.setAttribute("fill","rgba(34,197,94,.15)");
+      pl.setAttribute("stroke","#22c55e"); pl.setAttribute("stroke-width","2"); svg.appendChild(pl);
+    });
+    // in-progress row anchor points (cyan)
+    (state.rowPts||[]).forEach(function(p){
+      var q=px(p);
+      var ci=document.createElementNS("http://www.w3.org/2000/svg","circle");
+      ci.setAttribute("cx",q[0]); ci.setAttribute("cy",q[1]); ci.setAttribute("r","4");
+      ci.setAttribute("fill","#0ea5e9"); svg.appendChild(ci);
+    });
   }
   function overlayClick(ev){
     if(!state.draw) return;
     var svg=$("#overlay"), r=svg.getBoundingClientRect(), b=imgBox();
-    var x=((ev.clientX-r.left)-b.dx)/b.dw, y=((ev.clientY-r.top)-b.dy)/b.dh;
-    state.pts.push([Math.max(0,Math.min(1,x)),Math.max(0,Math.min(1,y))]);
+    var x=Math.max(0,Math.min(1,((ev.clientX-r.left)-b.dx)/b.dw));
+    var y=Math.max(0,Math.min(1,((ev.clientY-r.top)-b.dy)/b.dh));
+    if(state.rowMode){
+      state.rowPts.push([x,y]);
+      if(state.rowPts.length===3){
+        var A=state.rowPts[0], B=state.rowPts[1], C=state.rowPts[2];
+        var N=Math.max(1,Math.min(40,parseInt($("#rowCount").value||"6",10)));
+        var wx=B[0]-A[0], wy=B[1]-A[1], ddx=C[0]-A[0], ddy=C[1]-A[1];
+        state.polys=[];
+        for(var k=0;k<N;k++){
+          var ax=A[0]+wx*k, ay=A[1]+wy*k;
+          state.polys.push([[ax,ay],[ax+wx,ay+wy],[ax+wx+ddx,ay+wy+ddy],[ax+ddx,ay+ddy]]);
+        }
+        state.rowPts=[];
+        toast("Laid "+N+" bays — press Save region");
+      }
+      drawOverlay(); return;
+    }
+    state.pts.push([x,y]);
     drawOverlay();
   }
   function saveRegion(){
-    if(state.pts.length<3){ toast("Need at least 3 points",true); return; }
-    var label=$("#regLabel").value.trim()||("region "+(Date.now()%1000));
-    req("POST","/api/vision/cameras/"+state.id+"/regions",{label:label,polygon:state.pts})
-      .then(function(){ toast("Region saved"); state.pts=[]; $("#regLabel").value=""; drawOverlay(); return loadCams(); })
-      .then(refreshCurrent).catch(function(e){ toast(e.message,true); });
+    var items=[];
+    if(state.polys && state.polys.length){
+      state.polys.forEach(function(p,i){ items.push({label:"bay-"+(i+1), polygon:p}); });
+    } else if(state.pts.length>=3){
+      items.push({label:($("#regLabel").value.trim()||("region "+(Date.now()%1000))), polygon:state.pts});
+    } else { toast("Draw a region or lay a row first",true); return; }
+    var chain=Promise.resolve();
+    items.forEach(function(it){
+      chain=chain.then(function(){
+        return req("POST","/api/vision/cameras/"+state.id+"/regions",{label:it.label,polygon:it.polygon});
+      });
+    });
+    chain.then(function(){
+      toast(items.length+" region(s) saved");
+      state.pts=[]; state.polys=[]; state.rowPts=[]; $("#regLabel").value="";
+      drawOverlay(); return loadCams();
+    }).then(refreshCurrent).catch(function(e){ toast(e.message,true); });
   }
 
   // ---- wire up ----
@@ -523,8 +608,14 @@
   $("#drawBtn").addEventListener("click",function(){ state.draw?exitDraw():enterDraw(); showFrame(); });
   $("#overlay").addEventListener("click",overlayClick);
   window.addEventListener("resize",drawOverlay);
-  $("#undoPt").addEventListener("click",function(){ state.pts.pop(); drawOverlay(); });
-  $("#clearPt").addEventListener("click",function(){ state.pts=[]; drawOverlay(); });
+  $("#undoPt").addEventListener("click",function(){ if(state.rowMode){ state.rowPts.pop(); } else { state.pts.pop(); } drawOverlay(); });
+  $("#clearPt").addEventListener("click",function(){ state.pts=[]; state.polys=[]; state.rowPts=[]; drawOverlay(); });
+  $("#rowBtn").addEventListener("click",function(){
+    state.rowMode=!state.rowMode; state.pts=[]; state.polys=[]; state.rowPts=[];
+    $("#rowBtn").textContent=state.rowMode?"Row: ON (click A,B,C)":"Row of bays";
+    $("#rowBtn").style.borderColor=state.rowMode?"#0ea5e9":"";
+    drawOverlay();
+  });
   $("#saveReg").addEventListener("click",saveRegion);
   $("#cancelDraw").addEventListener("click",function(){ exitDraw(); showFrame(); });
 
