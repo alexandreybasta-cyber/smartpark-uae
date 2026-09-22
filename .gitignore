@@ -78,6 +78,9 @@ backend/train-venv/
 backend/vision/train_status.json
 backend/vision/train.log
 backend/vision/trainwork/
+# Trained bay models are installed via the /train page upload, not the repo
+# (the push script's git add -A would otherwise sweep half-trained garbage).
+backend/vision/models/bays.onnx
 
 # Local test-image scratch folder (not part of the repo)
 VIsual camera bay detection/
