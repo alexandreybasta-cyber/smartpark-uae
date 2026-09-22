@@ -8,6 +8,7 @@ import asyncio
 import json
 import logging
 import os
+import shutil
 import tempfile
 import time
 import uuid
@@ -459,6 +460,36 @@ async def upload_complete(upload_id: str = Body(...),
     logger.info("vision chunked upload: camera %s (%s) <- %s",
                 cam.id, cam.source_type, filename)
     return _camera_out(cam)
+
+
+@router.post("/cameras/{camera_id}/label")
+async def save_label(camera_id: int,
+                     polygons: List[List[List[float]]] = Body(..., embed=True),
+                     db: AsyncSession = Depends(get_db)):
+    """Persist a labelled training example (frame + bay polygons) so a YOLO
+    model can later be fine-tuned for zero-config detection at these angles."""
+    cam = await db.get(Camera, camera_id)
+    if cam is None:
+        raise HTTPException(status_code=404, detail="Camera not found")
+    if not polygons or not cam.source_url or not os.path.exists(cam.source_url):
+        return {"saved": False}
+    dset = os.path.join(_BACKEND_DIR, "vision", "dataset")
+    imgs = os.path.join(dset, "imgs")
+    os.makedirs(imgs, exist_ok=True)
+    eid = uuid.uuid4().hex
+    ext = os.path.splitext(cam.source_url)[1] or ".png"
+    dst = os.path.join(imgs, eid + ext)
+    try:
+        shutil.copyfile(cam.source_url, dst)
+    except OSError as e:
+        logger.error("label image copy failed: %s", e)
+        return {"saved": False}
+    with open(os.path.join(dset, "labels.jsonl"), "a") as fh:
+        fh.write(json.dumps({"id": eid, "camera_id": camera_id,
+                             "image": eid + ext, "polygons": polygons,
+                             "ts": time.time()}) + "\n")
+    logger.info("label saved: %s (%d polygons)", eid, len(polygons))
+    return {"saved": True, "id": eid}
 
 
 @router.post("/cameras/{camera_id}/auto-regions", response_model=List[RegionOut])

@@ -43,6 +43,8 @@ upscale_appstore_screenshots.sh
 # Database
 *.db
 *.sqlite
+*.db-shm
+*.db-wal
 
 # Archives
 *.zip
@@ -65,6 +67,10 @@ vibe_images/
 
 # Runtime media uploads (vision pipeline) — never commit operator uploads
 backend/uploads/
+
+# Auto-collected labelled training data (frames + labels.jsonl) for later YOLO
+# fine-tuning — local-only, never push to the SpotSense repo.
+backend/vision/dataset/
 
 # Local test-image scratch folder (not part of the repo)
 VIsual camera bay detection/

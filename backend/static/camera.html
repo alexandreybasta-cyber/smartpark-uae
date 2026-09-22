@@ -578,6 +578,7 @@
     } else if(state.pts.length>=3){
       items.push({label:($("#regLabel").value.trim()||("region "+(Date.now()%1000))), polygon:state.pts});
     } else { toast("Draw a region or lay a row first",true); return; }
+    var polyList=items.map(function(it){ return it.polygon; });
     var chain=Promise.resolve();
     items.forEach(function(it){
       chain=chain.then(function(){
@@ -586,6 +587,10 @@
     });
     chain.then(function(){
       toast(items.length+" region(s) saved");
+      // Instrument: store this frame + bays as labelled training data so a YOLO
+      // model can later be fine-tuned for zero-config detection at this angle.
+      // Fire-and-forget — never block or fail the operator's save on it.
+      req("POST","/api/vision/cameras/"+state.id+"/label",{polygons:polyList}).catch(function(){});
       state.pts=[]; state.polys=[]; state.rowPts=[]; $("#regLabel").value="";
       drawOverlay(); return loadCams();
     }).then(refreshCurrent).catch(function(e){ toast(e.message,true); });
