@@ -415,10 +415,12 @@
     req("POST","/api/vision/cameras/"+state.id+"/auto-regions?cols="+cols+"&rows="+rows+"&replace=true&mode="+mode)
     .then(function(regs){
       var n=(regs||[]).length;
+      var cbay=(regs||[]).some(function(r){ return (r.label||"").indexOf("carbay-")===0; });
       var bayish=(regs||[]).some(function(r){ return (r.label||"").indexOf("bay-")===0; });
       if(mode==="grid"){ toast("Coarse grid laid — "+n+" cells (approximate, not real bays)"); }
+      else if(cbay){ toast("Painted lines aren't recoverable at this angle — laid "+n+" bays at the detected cars. Draw any empty bays you also want tracked."); }
       else if(bayish){ toast("Detected "+n+" parking bays"); }
-      else { toast("No painted bays auto-detected on this view. Use Draw regions (or Grid approx)."); }
+      else { toast("No painted bays and no vehicles auto-detected on this view. Use Draw regions (or Grid approx)."); }
       return loadCams();
     })
     .then(function(){ refreshCurrent(); }).catch(function(e){ toast(e.message,true); }).then(function(){ busy(b,false); });

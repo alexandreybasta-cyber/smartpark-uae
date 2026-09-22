@@ -27,6 +27,7 @@ from schemas import (CameraCreate, CameraOut, CameraUpdate, DetectionEventOut,
                      IngestRequest, RegionCreate, RegionOut, RegionUpdate)
 from vision.analyzer import parse_polygon
 from vision.bays import detect_bays
+from vision.detector import detect_vehicles
 from vision.sources import open_source
 from vision.worker import registry
 
@@ -141,9 +142,39 @@ async def _auto_bay_regions(db: AsyncSession, cam: Camera,
         logger.info("camera %s: auto-detected %d parking bays", cam.id, len(made))
         return made, "bays"
     # No reliable overhead markings (e.g. classical/indoor angle): do NOT fake
-    # bays with a uniform grid (it would cover ceilings/walls).  Leave regions
-    # empty; the operator draws real bays or explicitly picks Grid (approx).
-    logger.info("camera %s: no overhead bay markings; regions left empty", cam.id)
+    # bays with a uniform grid (it would cover ceilings/walls).  Instead fall
+    # back to the one geometry that is guaranteed correct at ANY angle: a
+    # detected vehicle IS sitting in a bay, so its (slightly expanded) box is
+    # that bay.  Regions persist, so once the car leaves the same region reads
+    # free.  Empty bays with no car right now are not created (nothing marks
+    # them); the operator draws those and every save feeds the fine-tune set.
+    if frame is not None:
+        dets = await asyncio.to_thread(detect_vehicles, frame)
+        if dets:
+            fh, fw = frame.shape[:2]
+            made = []
+            for i, d in enumerate(dets, 1):
+                bw, bh = d["x1"] - d["x0"], d["y1"] - d["y0"]
+                x0 = max(0.0, (d["x0"] - 0.15 * bw) / fw)
+                y0 = max(0.0, (d["y0"] - 0.15 * bh) / fh)
+                x1 = min(1.0, (d["x1"] + 0.15 * bw) / fw)
+                y1 = min(1.0, (d["y1"] + 0.15 * bh) / fh)
+                poly = [[x0, y0], [x1, y0], [x1, y1], [x0, y1]]
+                reg = CameraRegion(camera_id=cam.id, spot_id=None,
+                                   label=f"carbay-{i}", polygon=json.dumps(poly),
+                                   status="unknown",
+                                   occupy_threshold=AUTO_OCCUPY_THRESHOLD,
+                                   free_threshold=AUTO_FREE_THRESHOLD)
+                db.add(reg)
+                made.append(reg)
+            await db.commit()
+            for reg in made:
+                await db.refresh(reg)
+            logger.info("camera %s: painted bays unrecoverable; laid %d bays at "
+                        "detected vehicles", cam.id, len(made))
+            return made, "cars"
+    logger.info("camera %s: no overhead bay markings and no vehicles; regions "
+                "left empty", cam.id)
     return [], "none"
 
 
