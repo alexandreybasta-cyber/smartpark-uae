@@ -72,5 +72,12 @@ backend/uploads/
 # fine-tuning — local-only, never push to the SpotSense repo.
 backend/vision/dataset/
 
+# Fine-tune runner: torch venv + run artifacts (status/log/scratch).  The
+# trained bays.onnx IS committed (prod can't train, it only infers).
+backend/train-venv/
+backend/vision/train_status.json
+backend/vision/train.log
+backend/vision/trainwork/
+
 # Local test-image scratch folder (not part of the repo)
 VIsual camera bay detection/

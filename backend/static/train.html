@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SpotSense &mdash; Bay Detector Fine-Tuning</title>
+<style>
+  :root{ --or:#f97316; --or2:#ea580c; --ink:#0f172a; --mut:#64748b; --line:#e2e8f0; --bg:#f8fafc; --ok:#16a34a; --bad:#dc2626; }
+  *{box-sizing:border-box} body{margin:0;font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);}
+  header{background:#fff;border-bottom:1px solid var(--line);padding:14px 22px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:5;}
+  header b{font-size:16px} header .sub{color:var(--mut)} header a{color:var(--or2);text-decoration:none;font-weight:600}
+  main{max-width:1180px;margin:0 auto;padding:22px;display:grid;gap:20px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+  .card>h2{margin:0;padding:14px 18px;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;}
+  .card>h2 .pill{margin-left:auto;text-transform:none;letter-spacing:0;font-size:12px;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:3px 10px;color:var(--ink);}
+  .body{padding:18px;}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+  .btn{appearance:none;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;padding:9px 14px;font-weight:600;cursor:pointer;}
+  .btn:hover{border-color:var(--or);} .btn.primary{background:var(--or);border-color:var(--or);color:#fff;} .btn.primary:hover{background:var(--or2);}
+  .btn.danger{color:var(--bad);border-color:#fecaca;} .btn.sm{padding:6px 10px;font-size:12px;border-radius:8px;}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  input[type=number],select{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;background:#fff;}
+  .hint{color:var(--mut);font-size:12.5px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
+  .ex{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;}
+  .ex .thumb{position:relative;background:#0b1220;}
+  .ex .thumb img{display:block;width:100%;height:130px;object-fit:contain;}
+  .ex .thumb svg{position:absolute;inset:0;width:100%;height:100%;}
+  .ex .meta{padding:8px 10px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mut);}
+  .ex .meta .n{color:var(--ink);font-weight:700;}
+  .ex .meta .btn{margin-left:auto;}
+  .stat{display:flex;gap:26px;flex-wrap:wrap;}
+  .stat .b{font-size:22px;font-weight:800;} .stat .l{color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.05em;}
+  .bar{height:8px;border-radius:999px;background:var(--line);overflow:hidden;margin:10px 0;}
+  .bar>i{display:block;height:100%;width:0%;background:var(--or);transition:width .3s;}
+  pre.log{background:#0b1220;color:#cbd5e1;border-radius:10px;padding:12px;height:180px;overflow:auto;font:11.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;margin:0;}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--mut);display:inline-block;}
+  .dot.ok{background:var(--ok);} .dot.bad{background:var(--bad);} .dot.run{background:var(--or);}
+  #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#0b1220;color:#fff;border-radius:10px;padding:11px 18px;opacity:0;pointer-events:none;transition:opacity .25s;max-width:80vw;}
+  #toast.show{opacity:1;} #toast.err{background:var(--bad);}
+  .empty{color:var(--mut);padding:26px;text-align:center;}
+</style>
+</head>
+<body>
+<header>
+  <b>Bay Detector Fine-Tuning</b>
+  <span class="sub">label &rarr; train &rarr; deploy a zero-config bay model</span>
+  <a href="/camera" style="margin-left:auto">&larr; Camera console</a>
+</header>
+<main>
+
+  <section class="card">
+    <h2>1 &middot; Labelled dataset <span class="pill" id="dsPill">loading&hellip;</span></h2>
+    <div class="body">
+      <p class="hint">Every bay you save in the <a href="/camera">camera console</a> (draw or row tool) is stored here automatically with its frame. Review and drop bad examples, then export or train. Aim for ~50+ examples across your camera angles before training.</p>
+      <div class="row" style="margin:12px 0">
+        <button class="btn primary" id="exportBtn">Export dataset (.zip)</button>
+        <button class="btn" id="reloadDs">Refresh</button>
+        <span class="hint" id="dsHint"></span>
+      </div>
+      <div class="grid" id="dsGrid"><div class="empty">No labelled examples yet &mdash; save some bays in the camera console.</div></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2 &middot; Fine-tune <span class="pill" id="trPill"><span class="dot" id="trDot"></span> <span id="trState">checking&hellip;</span></span></h2>
+    <div class="body">
+      <div class="row">
+        <label class="hint" for="epochs">Epochs</label>
+        <input type="number" id="epochs" value="40" min="1" max="300" style="width:90px"/>
+        <button class="btn primary" id="startBtn">Start fine-tune</button>
+        <button class="btn" id="stopNote" disabled>Runs on this host (needs torch)</button>
+        <span class="hint" id="trHint"></span>
+      </div>
+      <div class="bar"><i id="trBar"></i></div>
+      <pre class="log" id="trLog">No training run yet.</pre>
+      <p class="hint" id="trWhere" style="margin-top:10px"></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>3 &middot; Deployed bay model <span class="pill" id="mdPill">checking&hellip;</span></h2>
+    <div class="body">
+      <div class="row">
+        <input type="file" id="onnxFile" accept=".onnx" hidden/>
+        <button class="btn" id="pickOnnx">Upload trained .onnx</button>
+        <button class="btn danger sm" id="delModel">Remove model</button>
+        <select id="camSel"><option value="">select camera to test&hellip;</option></select>
+        <button class="btn" id="testBtn">Test on frame</button>
+      </div>
+      <p class="hint" id="mdInfo" style="margin:12px 0"></p>
+      <div id="testWrap" style="display:none;position:relative;max-width:760px;background:#0b1220;border-radius:10px;overflow:hidden">
+        <img id="testImg" alt="" style="display:block;width:100%;object-fit:contain"/>
+        <svg id="testSvg" style="position:absolute;inset:0;width:100%;height:100%"></svg>
+      </div>
+      <p class="hint" id="testMsg"></p>
+    </div>
+  </section>
+
+</main>
+<div id="toast"></div>
+<script>
+(function(){
+  "use strict";
+  var API="";
+  function $(s){ return document.querySelector(s); }
+  function toast(m,e){ var t=$("#toast"); t.textContent=m; t.className="show"+(e?" err":""); clearTimeout(t._x); t._x=setTimeout(function(){t.className="";},3400); }
+  function req(method,path,body){
+    var opt={method:method,headers:{}};
+    if(body!==undefined && !(body instanceof FormData)){ opt.headers["Content-Type"]="application/json"; opt.body=JSON.stringify(body); }
+    if(body instanceof FormData){ opt.body=body; }
+    return fetch(API+path,opt).then(function(r){
+      if(r.status===204) return null;
+      return r.text().then(function(txt){
+        var d=null; try{ d=txt?JSON.parse(txt):null; }catch(e){ d=txt; }
+        if(!r.ok){ throw new Error((d&&d.detail)?d.detail:("HTTP "+r.status)); }
+        return d;
+      });
+    });
+  }
+
+  // ---- dataset ----
+  function loadDataset(){
+    return req("GET","/api/vision/dataset").then(function(d){
+      $("#dsPill").textContent=d.total+" example"+(d.total===1?"":"s");
+      var g=$("#dsGrid"); g.innerHTML="";
+      if(!d.examples.length){ g.innerHTML='<div class="empty">No labelled examples yet &mdash; save some bays in the camera console.</div>'; $("#dsHint").textContent=""; return; }
+      var nb=d.examples.reduce(function(a,e){return a+e.nbays;},0);
+      $("#dsHint").textContent=nb+" labelled bays across "+d.total+" frames";
+      d.examples.forEach(function(ex){
+        var card=document.createElement("div"); card.className="ex";
+        var th=document.createElement("div"); th.className="thumb";
+        var img=document.createElement("img"); img.src=API+ex.url; th.appendChild(img);
+        var svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+        svg.setAttribute("viewBox","0 0 100 100"); svg.setAttribute("preserveAspectRatio","none");
+        (ex.polygons||[]).forEach(function(p){
+          var pl=document.createElementNS("http://www.w3.org/2000/svg","polygon");
+          pl.setAttribute("points",p.map(function(q){return (q[0]*100)+","+(q[1]*100);}).join(" "));
+          pl.setAttribute("fill","rgba(249,115,22,.25)"); pl.setAttribute("stroke","#f97316"); pl.setAttribute("stroke-width","0.8");
+          svg.appendChild(pl);
+        });
+        th.appendChild(svg); card.appendChild(th);
+        var meta=document.createElement("div"); meta.className="meta";
+        meta.innerHTML='<span class="n">'+ex.nbays+' bays</span><span>'+new Date((ex.ts||0)*1000).toLocaleDateString()+'</span>';
+        var del=document.createElement("button"); del.className="btn sm danger"; del.textContent="Delete";
+        del.addEventListener("click",function(){ if(!confirm("Delete this example?"))return;
+          req("DELETE","/api/vision/dataset/"+ex.id).then(function(){ toast("Example deleted"); loadDataset(); }).catch(function(e){toast(e.message,true);}); });
+        meta.appendChild(del); card.appendChild(meta); g.appendChild(card);
+      });
+    }).catch(function(e){ $("#dsPill").textContent="error"; toast(e.message,true); });
+  }
+
+  // ---- training ----
+  function pollTrain(){
+    return req("GET","/api/vision/train/status").then(function(s){
+      var dot=$("#trDot"), st=$("#trState");
+      dot.className="dot "+(s.running?"run":(s.torch?"ok":"bad"));
+      st.textContent=s.running?("training epoch "+(s.progress?s.progress.epoch:0)+"/"+(s.progress?s.progress.epochs:"?")):(s.torch?"ready":"no torch on this host");
+      $("#startBtn").disabled=!s.torch||s.running;
+      $("#trHint").textContent=s.torch?("torch "+(s.torch_version||"")+" · ultralytics "+(s.ultralytics_version||"")):"Training needs a host with torch+ultralytics (e.g. run the backend locally). Export the zip and train elsewhere, then upload the .onnx below.";
+      if(s.progress&&s.progress.epochs){ $("#trBar").style.width=Math.round(100*s.progress.epoch/s.progress.epochs)+"%"; }
+      else if(!s.running){ $("#trBar").style.width=(s.model_present?"100%":"0%"); }
+      if(s.log&&s.log.length){ $("#trLog").textContent=s.log.slice(-60).join("\n"); $("#trLog").scrollTop=$("#trLog").scrollHeight; }
+      $("#trWhere").textContent=s.train_venv?("runner: "+s.train_venv):"runner: not found";
+      return s;
+    }).catch(function(){ $("#trState").textContent="unreachable"; });
+  }
+
+  // ---- model ----
+  function loadModel(){
+    return req("GET","/api/vision/model/info").then(function(m){
+      $("#mdPill").textContent=m.present?(m.enabled?"active":"present"):"none";
+      $("#mdInfo").textContent=m.present?("bays.onnx installed · "+(m.size_kb||0)+" KB · Auto-detect bays will use it first. "+(m.note||"")):"No trained bay model yet — Auto-detect bays falls back to painted lines / car boxes.";
+      $("#delModel").disabled=!m.present;
+    }).catch(function(e){ $("#mdPill").textContent="error"; });
+  }
+  function loadCams(){
+    return req("GET","/api/vision/cameras").then(function(list){
+      var sel=$("#camSel"); sel.innerHTML='<option value="">select camera to test…</option>';
+      (list||[]).forEach(function(c){ var o=document.createElement("option"); o.value=c.id; o.textContent=c.name; sel.appendChild(o); });
+    }).catch(function(){});
+  }
+  function testModel(){
+    var id=$("#camSel").value; if(!id){ toast("Pick a camera first",true); return; }
+    $("#testMsg").textContent="Running detector…";
+    req("POST","/api/vision/model/test",{camera_id:parseInt(id,10)}).then(function(r){
+      if(!r.ok){ $("#testMsg").textContent=r.detail||"no model"; return; }
+      $("#testWrap").style.display="block";
+      var img=$("#testImg"); img.src=API+"/api/vision/cameras/"+id+"/source?cb="+Date.now();
+      img.onload=function(){
+        var svg=$("#testSvg"); svg.setAttribute("viewBox","0 0 "+img.naturalWidth+" "+img.naturalHeight); svg.innerHTML="";
+        (r.polygons||[]).forEach(function(p){
+          var pl=document.createElementNS("http://www.w3.org/2000/svg","polygon");
+          pl.setAttribute("points",p.map(function(q){return (q[0]*img.naturalWidth)+","+(q[1]*img.naturalHeight);}).join(" "));
+          pl.setAttribute("fill","rgba(34,197,94,.18)"); pl.setAttribute("stroke","#22c55e"); pl.setAttribute("stroke-width","3");
+          svg.appendChild(pl);
+        });
+      };
+      $("#testMsg").textContent="Detected "+(r.polygons||[]).length+" bays on this frame.";
+      toast("Detected "+(r.polygons||[]).length+" bays");
+    }).catch(function(e){ $("#testMsg").textContent=e.message; toast(e.message,true); });
+  }
+
+  $("#reloadDs").addEventListener("click",loadDataset);
+  $("#exportBtn").addEventListener("click",function(){ window.location=API+"/api/vision/dataset/export"; });
+  $("#startBtn").addEventListener("click",function(){
+    var ep=parseInt($("#epochs").value||"40",10);
+    req("POST","/api/vision/train/start",{epochs:ep}).then(function(){ toast("Fine-tune started"); pollTrain(); })
+      .catch(function(e){ toast(e.message,true); });
+  });
+  $("#pickOnnx").addEventListener("click",function(){ $("#onnxFile").click(); });
+  $("#onnxFile").addEventListener("change",function(e){
+    var f=e.target.files[0]; e.target.value=""; if(!f)return;
+    var fd=new FormData(); fd.append("file",f);
+    toast("Uploading model…");
+    req("POST","/api/vision/model/upload",fd).then(function(){ toast("Model installed — Auto-detect bays now uses it"); loadModel(); })
+      .catch(function(er){ toast(er.message,true); });
+  });
+  $("#delModel").addEventListener("click",function(){ if(!confirm("Remove the trained bay model?"))return;
+    req("DELETE","/api/vision/model").then(function(){ toast("Model removed"); loadModel(); }).catch(function(e){toast(e.message,true);}); });
+  $("#testBtn").addEventListener("click",testModel);
+
+  loadDataset(); loadModel(); loadCams(); pollTrain(); setInterval(pollTrain,3000);
+})();
+</script>
+</body>
+</html>

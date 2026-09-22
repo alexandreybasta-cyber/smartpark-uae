@@ -5,13 +5,17 @@ LotVulture Community Edition instance bridged over webhook/MQTT) can push
 per-space readings through exactly the same path as the built-in analyzer.
 """
 import asyncio
+import io
 import json
 import logging
 import os
+import re
 import shutil
+import subprocess
 import tempfile
 import time
 import uuid
+import zipfile
 from datetime import datetime, timezone
 from typing import List
 
@@ -27,6 +31,7 @@ from schemas import (CameraCreate, CameraOut, CameraUpdate, DetectionEventOut,
                      IngestRequest, RegionCreate, RegionOut, RegionUpdate)
 from vision.analyzer import parse_polygon
 from vision.bays import detect_bays
+from vision import baydet
 from vision.detector import detect_vehicles
 from vision.sources import open_source
 from vision.worker import registry
@@ -125,7 +130,18 @@ async def _auto_bay_regions(db: AsyncSession, cam: Camera,
     or 'grid' (coarse approximate cells when no overhead markings are found).
     """
     frame = await asyncio.to_thread(_first_frame, cam)
-    polys = detect_bays(frame) if frame is not None else []
+    polys = []
+    source = "none"
+    # 1) a fine-tuned bay model (zero-config at any angle) wins when present
+    if frame is not None and baydet.present():
+        polys = await asyncio.to_thread(baydet.detect_bay_quads, frame)
+        if len(polys) >= 3:
+            source = "ml"
+    # 2) painted overhead markings
+    if len(polys) < 3 and frame is not None:
+        polys = detect_bays(frame)
+        if len(polys) >= 3:
+            source = "painted"
     if len(polys) >= 3:
         made = []
         for i, poly in enumerate(polys, 1):
@@ -139,7 +155,8 @@ async def _auto_bay_regions(db: AsyncSession, cam: Camera,
         await db.commit()
         for reg in made:
             await db.refresh(reg)
-        logger.info("camera %s: auto-detected %d parking bays", cam.id, len(made))
+        logger.info("camera %s: auto-detected %d parking bays (%s)",
+                    cam.id, len(made), source)
         return made, "bays"
     # No reliable overhead markings (e.g. classical/indoor angle): do NOT fake
     # bays with a uniform grid (it would cover ceilings/walls).  Instead fall
@@ -155,10 +172,10 @@ async def _auto_bay_regions(db: AsyncSession, cam: Camera,
             made = []
             for i, d in enumerate(dets, 1):
                 bw, bh = d["x1"] - d["x0"], d["y1"] - d["y0"]
-                x0 = max(0.0, (d["x0"] - 0.15 * bw) / fw)
-                y0 = max(0.0, (d["y0"] - 0.15 * bh) / fh)
-                x1 = min(1.0, (d["x1"] + 0.15 * bw) / fw)
-                y1 = min(1.0, (d["y1"] + 0.15 * bh) / fh)
+                x0 = max(0.0, (d["x0"] - 0.08 * bw) / fw)
+                y0 = max(0.0, (d["y0"] - 0.08 * bh) / fh)
+                x1 = min(1.0, (d["x1"] + 0.08 * bw) / fw)
+                y1 = min(1.0, (d["y1"] + 0.08 * bh) / fh)
                 poly = [[x0, y0], [x1, y0], [x1, y1], [x0, y1]]
                 reg = CameraRegion(camera_id=cam.id, spot_id=None,
                                    label=f"carbay-{i}", polygon=json.dumps(poly),
@@ -521,6 +538,288 @@ async def save_label(camera_id: int,
                              "ts": time.time()}) + "\n")
     logger.info("label saved: %s (%d polygons)", eid, len(polygons))
     return {"saved": True, "id": eid}
+
+
+# --- labelled-dataset management (fine-tuning console) ---------------------
+_EID_RE = re.compile(r"^[0-9a-f]{32}$")
+_DATA_YAML = ("path: .\ntrain: images/train\nval: images/val\n"
+              "names:\n  0: bay\n")
+
+
+def _dataset_dir() -> str:
+    return os.path.join(_BACKEND_DIR, "vision", "dataset")
+
+
+def _load_labels():
+    path = os.path.join(_dataset_dir(), "labels.jsonl")
+    out = []
+    if os.path.exists(path):
+        with open(path) as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    out.append(json.loads(line))
+                except json.JSONDecodeError:
+                    continue
+    return out
+
+
+def _write_labels(records):
+    dset = _dataset_dir()
+    os.makedirs(dset, exist_ok=True)
+    with open(os.path.join(dset, "labels.jsonl"), "w") as fh:
+        for r in records:
+            fh.write(json.dumps(r) + "\n")
+
+
+def _quad4(poly):
+    """Coerce any polygon to a 4-corner quad (normalised) for YOLO-OBB labels."""
+    pts = [list(p) for p in poly]
+    if len(pts) == 4:
+        return pts
+    if not pts:
+        return [[0, 0], [0, 0], [0, 0], [0, 0]]
+    xs = [p[0] for p in pts]
+    ys = [p[1] for p in pts]
+    x0, x1, y0, y1 = min(xs), max(xs), min(ys), max(ys)
+    return [[x0, y0], [x1, y0], [x1, y1], [x0, y1]]
+
+
+@router.get("/dataset")
+async def list_dataset():
+    """List every labelled training example (frame + bay polygons)."""
+    recs = _load_labels()
+    examples = []
+    for r in recs:
+        examples.append({
+            "id": r["id"], "image": r["image"],
+            "url": f"/api/vision/dataset/img/{r['id']}",
+            "polygons": r["polygons"], "nbays": len(r["polygons"]),
+            "camera_id": r.get("camera_id"), "ts": r.get("ts"),
+        })
+    return {"total": len(examples), "examples": examples}
+
+
+@router.get("/dataset/img/{eid}")
+async def dataset_image(eid: str):
+    if not _EID_RE.match(eid):
+        raise HTTPException(status_code=400, detail="Bad example id")
+    imgs = os.path.join(_dataset_dir(), "imgs")
+    if not os.path.isdir(imgs):
+        raise HTTPException(status_code=404, detail="No dataset images")
+    for name in os.listdir(imgs):
+        if os.path.splitext(name)[0] == eid:
+            return FileResponse(os.path.join(imgs, name))
+    raise HTTPException(status_code=404, detail="Example image not found")
+
+
+@router.delete("/dataset/{eid}")
+async def delete_example(eid: str):
+    if not _EID_RE.match(eid):
+        raise HTTPException(status_code=400, detail="Bad example id")
+    recs = _load_labels()
+    keep = [r for r in recs if r["id"] != eid]
+    if len(keep) == len(recs):
+        raise HTTPException(status_code=404, detail="Example not found")
+    imgs = os.path.join(_dataset_dir(), "imgs")
+    if os.path.isdir(imgs):
+        for name in os.listdir(imgs):
+            if os.path.splitext(name)[0] == eid:
+                try:
+                    os.remove(os.path.join(imgs, name))
+                except OSError:
+                    pass
+    _write_labels(keep)
+    return {"deleted": True, "remaining": len(keep)}
+
+
+@router.get("/dataset/export")
+async def export_dataset():
+    """Download the dataset as a ready-to-train YOLO-OBB zip (data.yaml + splits)."""
+    recs = _load_labels()
+    if not recs:
+        raise HTTPException(status_code=404, detail="Dataset is empty")
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
+        z.writestr("data.yaml", _DATA_YAML)
+        for i, r in enumerate(recs):
+            src = os.path.join(_dataset_dir(), "imgs", r["image"])
+            if not os.path.exists(src):
+                continue
+            split = "val" if (len(recs) >= 4 and i % 4 == 3) else "train"
+            ext = os.path.splitext(r["image"])[1] or ".png"
+            z.write(src, f"images/{split}/{r['id']}{ext}")
+            lines = []
+            for poly in r["polygons"]:
+                q = _quad4(poly)
+                lines.append("0 " + " ".join(f"{v:.6f}" for pt in q for v in pt))
+            z.writestr(f"labels/{split}/{r['id']}.txt", "\n".join(lines) + "\n")
+    return Response(buf.getvalue(), media_type="application/zip",
+                    headers={"Content-Disposition":
+                             "attachment; filename=bays-dataset.zip"})
+
+
+# --- trained bay model: install / inspect / test ---------------------------
+@router.get("/model/info")
+async def model_info():
+    p = baydet.MODEL_PATH
+    present = os.path.exists(p)
+    return {"present": present, "enabled": present,
+            "size_kb": round(os.path.getsize(p) / 1024) if present else 0,
+            "path": "backend/vision/models/bays.onnx",
+            "note": "Auto-detect bays uses it first" if present else ""}
+
+
+@router.post("/model/upload")
+async def model_upload(file: UploadFile = File(...)):
+    if not (file.filename or "").lower().endswith(".onnx"):
+        raise HTTPException(status_code=400, detail="Provide a .onnx file")
+    data = await file.read()
+    if len(data) < 100_000:
+        raise HTTPException(status_code=400, detail="File too small to be a model")
+    os.makedirs(os.path.dirname(baydet.MODEL_PATH), exist_ok=True)
+    tmp = baydet.MODEL_PATH + ".part"
+    with open(tmp, "wb") as fh:
+        fh.write(data)
+    os.replace(tmp, baydet.MODEL_PATH)
+    baydet.reload()
+    logger.info("bay model installed: %d bytes", len(data))
+    return {"installed": True, "size_kb": round(len(data) / 1024)}
+
+
+@router.delete("/model")
+async def model_delete():
+    if os.path.exists(baydet.MODEL_PATH):
+        os.remove(baydet.MODEL_PATH)
+    baydet.reload()
+    return {"removed": True}
+
+
+@router.post("/model/test")
+async def model_test(camera_id: int = Body(..., embed=True),
+                     db: AsyncSession = Depends(get_db)):
+    if not baydet.present():
+        return {"ok": False, "detail": "No trained bay model installed",
+                "polygons": []}
+    cam = await db.get(Camera, camera_id)
+    if cam is None:
+        raise HTTPException(status_code=404, detail="Camera not found")
+    frame = await asyncio.to_thread(_first_frame, cam)
+    if frame is None:
+        return {"ok": False, "detail": "No frame available", "polygons": []}
+    quads = await asyncio.to_thread(baydet.detect_bay_quads, frame)
+    return {"ok": True, "count": len(quads), "polygons": quads}
+
+
+# --- fine-tune runner ------------------------------------------------------
+def _train_python():
+    cand = os.path.join(_BACKEND_DIR, "train-venv", "bin", "python")
+    return cand if os.path.exists(cand) else None
+
+
+def _train_status_path():
+    return os.path.join(_BACKEND_DIR, "vision", "train_status.json")
+
+
+_TORCH_PROBE = {}
+
+
+def _torch_probe():
+    """Cache a one-time import probe of the train venv (import torch is slow)."""
+    py = _train_python()
+    if not py:
+        return {"torch": False}
+    key = py
+    if _TORCH_PROBE.get("key") == key:
+        return _TORCH_PROBE
+    try:
+        r = subprocess.run(
+            [py, "-c", "import torch,ultralytics;print(torch.__version__,ultralytics.__version__)"],
+            capture_output=True, text=True, timeout=120)
+        ok = r.returncode == 0
+        parts = (r.stdout or "").split()
+        info = {"torch": ok, "key": key,
+                "torch_version": parts[0] if ok and len(parts) > 0 else "",
+                "ultralytics_version": parts[1] if ok and len(parts) > 1 else ""}
+    except Exception:  # noqa: BLE001
+        info = {"torch": False, "key": key}
+    _TORCH_PROBE.clear()
+    _TORCH_PROBE.update(info)
+    return info
+
+
+def _train_running(status):
+    if not status.get("running"):
+        return False
+    pid = status.get("pid")
+    if not pid:
+        return False
+    try:
+        os.kill(int(pid), 0)
+        return True
+    except OSError:
+        return False  # process gone; stale flag
+
+
+@router.get("/train/status")
+async def train_status():
+    probe = _torch_probe()
+    sp = _train_status_path()
+    status = {}
+    if os.path.exists(sp):
+        try:
+            with open(sp) as fh:
+                status = json.load(fh)
+        except json.JSONDecodeError:
+            status = {}
+    running = _train_running(status)
+    return {
+        "torch": bool(probe.get("torch")),
+        "torch_version": probe.get("torch_version", ""),
+        "ultralytics_version": probe.get("ultralytics_version", ""),
+        "train_venv": _train_python() or "",
+        "running": running,
+        "progress": {"epoch": status.get("epoch", 0),
+                     "epochs": status.get("epochs", 0),
+                     "stage": status.get("stage", "")},
+        "error": status.get("error"),
+        "log": status.get("log", []),
+        "model_present": os.path.exists(baydet.MODEL_PATH),
+    }
+
+
+@router.post("/train/start")
+async def train_start(epochs: int = Body(40, embed=True)):
+    py = _train_python()
+    probe = _torch_probe()
+    if not py or not probe.get("torch"):
+        raise HTTPException(status_code=503,
+                            detail="This host has no torch+ultralytics train venv "
+                                   "(backend/train-venv). Export the dataset and "
+                                   "train elsewhere, then upload the .onnx.")
+    sp = _train_status_path()
+    if os.path.exists(sp):
+        try:
+            with open(sp) as fh:
+                if _train_running(json.load(fh)):
+                    raise HTTPException(status_code=409, detail="A training run is already in progress")
+        except json.JSONDecodeError:
+            pass
+    if not _load_labels():
+        raise HTTPException(status_code=400, detail="Dataset is empty - label bays in /camera first")
+    epochs = max(1, min(300, int(epochs)))
+    logf = open(os.path.join(_BACKEND_DIR, "vision", "train.log"), "ab")
+    subprocess.Popen(
+        [py, os.path.join(_BACKEND_DIR, "vision", "train_bays.py"),
+         "--dataset", _dataset_dir(), "--out", baydet.MODEL_PATH,
+         "--status", sp, "--epochs", str(epochs)],
+        cwd=_BACKEND_DIR, stdout=logf, stderr=subprocess.STDOUT,
+        start_new_session=True)
+    baydet.reload()
+    logger.info("fine-tune started: %d epochs", epochs)
+    return {"started": True, "epochs": epochs}
 
 
 @router.post("/cameras/{camera_id}/auto-regions", response_model=List[RegionOut])

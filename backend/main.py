@@ -85,3 +85,13 @@ async def camera_console():
     if not os.path.exists(page):
         return {"detail": "camera console not installed"}
     return FileResponse(page, media_type="text/html")
+
+
+@app.get("/train", include_in_schema=False)
+@app.get("/train/", include_in_schema=False)
+async def train_console():
+    """Self-contained bay-detector fine-tuning console (dataset + train + model)."""
+    page = os.path.join(_STATIC_DIR, "train.html")
+    if not os.path.exists(page):
+        return {"detail": "train console not installed"}
+    return FileResponse(page, media_type="text/html")
