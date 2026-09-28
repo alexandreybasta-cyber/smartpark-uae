@@ -6,6 +6,7 @@ from datetime import datetime, timezone, timedelta
 from sqlalchemy import select, update
 from database import async_session
 from models import Spot, Zone
+from platform_core import ledger
 
 logger = logging.getLogger(__name__)
 
@@ -77,6 +78,8 @@ async def simulate_tick(changed_spots: list):
                         spot.status = "occupied"
                         spot.occupied_since = now
                         spot.last_changed_at = now
+                        await ledger.emit_bay_state(session, spot, "occupied",
+                                                    "sensor", source_id=spot.sensor_id)
                         changed_spots.append({
                             "id": spot.id,
                             "status": "occupied",
@@ -87,6 +90,8 @@ async def simulate_tick(changed_spots: list):
                         spot.status = "free"
                         spot.occupied_since = None
                         spot.last_changed_at = now
+                        await ledger.emit_bay_state(session, spot, "free",
+                                                    "sensor", source_id=spot.sensor_id)
                         changed_spots.append({
                             "id": spot.id,
                             "status": "free",

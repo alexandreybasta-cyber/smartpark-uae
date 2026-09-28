@@ -27,6 +27,7 @@ from sqlalchemy import select
 
 from database import async_session
 from models import Camera, CameraRegion, DetectionEvent, Spot
+from platform_core import ledger
 from vision.analyzer import CameraAnalyzer, otsu_threshold, parse_polygon
 from vision.detector import (available as yolo_available, detect_vehicles,
                              draw_vehicles, vehicle_in_region)
@@ -269,6 +270,10 @@ class CameraRunner:
                         spot.last_changed_at = now
                         spot.occupied_since = now if new_status == "occupied" else None
                         spot.detection_source = "camera"
+                        await ledger.emit_bay_state(
+                            s, spot, new_status, "camera",
+                            source_id=f"CAM-{self.camera_id}",
+                            confidence=confidences.get(rid))
                         broadcast_spots.append({
                             "id": spot.id,
                             "status": new_status,

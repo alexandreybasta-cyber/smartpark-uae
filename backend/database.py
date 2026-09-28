@@ -31,6 +31,8 @@ async def init_db():
 # (smartpark.db) working after an upgrade.
 _COLUMN_MIGRATIONS = [
     ("spots", "detection_source", "VARCHAR(20) DEFAULT 'simulated'"),
+    ("zones", "tenant_id", "INTEGER"),
+    ("spots", "area_id", "INTEGER"),
 ]
 
 

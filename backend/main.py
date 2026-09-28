@@ -11,6 +11,9 @@ from simulator import run_simulator
 from vision.worker import init_registry
 from ws import manager, websocket_endpoint
 from routers import zones, spots, predict, agent_router, places, sensors, recommend, vision
+from routers import platform as platform_router
+from platform_core.seed import seed_platform
+from platform_core.adapters.anpr_mock import run_anpr_mock
 
 
 @asynccontextmanager
@@ -19,22 +22,26 @@ async def lifespan(app: FastAPI):
     # Startup
     await init_db()
     await seed_database()
+    await seed_platform()
 
     # Vision registry (camera analysis workers) - routers reach it via
     # vision.worker.registry.
     app.state.vision = init_registry(manager.broadcast)
 
-    # Start simulator background task
+    # Start simulator + ANPR mock adapter background tasks
     simulator_task = asyncio.create_task(run_simulator(manager.broadcast))
+    anpr_task = asyncio.create_task(run_anpr_mock())
 
     yield
 
     # Shutdown
     simulator_task.cancel()
-    try:
-        await simulator_task
-    except asyncio.CancelledError:
-        pass
+    anpr_task.cancel()
+    for task in (simulator_task, anpr_task):
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
     await app.state.vision.stop_all()
 
 
@@ -64,6 +71,7 @@ app.include_router(places.router)
 app.include_router(sensors.router)
 app.include_router(recommend.router)
 app.include_router(vision.router)
+app.include_router(platform_router.router)
 
 # WebSocket endpoint
 app.websocket("/ws/spots")(websocket_endpoint)

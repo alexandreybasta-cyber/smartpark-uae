@@ -8,6 +8,7 @@ class Zone(Base):
     __tablename__ = "zones"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    tenant_id = Column(Integer, ForeignKey("tenants.id"), nullable=True)
     name = Column(String(200), nullable=False)
     geojson_polygon = Column(Text, nullable=True)
     pricing_type = Column(String(50), default="hourly")
@@ -17,6 +18,8 @@ class Zone(Base):
 
     spots = relationship("Spot", back_populates="zone", lazy="selectin")
     predictions = relationship("Prediction", back_populates="zone", lazy="selectin")
+    areas = relationship("Area", back_populates="zone", lazy="selectin")
+    tenant = relationship("Tenant", back_populates="zones")
 
 
 class Spot(Base):
@@ -24,6 +27,7 @@ class Spot(Base):
 
     id = Column(String(20), primary_key=True)
     zone_id = Column(Integer, ForeignKey("zones.id"), nullable=False)
+    area_id = Column(Integer, ForeignKey("areas.id"), nullable=True)
     lat = Column(Float, nullable=False)
     lng = Column(Float, nullable=False)
     status = Column(String(20), default="free")  # free, occupied, reserved, sensor_offline
@@ -166,3 +170,96 @@ class DetectionEvent(Base):
     # vision | ingest
     source = Column(String(20), default="vision")
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
+# ---------------------------------------------------------------------------
+# Platform core: multi-tenant modular dashboard (see PLATFORM_PLAN.md)
+# Hierarchy: Tenant > Site(Zone) > Area > Bay(Spot). Sources attach to sites.
+# The Event table is the append-only normalized ledger every module reads.
+# ---------------------------------------------------------------------------
+
+class Tenant(Base):
+    __tablename__ = "tenants"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(200), nullable=False)
+    logo_text = Column(String(10), nullable=True)
+    plan = Column(String(50), default="platform")
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+    zones = relationship("Zone", back_populates="tenant")
+    users = relationship("User", back_populates="tenant")
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    tenant_id = Column(Integer, ForeignKey("tenants.id"), nullable=False)
+    email = Column(String(200), nullable=False, unique=True, index=True)
+    password_hash = Column(String(200), nullable=False)
+    name = Column(String(100), nullable=True)
+    # admin | operator | enforcement
+    role = Column(String(20), default="operator")
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+    tenant = relationship("Tenant", back_populates="users")
+
+
+class PlatformSession(Base):
+    __tablename__ = "platform_sessions"
+
+    token = Column(String(64), primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
+class Area(Base):
+    __tablename__ = "areas"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    zone_id = Column(Integer, ForeignKey("zones.id"), nullable=False)
+    name = Column(String(100), nullable=False)
+
+    zone = relationship("Zone", back_populates="areas")
+
+
+class Source(Base):
+    """A device or feed attached to a site: camera, sensor fleet, ANPR gate..."""
+    __tablename__ = "sources"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    tenant_id = Column(Integer, ForeignKey("tenants.id"), nullable=False)
+    zone_id = Column(Integer, ForeignKey("zones.id"), nullable=False)
+    area_id = Column(Integer, ForeignKey("areas.id"), nullable=True)
+    # camera | sensor | anpr_gate | payment | manual
+    kind = Column(String(20), nullable=False)
+    name = Column(String(200), nullable=False)
+    status = Column(String(20), default="online")
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
+class Event(Base):
+    """Append-only normalized ledger. type: bay_state_change |
+    vehicle_passage | payment_session."""
+    __tablename__ = "events"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    tenant_id = Column(Integer, ForeignKey("tenants.id"), nullable=False, index=True)
+    zone_id = Column(Integer, ForeignKey("zones.id"), nullable=True, index=True)
+    area_id = Column(Integer, ForeignKey("areas.id"), nullable=True)
+    bay_id = Column(String(20), nullable=True, index=True)
+    type = Column(String(30), nullable=False, index=True)
+    # camera | sensor | anpr_gate | payment | manual | system
+    source_kind = Column(String(20), nullable=True)
+    source_id = Column(String(50), nullable=True)
+    payload = Column(Text, nullable=False, default="{}")
+    ts = Column(DateTime, default=lambda: datetime.now(timezone.utc), index=True)
+
+
+class ModuleEntitlement(Base):
+    __tablename__ = "module_entitlements"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    tenant_id = Column(Integer, ForeignKey("tenants.id"), nullable=False)
+    module_key = Column(String(30), nullable=False)
